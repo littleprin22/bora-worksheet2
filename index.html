@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가정폭력 예방 교육 학습지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3e8ff; /* Soft purple background for Bora Day */
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d8b4fe' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .font-jua {
+            font-family: 'Jua', sans-serif;
+        }
+        .paper-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .ox-btn.selected-o {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+        .ox-btn.selected-x {
+            background-color: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            transform: scale(1.05);
+        }
+        .match-item {
+            transition: all 0.2s ease;
+        }
+        .match-item.selected {
+            border-color: #a855f7;
+            background-color: #f3e8ff;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3);
+            transform: scale(1.02);
+        }
+        .match-item.matched {
+            border-color: #22c55e;
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .lined-paper {
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #e5e7eb 31px, #e5e7eb 32px);
+            line-height: 32px;
+            padding: 8px 10px;
+        }
+        
+        /* Modal Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-animate {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex justify-center items-start text-gray-800">
+
+    <div class="max-w-3xl w-full bg-white rounded-3xl p-6 md:p-10 paper-shadow relative overflow-hidden">
+        
+        <!-- Decorative Header Elements -->
+        <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400"></div>
+        <div class="absolute -top-10 -right-10 text-purple-200 opacity-30 text-9xl">
+            <i class="fa-solid fa-shield-heart"></i>
+        </div>
+
+        <header class="text-center mb-10 relative z-10">
+            <div class="inline-block bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-bold mb-3">
+                <i class="fa-solid fa-video mr-1"></i> 창의적 체험활동
+            </div>
+            <h1 class="text-3xl md:text-4xl font-jua text-purple-900 mb-6 tracking-wide">
+                💜 가정폭력 예방 교육 학습지 💜
+            </h1>
+            
+            <!-- Student Info Section -->
+            <div class="flex flex-wrap justify-center gap-4 bg-purple-50 p-4 rounded-2xl border border-purple-100">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-purple-800">학년 반:</span>
+                    <input type="number" id="grade" class="w-16 text-center border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 font-bold" value="4" readonly>학년
+                    <input type="number" id="classNum" class="w-16 text-center border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 font-bold" placeholder="반">반
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-purple-800">번호:</span>
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 font-bold" placeholder="번">번
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-purple-800">이름:</span>
+                    <input type="text" id="studentName" class="w-24 text-center border-b-2 border-purple-300 bg-transparent focus:outline-none focus:border-purple-600 font-bold" placeholder="이름">
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-10 relative z-10">
+            <h2 class="text-xl font-jua text-gray-800 mb-4 flex items-center">
+                <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">1</span>
+                영상 속 핵심 단어 찾기 (초성 힌트: ㅂㄹ)
+            </h2>
+            <div class="bg-yellow-50 p-5 rounded-2xl border-2 border-yellow-200 text-lg leading-relaxed">
+                <p class="mb-4">
+                    👉 매월 8일은 가정폭력 예방의 날인 '<strong>
+                    <input type="text" id="q1_1" class="w-20 text-center bg-white border-2 border-yellow-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-purple-700 font-bold" placeholder="ㅂㄹ">
+                    </strong> 데이'입니다.
+                </p>
+                <p>
+                    👉 이 캠페인은 우리 주변에 가정폭력으로 힘들어하는 사람이 없는지, 관심을 가지고 적극적인 시선으로 함께 '<strong>
+                    <input type="text" id="q1_2" class="w-20 text-center bg-white border-2 border-yellow-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-purple-700 font-bold" placeholder="ㅂㅈ">
+                    </strong>'는 따뜻한 의미를 담고 있습니다.
+                </p>
+            </div>
+        </section>
+
+        <section class="mb-10 relative z-10">
+            <h2 class="text-xl font-jua text-gray-800 mb-4 flex items-center">
+                <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">2</span>
+                가정폭력, 바르게 알고 있나요? (O/X 퀴즈)
+            </h2>
+            <div class="space-y-4">
+                <!-- Q2-1 -->
+                <div class="flex flex-col md:flex-row items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 gap-4">
+                    <p class="flex-1 text-md">1. 가정폭력은 몸을 직접 때리거나 다치게 하는 행동만을 말한다.</p>
+                    <div class="flex gap-3">
+                        <button onclick="selectOX(1, 'O')" id="btn_1_O" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-blue-400 hover:text-blue-500 bg-white">O</button>
+                        <button onclick="selectOX(1, 'X')" id="btn_1_X" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-red-400 hover:text-red-500 bg-white">X</button>
+                    </div>
+                </div>
+                <!-- Q2-2 -->
+                <div class="flex flex-col md:flex-row items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 gap-4">
+                    <p class="flex-1 text-md">2. 방에 가두고 밥을 주지 않거나, 심한 욕설을 하며 괴롭히는 것도 가정폭력이다.</p>
+                    <div class="flex gap-3">
+                        <button onclick="selectOX(2, 'O')" id="btn_2_O" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-blue-400 hover:text-blue-500 bg-white">O</button>
+                        <button onclick="selectOX(2, 'X')" id="btn_2_X" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-red-400 hover:text-red-500 bg-white">X</button>
+                    </div>
+                </div>
+                <!-- Q2-3 -->
+                <div class="flex flex-col md:flex-row items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 gap-4">
+                    <p class="flex-1 text-md">3. 가정폭력으로 힘들어하는 친구를 발견하면, 남의 집 일이므로 모른 척해야 한다.</p>
+                    <div class="flex gap-3">
+                        <button onclick="selectOX(3, 'O')" id="btn_3_O" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-blue-400 hover:text-blue-500 bg-white">O</button>
+                        <button onclick="selectOX(3, 'X')" id="btn_3_X" class="ox-btn w-12 h-12 rounded-full border-2 border-gray-300 text-2xl font-jua text-gray-400 transition-all hover:border-red-400 hover:text-red-500 bg-white">X</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10 relative z-10">
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-xl font-jua text-gray-800 flex items-center">
+                    <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">3</span>
+                    안전하게 대처하기 (알맞게 연결하기)
+                </h2>
+                <button onclick="resetMatching()" class="text-sm text-gray-500 hover:text-purple-600 underline">
+                    <i class="fa-solid fa-rotate-right"></i> 다시 연결
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 bg-blue-50 p-2 rounded-lg border border-blue-100 inline-block">
+                💡 <span class="font-bold">방법:</span> 왼쪽 상자를 먼저 누르고, 알맞은 오른쪽 상자를 눌러서 짝을 맞춰주세요!
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Left Column (Methods) -->
+                <div class="flex-1 space-y-3" id="match-left-col">
+                    <div class="match-item left-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-center font-bold" data-id="L1" onclick="handleMatchClick('L', 'L1')">
+                        (1) 주변에 도움 요청하기
+                    </div>
+                    <div class="match-item left-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-center font-bold" data-id="L2" onclick="handleMatchClick('L', 'L2')">
+                        (2) 증거 확보하기
+                    </div>
+                    <div class="match-item left-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-center font-bold" data-id="L3" onclick="handleMatchClick('L', 'L3')">
+                        (3) 안전한 곳으로 피하기
+                    </div>
+                </div>
+
+                <!-- Center Divider (Visual only) -->
+                <div class="hidden md:flex flex-col justify-around items-center text-gray-300">
+                    <i class="fa-solid fa-link"></i>
+                    <i class="fa-solid fa-link"></i>
+                    <i class="fa-solid fa-link"></i>
+                </div>
+
+                <!-- Right Column (Actions) -->
+                <div class="flex-1 space-y-3" id="match-right-col">
+                    <div class="match-item right-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-sm" data-id="R1" onclick="handleMatchClick('R', 'R1')">
+                        ㉠ 폭력이 너무 심해지면 우선 집에서 나와 가까운 경찰서나 아동보호기관으로 도망쳐요.
+                    </div>
+                    <div class="match-item right-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-sm" data-id="R2" onclick="handleMatchClick('R', 'R2')">
+                        ㉡ 다친 곳을 사진으로 찍어두거나, 심한 말이 담긴 메시지 화면을 캡처해서 보관해요.
+                    </div>
+                    <div class="match-item right-item bg-white border-2 border-gray-300 p-4 rounded-xl cursor-pointer text-sm" data-id="R3" onclick="handleMatchClick('R', 'R3')">
+                        ㉢ 선생님, 친척 어른에게 사실을 알리거나, 경찰(112)에 바로 신고해요.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10 relative z-10">
+            <h2 class="text-xl font-jua text-gray-800 mb-4 flex items-center">
+                <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">4</span>
+                따뜻한 마음 전하기 (나의 생각 적기)
+            </h2>
+            <p class="text-sm text-gray-600 mb-3">
+                만약 내 주변에 가정폭력으로 말 못 할 고민을 가진 친구가 있다면, 어떤 따뜻한 위로와 용기를 주는 말을 해주고 싶나요?
+            </p>
+            <div class="bg-pink-50 p-6 rounded-2xl border-2 border-pink-200">
+                <p class="font-jua text-lg text-pink-600 mb-2">"친구야, ...</p>
+                <textarea id="q4_text" class="w-full h-32 lined-paper bg-transparent border-none resize-none focus:outline-none text-gray-700 text-lg" placeholder="여기에 친구에게 전하고 싶은 말을 적어보세요."></textarea>
+                <p class="font-jua text-lg text-pink-600 text-right mt-2">... 우리가 항상 곁에 있을게!"</p>
+            </div>
+        </section>
+
+        <div class="text-center mt-8 relative z-10">
+            <button onclick="checkAnswers()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-jua text-2xl py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 hover:shadow-xl active:scale-95">
+                <i class="fa-solid fa-check-circle mr-2"></i> 정답 확인하고 다짐하기
+            </button>
+        </div>
+
+    </div>
+
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="closeModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            
+            <div id="modalIcon" class="text-6xl mb-4">🎉</div>
+            <h3 id="modalTitle" class="text-2xl font-jua text-purple-900 mb-2">참 잘했어요!</h3>
+            <div id="modalScore" class="text-lg font-bold text-gray-700 mb-4 bg-gray-100 py-2 rounded-lg">
+                점수: <span id="scoreText" class="text-purple-600">100</span>점
+            </div>
+            <p id="modalMessage" class="text-gray-600 mb-6 leading-relaxed">
+                가정폭력 예방에 대해 정말 잘 배웠군요!<br>배운 내용을 꼭 기억해주세요.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-xl transition">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard Button -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button onclick="openPasswordModal()" class="bg-purple-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-purple-900 transition flex items-center gap-2 font-bold text-sm opacity-50 hover:opacity-100">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 모드 (결과 확인)
+        </button>
+    </div>
+
+    <!-- Teacher Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <h3 class="text-xl font-jua text-purple-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+            <p class="text-sm text-gray-600 mb-4">선생님 확인을 위해 비밀번호를 입력해주세요.</p>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-purple-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-purple-500" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') checkPassword()">
+            <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+            <button onclick="checkPassword()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl transition mt-2">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard Modal -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 z-[60] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-5xl w-full h-[85vh] flex flex-col shadow-2xl relative modal-animate">
+            <button onclick="closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            
+            <h2 class="text-2xl font-jua text-purple-900 mb-4"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (실시간)</h2>
+            
+            <div class="overflow-y-auto flex-1 bg-gray-50 rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-purple-100 sticky top-0 shadow-sm">
+                        <tr>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800 w-24">제출 시간</th>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800 w-20 text-center">학년-반</th>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800 w-16 text-center">번호</th>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800 w-24">이름</th>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800 w-20 text-center">점수</th>
+                            <th class="p-3 border-b border-purple-200 font-bold text-purple-800">4번 서술형 답변 (따뜻한 마음 전하기)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeDashboard()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-xl transition">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        
+        let db;
+        let auth;
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (token) {
+                signInWithCustomToken(auth, token).catch(console.error);
+            } else {
+                signInAnonymously(auth).catch(console.error);
+            }
+        }
+
+        // Data to hold user answers
+        const userAnswers = {
+            ox: { 1: null, 2: null, 3: null },
+            matches: {}
+        };
+
+        const correctAnswers = {
+            q1_1: ["보라", "보라데이"],
+            q1_2: ["보자", "보자는", "보자!"],
+            ox: { 1: 'X', 2: 'O', 3: 'X' },
+            matches: { 'L1': 'R3', 'L2': 'R2', 'L3': 'R1' } 
+        };
+
+        window.selectOX = function(questionNum, answer) {
+            userAnswers.ox[questionNum] = answer;
+            
+            document.getElementById(`btn_${questionNum}_O`).classList.remove('selected-o');
+            document.getElementById(`btn_${questionNum}_X`).classList.remove('selected-x');
+            
+            if (answer === 'O') {
+                document.getElementById(`btn_${questionNum}_O`).classList.add('selected-o');
+            } else {
+                document.getElementById(`btn_${questionNum}_X`).classList.add('selected-x');
+            }
+        };
+
+        let currentSelectedLeft = null;
+
+        window.handleMatchClick = function(side, id) {
+            const el = document.querySelector(`[data-id="${id}"]`);
+            
+            if (side === 'L') {
+                if (el.classList.contains('matched')) return;
+
+                if (currentSelectedLeft) {
+                    currentSelectedLeft.classList.remove('selected');
+                }
+                
+                currentSelectedLeft = el;
+                el.classList.add('selected');
+            } 
+            else if (side === 'R') {
+                if (!currentSelectedLeft || el.classList.contains('matched')) return;
+
+                const leftId = currentSelectedLeft.getAttribute('data-id');
+                userAnswers.matches[leftId] = id;
+
+                currentSelectedLeft.classList.remove('selected');
+                currentSelectedLeft.classList.add('matched');
+                el.classList.add('matched');
+
+                const matchNum = Object.keys(userAnswers.matches).length;
+                const badgeHtml = `<span class="inline-block bg-green-500 text-white rounded-full w-5 h-5 text-xs ml-2 leading-5 text-center badge-num">${matchNum}</span>`;
+                currentSelectedLeft.innerHTML += badgeHtml;
+                el.innerHTML += badgeHtml;
+
+                currentSelectedLeft = null;
+            }
+        };
+
+        window.resetMatching = function() {
+            userAnswers.matches = {};
+            currentSelectedLeft = null;
+            
+            const items = document.querySelectorAll('.match-item');
+            items.forEach(item => {
+                item.classList.remove('selected', 'matched');
+                const badge = item.querySelector('.badge-num');
+                if(badge) badge.remove();
+            });
+        };
+
+        window.checkAnswers = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const grade = document.getElementById('grade').value;
+            const classNum = document.getElementById('classNum').value || "-";
+            const studentNum = document.getElementById('studentNum').value || "-";
+
+            if(!studentName) {
+                window.showModal("앗!", "이름을 먼저 적어주세요!", "🤔", 0, false);
+                document.getElementById('studentName').focus();
+                return;
+            }
+
+            let correctCount = 0;
+            let hints = [];
+
+            const q1_1 = document.getElementById('q1_1').value.trim().replace(/\s/g, '');
+            const q1_2 = document.getElementById('q1_2').value.trim().replace(/\s/g, '');
+            
+            let q1_correct = true;
+            if (correctAnswers.q1_1.includes(q1_1)) { correctCount++; } else { q1_correct = false; }
+            if (correctAnswers.q1_2.includes(q1_2)) { correctCount++; } else { q1_correct = false; }
+            
+            if (!q1_correct) {
+                hints.push("<b>[1번 문제]</b> 초성 'ㅂㄹ'과 'ㅂㅈ'를 다시 생각해보세요. (힌트: 보라색, 보다)");
+            }
+
+            let q2_correct = true;
+            if (userAnswers.ox[1] === correctAnswers.ox[1]) { correctCount++; } else { q2_correct = false; }
+            if (userAnswers.ox[2] === correctAnswers.ox[2]) { correctCount++; } else { q2_correct = false; }
+            if (userAnswers.ox[3] === correctAnswers.ox[3]) { correctCount++; } else { q2_correct = false; }
+            
+            if (!q2_correct) {
+                hints.push("<b>[2번 문제]</b> 가정폭력은 몸을 때리는 것뿐만 아니라 욕설, 방치도 포함되며, 남의 일이 아닙니다!");
+            }
+
+            let q3_correct = true;
+            if (userAnswers.matches['L1'] === correctAnswers.matches['L1']) { correctCount++; } else { q3_correct = false; }
+            if (userAnswers.matches['L2'] === correctAnswers.matches['L2']) { correctCount++; } else { q3_correct = false; }
+            if (userAnswers.matches['L3'] === correctAnswers.matches['L3']) { correctCount++; } else { q3_correct = false; }
+
+            if (!q3_correct) {
+                hints.push("<b>[3번 문제]</b> 증거는 사진이나 캡처로! 위험할 땐 안전한 곳으로 피하기! 도움은 경찰이나 선생님께!");
+            }
+
+            const q4 = document.getElementById('q4_text').value.trim();
+            if (q4.length >= 5) {
+                correctCount++;
+            } else {
+                hints.push("<b>[4번 문제]</b> 친구에게 전할 따뜻한 위로의 말을 5글자 이상 적어주세요!");
+            }
+
+            let score = Math.round((correctCount / 9) * 100);
+
+            let title, message, icon;
+            if (correctCount === 9) {
+                title = "완벽해요! 최고!";
+                icon = "🏆";
+                message = "모든 문제를 정확하게 맞혔어요!<br>가정폭력 예방에 대해 아주 잘 이해하고 있네요.<br>따뜻한 마음을 가진 친구로 자라주세요!";
+            } else {
+                title = "아쉽네요! 다시 도전해볼까요?";
+                icon = "💡";
+                message = "틀린 문제가 있어요. 아래 힌트를 보고 다시 고쳐보세요!<br><br>";
+                message += "<div class='text-left bg-yellow-50 p-3 rounded-lg text-sm border border-yellow-200 space-y-2 text-gray-700'>";
+                hints.forEach(hint => {
+                    message += `<p>👉 ${hint}</p>`;
+                });
+                message += "</div>";
+            }
+
+            if (auth?.currentUser && db) {
+                try {
+                    const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'worksheet_results');
+                    await addDoc(resultsRef, {
+                        grade: grade,
+                        classNum: classNum,
+                        studentNum: studentNum,
+                        studentName: studentName,
+                        score: score,
+                        answer_q4: q4,
+                        timestamp: new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.error("데이터 저장 중 오류 발생: ", e);
+                }
+            }
+
+            window.showModal(title, message, icon, score, true);
+        };
+
+        window.showModal = function(title, message, icon, score, showScore) {
+            document.getElementById('modalTitle').innerHTML = title;
+            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('modalIcon').innerHTML = icon;
+            
+            const scoreDiv = document.getElementById('modalScore');
+            if (showScore) {
+                scoreDiv.style.display = 'block';
+                document.getElementById('scoreText').innerText = score;
+            } else {
+                scoreDiv.style.display = 'none';
+            }
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('resultModal').classList.add('hidden');
+        };
+
+        // 선생님 모드 비밀번호 설정 (원하시는 비밀번호로 변경 가능합니다)
+        const TEACHER_PASSWORD = "0402"; 
+
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        };
+
+        window.checkPassword = function() {
+            const input = document.getElementById('teacherPasswordInput').value;
+            if (input === TEACHER_PASSWORD) {
+                closePasswordModal();
+                openDashboard(); // 비밀번호가 맞으면 대시보드 열기
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            
+            if (auth?.currentUser && db) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'worksheet_results');
+                
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(doc => {
+                        data.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // 최신 제출순으로 정렬
+                    data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    renderTable(data);
+                }, (error) => {
+                    console.error("대시보드 오류: ", error);
+                    document.getElementById('dashboardTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+                });
+            } else {
+                document.getElementById('dashboardTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">데이터베이스에 연결할 수 없습니다. (학생이 최초 제출 시 활성화됩니다)</td></tr>`;
+            }
+        };
+
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if (unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+        };
+
+        function renderTable(data) {
+            const tbody = document.getElementById('dashboardTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">아직 제출한 학생이 없습니다.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const date = new Date(item.timestamp);
+                const timeStr = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-50 transition border-b border-gray-100";
+                
+                const scoreColor = item.score === 100 ? 'text-green-600 font-bold' : 'text-red-500 font-bold';
+
+                tr.innerHTML = `
+                    <td class="p-3 text-sm text-gray-600">${date.getMonth()+1}/${date.getDate()} ${timeStr}</td>
+                    <td class="p-3 text-center">${item.grade}-${item.classNum}</td>
+                    <td class="p-3 text-center">${item.studentNum}</td>
+                    <td class="p-3 font-bold text-purple-900">${item.studentName}</td>
+                    <td class="p-3 ${scoreColor} text-center">${item.score}점</td>
+                    <td class="p-3 text-sm text-gray-700 break-words leading-relaxed">${item.answer_q4 || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
