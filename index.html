@@ -307,7 +307,14 @@
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const firebaseConfig = {
+  apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+  authDomain: "bora-worksheet.firebaseapp.com",
+  projectId: "bora-worksheet",
+  storageBucket: "bora-worksheet.firebasestorage.app",
+  messagingSenderId: "1091782933629",
+  appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+};
         
         let db;
         let auth;
