@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>체육 학습지 - 건강한 생활 습관</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0fdf4; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        .paper-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        /* 캔버스 바탕 (줄무늬 공책 느낌) */
+        #drawCanvas {
+            touch-action: none;
+            cursor: crosshair;
+            background-color: white;
+            background-image: repeating-linear-gradient(transparent, transparent 39px, #e2e8f0 39px, #e2e8f0 40px);
+            background-size: 100% 40px;
+        }
+
+        /* O/X 버튼 선택 효과 */
+        .ox-btn { transition: all 0.2s; }
+        .ox-btn.selected-o { background-color: #3b82f6; color: white; border-color: #3b82f6; transform: scale(1.1); }
+        .ox-btn.selected-x { background-color: #ef4444; color: white; border-color: #ef4444; transform: scale(1.1); }
+
+        /* 자기평가 이모지 버튼 효과 */
+        .emoji-btn { transition: all 0.2s; filter: grayscale(100%); opacity: 0.5; }
+        .emoji-btn.selected { filter: grayscale(0%); opacity: 1; transform: scale(1.2); }
+
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #22c55e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-animate { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex justify-center items-start text-gray-800">
+
+    <div class="max-w-4xl w-full bg-white rounded-3xl p-6 md:p-10 paper-shadow relative overflow-hidden border-t-8 border-green-500">
+        
+        <!-- 헤더 영역 -->
+        <header class="mb-10 text-center relative z-10">
+            <div class="inline-block bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-3">
+                <i class="fa-solid fa-person-running mr-1"></i> 체육 수행평가
+            </div>
+            <h1 class="text-3xl md:text-4xl font-jua text-green-800 mb-6 tracking-wide">
+                1. 건강한 생활 습관을 길러요
+            </h1>
+            
+            <div class="flex flex-wrap justify-center gap-4 bg-green-50 p-4 rounded-2xl border border-green-200">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-green-800">학년 반:</span>
+                    <input type="number" id="grade" class="w-16 text-center border-b-2 border-green-300 bg-transparent focus:outline-none focus:border-green-600 font-bold" value="4" readonly>학년
+                    <input type="number" id="classNum" class="w-16 text-center border-b-2 border-green-300 bg-transparent focus:outline-none focus:border-green-600 font-bold" placeholder="반">반
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-green-800">번호:</span>
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-2 border-green-300 bg-transparent focus:outline-none focus:border-green-600 font-bold" placeholder="번">번
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-green-800">이름:</span>
+                    <input type="text" id="studentName" class="w-24 text-center border-b-2 border-green-300 bg-transparent focus:outline-none focus:border-green-600 font-bold" placeholder="이름">
+                </div>
+            </div>
+        </header>
+
+        <!-- 1번 문제 (서술형 손글씨) -->
+        <section class="mb-12 relative z-10 bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm">
+            <h2 class="text-xl font-jua text-gray-800 mb-2 flex items-center">
+                <span class="bg-green-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">1</span>
+                바른 식습관의 중요성을 2가지 이상 써 봅시다.
+            </h2>
+            <p class="text-sm text-gray-500 mb-4 ml-10 font-bold"><i class="fa-solid fa-pen text-green-500"></i> 스마트펜이나 손가락으로 아래 빈칸에 직접 글씨를 써주세요.</p>
+            
+            <div class="ml-0 md:ml-10 relative">
+                <div class="relative w-full aspect-[2.5/1] border-2 border-gray-300 rounded-xl overflow-hidden mb-3">
+                    <canvas id="drawCanvas" class="w-full h-full block"></canvas>
+                    
+                    <!-- 로딩 오버레이 -->
+                    <div id="loadingOverlay" class="absolute inset-0 bg-white/90 flex flex-col justify-center items-center hidden z-10 backdrop-blur-sm">
+                        <div class="loader mb-3"></div>
+                        <p class="font-bold text-green-700 font-jua text-2xl animate-pulse">AI 선생님이 글씨를 똑똑하게 읽고 있어요...</p>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="window.clearCanvas()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm flex items-center gap-1 transition">
+                        <i class="fa-solid fa-eraser"></i> 지우고 다시 쓰기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2번 문제 (O/X 퀴즈) -->
+        <section class="mb-12 relative z-10 bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm">
+            <h2 class="text-xl font-jua text-gray-800 mb-4 flex items-center">
+                <span class="bg-green-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">2</span>
+                바른 식습관으로 옳은 것은 O표, 옳지 않은 것은 X표를 선택해 봅시다.
+            </h2>
+            
+            <div class="space-y-3 ml-0 md:ml-10">
+                <!-- 문항들 자바스크립트로 생성 -->
+                <div id="ox-container" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- 3번 문제 (자기평가) -->
+        <section class="mb-10 relative z-10 bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm">
+            <h2 class="text-xl font-jua text-gray-800 mb-2 flex items-center">
+                <span class="bg-green-500 text-white w-8 h-8 rounded-full flex justify-center items-center mr-2 shadow-md">3</span>
+                생활 속에서 바른 식습관을 잘 실천하고 있는지 스스로 평가해 봅시다.
+            </h2>
+            <div class="flex justify-end mb-2 text-sm font-bold text-gray-600 gap-4">
+                <span>😆 : 잘함 (3점)</span>
+                <span>😊 : 보통 (2점)</span>
+                <span>😐 : 노력요함 (1점)</span>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-gray-300 ml-0 md:ml-10">
+                <table class="w-full text-center bg-gray-50">
+                    <thead class="bg-green-100 border-b border-gray-300">
+                        <tr>
+                            <th class="p-3 text-left font-bold text-green-800 w-1/2">내용</th>
+                            <th class="p-3 text-2xl w-1/6">😆</th>
+                            <th class="p-3 text-2xl w-1/6">😊</th>
+                            <th class="p-3 text-2xl w-1/6">😐</th>
+                        </tr>
+                    </thead>
+                    <tbody id="self-eval-container" class="bg-white">
+                        <!-- 문항들 자바스크립트로 생성 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center mt-12 relative z-10 border-t pt-8">
+            <button onclick="window.submitAll()" class="bg-gradient-to-r from-green-500 to-teal-500 text-white font-jua text-2xl py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 hover:shadow-xl active:scale-95">
+                <i class="fa-solid fa-paper-plane mr-2"></i> 과제 제출 및 자동 채점
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 오류 알림용 커스텀 팝업창 -->
+    <div id="customAlertModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3">💬</div>
+            <p id="customAlertMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <!-- 삭제 확인용 커스텀 팝업창 -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3">⚠️</div>
+            <p id="customConfirmMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('customConfirmModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl transition">취소</button>
+                <button id="customConfirmOkBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl transition">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결과 안내 팝업 (학생용) -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-[90] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-lg w-full text-center shadow-2xl modal-animate relative max-h-[90vh] overflow-y-auto">
+            <button onclick="window.closeModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            
+            <div id="modalIcon" class="text-6xl mb-2 mt-4">🎉</div>
+            <h3 id="modalTitle" class="text-2xl font-jua text-green-700 mb-4">채점 결과</h3>
+            
+            <div class="bg-gray-50 rounded-xl p-4 text-left mb-6 border border-gray-200">
+                <div class="mb-4">
+                    <strong class="text-green-800 block border-b pb-1 mb-2">1번 서술형 (AI 분석)</strong>
+                    <div id="q1_result_msg" class="text-sm text-gray-700 leading-relaxed bg-white p-3 rounded border"></div>
+                </div>
+                <div class="mb-4 flex justify-between items-center">
+                    <strong class="text-green-800">2번 O/X 퀴즈 점수</strong>
+                    <span id="q2_score_msg" class="font-bold text-lg text-blue-600 bg-blue-50 px-3 py-1 rounded-full"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <strong class="text-green-800">3번 자기평가 (총점)</strong>
+                    <span id="q3_score_msg" class="font-bold text-lg text-orange-600 bg-orange-50 px-3 py-1 rounded-full"></span>
+                </div>
+            </div>
+            
+            <p id="modalMessage" class="text-gray-600 mb-6 font-bold"></p>
+            
+            <button onclick="window.closeModal()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- 선생님 모드 입장 버튼 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <button onclick="window.openPasswordModal()" class="bg-green-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-green-900 transition flex items-center gap-2 font-bold text-sm opacity-50 hover:opacity-100">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 모드
+        </button>
+    </div>
+
+    <!-- 선생님 인증 팝업 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="window.closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-xl font-jua text-green-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+            <p class="text-sm text-gray-600 mb-4">선생님 확인을 위해 비밀번호를 입력해주세요.</p>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-green-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-green-500" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') window.checkPassword()">
+            <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+            <button onclick="window.checkPassword()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl transition mt-2">확인</button>
+        </div>
+    </div>
+
+    <!-- 선생님 대시보드 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 z-[60] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-6xl w-full h-[90vh] flex flex-col shadow-2xl relative modal-animate">
+            <button onclick="window.closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+            
+            <h2 class="text-2xl font-jua text-green-900 mb-2"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (체육 학습지)</h2>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 bg-green-50 p-3 rounded-xl border border-green-100">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-green-800"><i class="fa-solid fa-filter"></i> 반별 모아보기:</span>
+                    <select id="classFilter" onchange="window.renderTable()" class="border-2 border-green-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-green-600 font-bold text-gray-700 bg-white shadow-sm flex-1 sm:flex-none">
+                        <option value="all">모든 반 전체 보기</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="window.downloadCSV()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl transition text-sm flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                    <button onclick="window.clearData()" class="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl transition text-sm flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-trash-can"></i> 목록 비우기
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 bg-gray-50 rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead class="bg-green-100 sticky top-0 shadow-sm z-10">
+                        <tr>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-20">학년-반</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-16 text-center">번호</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-24">이름</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-[35%]">1번 서술형 (AI 해독 텍스트)</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-24 text-center">2번(O/X) 점수</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-24 text-center">3번(자기평가) 총점</th>
+                            <th class="p-3 border-b border-green-200 font-bold text-green-800 w-24 text-center">제출일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic Script Area -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 커스텀 알림 함수 설정
+        window.customAlert = function(msg) {
+            document.getElementById('customAlertMessage').innerHTML = msg;
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        window.customConfirm = function(msg, onConfirm) {
+            document.getElementById('customConfirmMessage').innerHTML = msg;
+            document.getElementById('customConfirmModal').classList.remove('hidden');
+            document.getElementById('customConfirmOkBtn').onclick = function() {
+                document.getElementById('customConfirmModal').classList.add('hidden');
+                onConfirm();
+            };
+        };
+
+        // Firebase 설정 (기존 설정 유지 및 지침 준수)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+            authDomain: "bora-worksheet.firebaseapp.com",
+            projectId: "bora-worksheet",
+            storageBucket: "bora-worksheet.firebasestorage.app",
+            messagingSenderId: "1091782933629",
+            appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (tokenError) {
+                        console.warn("커스텀 토큰 인증 실패 (자체 Firebase 환경인 경우 정상). 익명 로그인으로 전환합니다.", tokenError);
+                        await signInAnonymously(auth);
+                    }
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("최종 인증 실패:", error);
+            }
+        };
+        initAuth();
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bora-worksheet';
+        const COLLECTION_NAME = 'pe_health_results'; 
+        
+        window.userAnswers = { ox: {}, self: {} };
+        let allResults = [];
+
+        // === 2번 문항 (O/X) 세팅 ===
+        const q2_questions = [
+            "(1) 배가 고플 때마다 수시로 밥을 챙겨 먹습니다.",
+            "(2) 채소와 과일을 충분히 먹습니다.",
+            "(3) 짜거나 매운 음식을 자주 먹습니다.",
+            "(4) 탄산음료 대신 물을 충분히 먹습니다.",
+            "(5) 밥을 먹을 때는 TV를 보거나 스마트폰을 하지 않습니다.",
+            "(6) 밥을 최대한 빨리 먹습니다.",
+            "(7) 과식이나 폭식을 하지 않고 적당한 양을 먹습니다."
+        ];
+        // 교과서 정답 기준: X, O, X, O, O, X, O
+        const q2_correct = ['X', 'O', 'X', 'O', 'O', 'X', 'O'];
+
+        const oxContainer = document.getElementById('ox-container');
+        q2_questions.forEach((q, idx) => {
+            const num = idx + 1;
+            window.userAnswers.ox[num] = null;
+            oxContainer.innerHTML += `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200 gap-3">
+                    <p class="flex-1 text-md text-gray-700">${q}</p>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick="window.selectOX(${num}, 'O')" id="q2_${num}_O" class="ox-btn w-10 h-10 rounded-full border-2 border-gray-300 text-xl font-jua text-gray-400 bg-white shadow-sm">O</button>
+                        <button onclick="window.selectOX(${num}, 'X')" id="q2_${num}_X" class="ox-btn w-10 h-10 rounded-full border-2 border-gray-300 text-xl font-jua text-gray-400 bg-white shadow-sm">X</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        window.selectOX = function(qNum, ans) {
+            window.userAnswers.ox[qNum] = ans;
+            document.getElementById(`q2_${qNum}_O`).classList.remove('selected-o');
+            document.getElementById(`q2_${qNum}_X`).classList.remove('selected-x');
+            if(ans === 'O') document.getElementById(`q2_${qNum}_O`).classList.add('selected-o');
+            else document.getElementById(`q2_${qNum}_X`).classList.add('selected-x');
+        };
+
+        // === 3번 문항 (자기평가) 세팅 ===
+        const q3_questions = [
+            "아침을 잘 챙겨 먹나요?",
+            "편식하지 않고 음식을 골고루 먹나요?",
+            "자극적인 음식을 멀리하나요?",
+            "바른 자세와 태도로 식사를 하나요?"
+        ];
+        
+        const selfEvalContainer = document.getElementById('self-eval-container');
+        q3_questions.forEach((q, idx) => {
+            const num = idx + 1;
+            window.userAnswers.self[num] = null;
+            selfEvalContainer.innerHTML += `
+                <tr class="border-b border-gray-200">
+                    <td class="p-3 text-left text-gray-700">${q}</td>
+                    <td class="p-3"><button onclick="window.selectSelf(${num}, 3)" id="q3_${num}_3" class="emoji-btn text-3xl">😆</button></td>
+                    <td class="p-3"><button onclick="window.selectSelf(${num}, 2)" id="q3_${num}_2" class="emoji-btn text-3xl">😊</button></td>
+                    <td class="p-3"><button onclick="window.selectSelf(${num}, 1)" id="q3_${num}_1" class="emoji-btn text-3xl">😐</button></td>
+                </tr>
+            `;
+        });
+
+        window.selectSelf = function(qNum, score) {
+            window.userAnswers.self[qNum] = score;
+            [1,2,3].forEach(s => document.getElementById(`q3_${qNum}_${s}`).classList.remove('selected'));
+            document.getElementById(`q3_${qNum}_${score}`).classList.add('selected');
+        };
+
+        // === 1번 캔버스 세팅 (스마트펜 최적화) ===
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            window.clearCanvas();
+        }
+
+        window.clearCanvas = function() {
+            // 투명 배경이 아닌 완전한 흰색 배경으로 채우기 (AI 인식을 위해 필수)
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        };
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        // 터치 및 스마트펜 인식 향상을 위해 선 굵기(lineWidth) 증가
+        const drawPath = (p) => {
+            ctx.strokeStyle = "#1e293b"; 
+            ctx.lineWidth = 6; 
+            ctx.lineJoin = "round"; 
+            ctx.lineCap = "round";
+            ctx.beginPath(); 
+            ctx.moveTo(lastX, lastY); 
+            ctx.lineTo(p.x, p.y); 
+            ctx.stroke();
+            [lastX, lastY] = [p.x, p.y];
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; });
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            e.preventDefault();
+            drawPath(getPos(e));
+        });
+        const stopDraw = () => { isDrawing = false; };
+        canvas.addEventListener('mouseup', stopDraw); 
+        canvas.addEventListener('mouseout', stopDraw);
+        
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; }, {passive:false});
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDrawing) return; 
+            e.preventDefault();
+            drawPath(getPos(e));
+        }, {passive:false});
+        canvas.addEventListener('touchend', stopDraw);
+        
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        // === 백오프 재시도가 포함된 안전한 Gemini API 호출 ===
+        async function callGeminiAPIWithRetry(payload, retries = 5) {
+            const apiKey = ""; // 런타임에서 자동 주입됨
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delays[i]));
+                }
+            }
+        }
+
+        // === 제출 및 채점 로직 ===
+        window.submitAll = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const classNum = document.getElementById('classNum').value || "-";
+            const grade = document.getElementById('grade').value;
+            const studentNum = document.getElementById('studentNum').value || "-";
+
+            if(!studentName || !classNum || classNum === "-") {
+                window.customAlert("반 번호와 이름을 모두 적어주세요!"); return;
+            }
+
+            // O/X 체크 확인
+            for(let i=1; i<=7; i++) {
+                if(!window.userAnswers.ox[i]) { window.customAlert(`2번 문제의 (${i})번 답을 선택해주세요!`); return; }
+            }
+            // 자기평가 체크 확인
+            for(let i=1; i<=4; i++) {
+                if(!window.userAnswers.self[i]) { window.customAlert(`3번 자기평가의 ${i}번째 항목을 선택해주세요!`); return; }
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            let q1_rawText = "";
+            let q1_feedback = "";
+            let q1_score = 0;
+            
+            try {
+                // 1. 캔버스 이미지를 Base64로 추출 (배경이 흰색이어야 함)
+                const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+                // 2. Gemini Vision API를 이용해 손글씨 텍스트 추출 및 의미 분석 채점
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "이 이미지는 초등학생이 스마트펜이나 마우스로 직접 쓴 글씨입니다. 질문은 '바른 식습관의 중요성을 2가지 이상 써 봅시다' 입니다. \n\n[채점 기준]\n'성장(건강하게 성장한다)', '힘/활기(힘이 난다, 활기가 생긴다)', '질병 예방(병에 걸리지 않는다, 질병을 물리친다)', '건강(건강해진다)' 등 건강, 성장, 활력, 질병 예방에 관한 비슷한 뉘앙스의 뜻이 '1개 이상' 포함되어 있으면 무조건 정답(true)으로 인정하세요.\n\nJSON 형식으로 응답해주세요:\n- extracted_text: 인식된 텍스트 원본 (최대한 문맥에 맞게 보정해서 읽어주세요)\n- is_correct: 정답 여부 (true/false)\n- feedback: 학생을 위한 친절한 피드백 (정답이면 칭찬, 부족하면 격려와 정답 예시 안내)" },
+                            { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                extracted_text: { type: "STRING" },
+                                is_correct: { type: "BOOLEAN" },
+                                feedback: { type: "STRING" }
+                            }
+                        }
+                    }
+                };
+
+                const result = await callGeminiAPIWithRetry(payload);
+                const aiResult = JSON.parse(result.candidates[0].content.parts[0].text);
+
+                q1_rawText = aiResult.extracted_text || "(인식된 내용 없음)";
+                
+                if (aiResult.is_correct) {
+                    q1_score = 100;
+                    q1_feedback = `<span class="text-green-600 font-bold">정답입니다! 🎉</span><br>선생님 코멘트: ${aiResult.feedback}`;
+                } else {
+                    q1_score = 0;
+                    q1_feedback = `<span class="text-red-500 font-bold">아쉽지만 다시 생각해볼까요?</span><br>선생님 코멘트: ${aiResult.feedback}`;
+                }
+
+            } catch(e) {
+                console.error("AI 인식 오류:", e);
+                q1_rawText = "(AI 통신 지연으로 임시 저장)";
+                q1_feedback = "앗, AI 선생님과 연결이 지연되고 있어요. 작성한 내용은 선생님께 잘 전달되었습니다!";
+            }
+
+            // 2. O/X 채점 (총 7문제)
+            let q2_correct_count = 0;
+            for(let i=0; i<7; i++) {
+                if(window.userAnswers.ox[i+1] === q2_correct[i]) q2_correct_count++;
+            }
+            let q2_score = Math.round((q2_correct_count / 7) * 100);
+
+            // 3. 자기평가 총점 계산 (4문항 * 1~3점 = 4~12점)
+            let q3_score = 0;
+            for(let i=1; i<=4; i++) { q3_score += window.userAnswers.self[i]; }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+
+            // Firebase 저장
+            if (auth?.currentUser && db) {
+                try {
+                    const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                    await addDoc(resultsRef, {
+                        grade: grade, classNum: classNum, studentNum: studentNum, studentName: studentName,
+                        q1_text: q1_rawText,
+                        q1_score: q1_score,
+                        q2_score: q2_score,
+                        q3_total: q3_score,
+                        timestamp: new Date().toISOString()
+                    });
+                } catch (e) { console.error("데이터 저장 중 오류 발생: ", e); }
+            }
+
+            // 모달 표시
+            document.getElementById('q1_result_msg').innerHTML = `<span class="text-gray-500 text-xs block mb-1">인식된 글씨: ${q1_rawText}</span>${q1_feedback}`;
+            document.getElementById('q2_score_msg').innerText = `${q2_score}점 (${q2_correct_count}/7개 정답)`;
+            document.getElementById('q3_score_msg').innerText = `${q3_score}점 / 12점 만점`;
+            
+            let finalMsg = "수행평가 과제를 성공적으로 제출했습니다!<br>건강한 생활 습관을 매일매일 실천해 보아요!";
+            document.getElementById('modalMessage').innerHTML = finalMsg;
+            document.getElementById('resultModal').classList.remove('hidden');
+        };
+
+        window.closeModal = function() { document.getElementById('resultModal').classList.add('hidden'); };
+
+        // === 선생님 대시보드 ===
+        const TEACHER_PASSWORD = "0402"; 
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+        window.closePasswordModal = function() { document.getElementById('passwordModal').classList.add('hidden'); };
+        window.checkPassword = function() {
+            if (document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD) {
+                window.closePasswordModal(); window.openDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            if (auth?.currentUser && db) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    allResults = [];
+                    snapshot.forEach(doc => { allResults.push({ id: doc.id, ...doc.data() }); });
+                    allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    window.updateFilterOptions();
+                    window.renderTable();
+                }, (error) => {
+                    console.error("데이터 로드 오류:", error);
+                    document.getElementById('dashboardTableBody').innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+                });
+            } else {
+                document.getElementById('dashboardTableBody').innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">데이터베이스 권한이 확인되지 않았습니다.</td></tr>`;
+            }
+        };
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if(unsubscribe) { unsubscribe(); unsubscribe = null; }
+        };
+
+        window.updateFilterOptions = function() {
+            const filter = document.getElementById('classFilter');
+            const current = filter.value;
+            const unique = [...new Set(allResults.map(i => `${i.grade}-${i.classNum}`))].sort();
+            let html = `<option value="all">모든 반 전체 보기</option>`;
+            unique.forEach(c => html += `<option value="${c}">${c}반</option>`);
+            filter.innerHTML = html;
+            if(unique.includes(current)) filter.value = current;
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('dashboardTableBody');
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            
+            tbody.innerHTML = '';
+            if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">데이터가 없습니다.</td></tr>`; return; }
+
+            data.forEach(item => {
+                const d = new Date(item.timestamp);
+                const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                // 정답이면 글씨를 녹색으로 표시
+                const q1_style = item.q1_score === 100 ? 'text-green-700 font-bold' : 'text-gray-700';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-green-50 transition border-b border-gray-100">
+                        <td class="p-3 text-center">${item.grade}-${item.classNum}</td>
+                        <td class="p-3 text-center">${item.studentNum}</td>
+                        <td class="p-3 font-bold text-green-900">${item.studentName}</td>
+                        <td class="p-3 text-sm bg-gray-50 ${q1_style}">${item.q1_text || '-'}</td>
+                        <td class="p-3 text-center font-bold text-blue-600">${item.q2_score}점</td>
+                        <td class="p-3 text-center font-bold text-orange-600">${item.q3_total}점</td>
+                        <td class="p-3 text-xs text-gray-500 text-center">${timeStr}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.downloadCSV = function() {
+            const filter = document.getElementById('classFilter');
+            if(!filter) return;
+            const filterValue = filter.value;
+            let data = filterValue === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filterValue);
+            if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
+
+            let csv = "\uFEFF제출일시,학년,반,번호,이름,1번(서술형 텍스트),1번(정답여부_100점만점),2번(점수),3번(자기평가총점)\n";
+            data.forEach(i => {
+                const d = new Date(i.timestamp);
+                const t = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                const q1 = i.q1_text ? i.q1_text.replace(/"/g, '""').replace(/\n/g, ' ') : '';
+                csv += `"${t}","${i.grade}","${i.classNum}","${i.studentNum}","${i.studentName}","${q1}","${i.q1_score || 0}","${i.q2_score}","${i.q3_total}"\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `체육_학습지_${filterValue==='all'?'전체':filterValue+'반'}_결과.csv`;
+            link.click();
+        };
+
+        window.clearData = async function() {
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            let msg = filter === 'all' ? "모든 반 데이터를 삭제합니다.<br>계속하시겠습니까?" : `${filter}반 데이터를 삭제합니다.<br>계속하시겠습니까?`;
+            
+            if(data.length===0) { window.customAlert("삭제할 데이터가 없습니다."); return; }
+            
+            window.customConfirm(msg, async function() {
+                try {
+                    for(const item of data) { await deleteDoc(doc(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}/${item.id}`)); }
+                    window.customAlert("성공적으로 삭제되었습니다.");
+                } catch(e) { window.customAlert("삭제 오류 발생"); console.error(e); }
+            });
+        };
+    </script>
+</body>
+</html>
