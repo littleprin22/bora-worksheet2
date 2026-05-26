@@ -446,9 +446,14 @@
 
         // === 백오프 재시도가 포함된 안전한 Gemini API 호출 ===
         async function callGeminiAPIWithRetry(payload, retries = 5) {
-            // ⚠️ Vercel 등 외부에 배포할 때는 아래 "" 안에 Google AI Studio에서 발급받은 Gemini API 키를 꼭 넣어주세요!
-            const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; // 런타임에서 자동 주입됨
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            // ⚠️ Vercel 등 외부에 배포할 때는 아래 빈 따옴표("") 안에 발급받은 Gemini API 키를 꼭 넣어주세요!
+            // 🚨 주의: 이곳 테스트 화면(캔버스)에서 실행할 때는 반드시 "" (빈칸)으로 두셔야 합니다!
+            const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; 
+            
+            // apiKey 입력 여부에 따라 캔버스용(내부) 모델과 Vercel용(외부) 퍼블릭 모델을 자동 전환합니다.
+            const modelName = apiKey ? 'gemini-1.5-flash' : 'gemini-2.5-flash-preview-09-2025';
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             const delays = [1000, 2000, 4000, 8000, 16000];
             
             for (let i = 0; i < retries; i++) {
