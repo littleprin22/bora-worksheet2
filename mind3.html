@@ -446,7 +446,8 @@
 
         // === 백오프 재시도가 포함된 안전한 Gemini API 호출 ===
         async function callGeminiAPIWithRetry(payload, retries = 5) {
-            const apiKey = ""; // 런타임에서 자동 주입됨
+            // ⚠️ Vercel 등 외부에 배포할 때는 아래 "" 안에 Google AI Studio에서 발급받은 Gemini API 키를 꼭 넣어주세요!
+            const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; // 런타임에서 자동 주입됨
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const delays = [1000, 2000, 4000, 8000, 16000];
             
@@ -519,16 +520,30 @@
                 };
 
                 const result = await callGeminiAPIWithRetry(payload);
-                const aiResult = JSON.parse(result.candidates[0].content.parts[0].text);
+                
+                // AI 응답 텍스트를 안전하게 읽기 위해 마크다운 기호(```json) 제거
+                let responseText = result.candidates[0].content.parts[0].text;
+                responseText = responseText.replace(/```json/i, '').replace(/```/g, '').trim();
+                
+                const aiResult = JSON.parse(responseText);
 
                 q1_rawText = aiResult.extracted_text || "(인식된 내용 없음)";
                 
+                // feedback이 undefined로 올 경우를 대비한 친절한 기본 응답 메시지 설정
+                const fallbackMsg = aiResult.is_correct 
+                    ? "정말 훌륭하게 잘 썼어요! 바른 식습관의 중요성을 아주 정확히 알고 있네요." 
+                    : "성장, 건강, 활력, 질병 예방 등의 핵심 내용이 조금 더 들어가면 완벽하겠어요!";
+                
+                const finalFeedback = (aiResult.feedback && aiResult.feedback !== "undefined") 
+                    ? aiResult.feedback 
+                    : fallbackMsg;
+                
                 if (aiResult.is_correct) {
                     q1_score = 100;
-                    q1_feedback = `<span class="text-green-600 font-bold">정답입니다! 🎉</span><br>선생님 코멘트: ${aiResult.feedback}`;
+                    q1_feedback = `<span class="text-green-600 font-bold">정답입니다! 🎉</span><br><span class="text-gray-700 mt-1 block">💡 선생님 코멘트: ${finalFeedback}</span>`;
                 } else {
                     q1_score = 0;
-                    q1_feedback = `<span class="text-red-500 font-bold">아쉽지만 다시 생각해볼까요?</span><br>선생님 코멘트: ${aiResult.feedback}`;
+                    q1_feedback = `<span class="text-red-500 font-bold">아쉽지만 다시 생각해볼까요?</span><br><span class="text-gray-700 mt-1 block">💡 선생님 코멘트: ${finalFeedback}</span>`;
                 }
 
             } catch(e) {
