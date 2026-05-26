@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국어 활동지 - 자신 있게 발표하기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0fdf4; /* 편안한 연녹색 배경 */ }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* 입력창 디자인 */
+        .clay-input {
+            background-color: #ffffff;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        .clay-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+        textarea.clay-input { resize: none; line-height: 1.8; }
+
+        /* 빈칸 채우기 인라인 입력창 */
+        .inline-blank {
+            width: 80px;
+            text-align: center;
+            border-bottom: 3px dashed #22c55e;
+            background-color: transparent;
+            font-weight: bold;
+            color: #15803d;
+            transition: all 0.3s;
+        }
+        .inline-blank:focus { outline: none; border-bottom-color: #16a34a; background-color: #dcfce7; }
+        .inline-blank.correct { border-bottom: 3px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
+        .inline-blank.wrong { border-bottom: 3px solid #ef4444; background-color: #fef2f2; color: #b91c1c; }
+        .inline-blank::placeholder { color: #9ca3af; font-weight: normal; }
+
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #22c55e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-animate { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        /* 점선 텍스트 영역 배경 (공책 느낌 정밀 조정 - 스마트펜용으로 더 넓게) */
+        .dashed-bg {
+            line-height: 64px !important;
+            background-image: linear-gradient(transparent 62px, #cbd5e1 62px, #cbd5e1 64px);
+            background-size: 100% 64px;
+            background-attachment: local;
+            background-position-y: 24px;
+        }
+        
+        .dashed-bg-sm {
+            line-height: 48px !important;
+            background-image: linear-gradient(transparent 46px, #cbd5e1 46px, #cbd5e1 48px);
+            background-size: 100% 48px;
+            background-attachment: local;
+            background-position-y: 16px;
+        }
+    </style>
+</head>
+<body class="p-2 md:p-6 min-h-screen text-gray-800">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-[2rem] p-4 md:p-8 shadow-2xl relative border-8 border-green-100">
+        
+        <!-- 오토세이브 알림 -->
+        <div id="saveIndicator" class="absolute top-4 right-6 text-sm font-bold text-green-600 opacity-0 transition-opacity duration-500 z-50">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 자동 저장됨
+        </div>
+
+        <!-- 헤더 영역 -->
+        <header class="mb-10 relative z-10 text-center mt-4">
+            <div class="mb-2 text-green-700 font-bold tracking-widest text-sm">국어 5. 말과 글로 전하는 생각 (교과서 230~235쪽)</div>
+            <div class="bg-green-600 text-white inline-block px-8 py-3 rounded-full shadow-md border-4 border-green-700 mb-6">
+                <h1 class="text-2xl md:text-4xl font-jua tracking-wider">
+                    [04-06] 친구들 앞에서 자신 있게 발표하기
+                </h1>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 bg-green-50 p-4 rounded-2xl border-2 border-green-200 w-full max-w-2xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <input type="number" id="grade" class="w-16 text-center border-b-2 border-green-400 bg-transparent focus:outline-none font-bold text-lg" value="4" readonly oninput="window.saveLocal()">학년
+                    <input type="number" id="classNum" class="w-16 text-center border-b-2 border-green-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="반" oninput="window.saveLocal()">반
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-2 border-green-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="번" oninput="window.saveLocal()">번
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="studentName" class="w-24 text-center border-b-2 border-green-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="이름" oninput="window.saveLocal()">
+                </div>
+            </div>
+        </header>
+
+        <!-- 1. 발표할 내용 정리 -->
+        <section class="mb-12">
+            <div class="flex justify-between items-end mb-4 border-b-4 border-green-200 pb-2">
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">1</div>
+                    <h2 class="text-2xl font-jua text-green-900">발표할 내용을 정리해 봅시다.</h2>
+                </div>
+            </div>
+
+            <div class="border-[6px] border-pink-300 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col mx-auto max-w-4xl">
+                <!-- 발표 주제 -->
+                <div class="bg-white border-b-4 border-pink-300 p-5 flex flex-col md:flex-row md:items-center justify-center gap-4">
+                    <span class="font-bold text-xl text-gray-800 text-center whitespace-nowrap">자신이 발표할 주제 :</span>
+                    <input type="text" id="topic" class="border-b-2 border-dashed border-gray-400 bg-transparent text-2xl font-bold text-center text-blue-700 focus:outline-none focus:border-blue-500 px-4 py-2 w-full md:w-2/3 transition-colors" placeholder="(예: 멸종 위기 동물)" oninput="window.updateTopicBlanks(); window.saveLocal();">
+                </div>
+                
+                <!-- 시작하는 말 -->
+                <div class="flex flex-col md:flex-row border-b-[3px] border-gray-200">
+                    <div class="md:w-[20%] bg-pink-50 p-4 flex items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
+                        시작하는 말
+                    </div>
+                    <div class="md:w-[80%] p-6 text-xl md:text-2xl font-medium text-gray-800 leading-relaxed bg-white">
+                        지금부터 제가 준비한 발표를 시작하겠습니다.<br>
+                        제가 조사한 주제는 <span class="text-blue-700 font-bold border-b-2 border-blue-400 px-4 min-w-[150px] inline-block text-center bg-blue-50 rounded-sm" id="topic_blank_1">(위 빈칸을 채우세요)</span> 입니다.
+                    </div>
+                </div>
+                
+                <!-- 설명하는 말 (키보드/펜 전환 가능) -->
+                <div class="flex flex-col md:flex-row border-b-[3px] border-gray-200">
+                    <div class="md:w-[20%] bg-pink-50 p-4 flex flex-col items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
+                        <span>설명하는 말</span>
+                        <span class="text-sm font-normal text-gray-500 mt-2 text-center">(발표 내용)</span>
+                        
+                        <!-- 입력 모드 선택기 -->
+                        <div class="mt-4 flex flex-col w-full max-w-[150px] gap-2">
+                            <div class="flex bg-gray-300 p-1 rounded-lg w-full">
+                                <button onclick="window.setMode('content_body', 'text')" id="btn_text_content_body" class="flex-1 py-1 text-sm font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('content_body', 'draw')" id="btn_draw_content_body" class="flex-1 py-1 text-sm font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                            </div>
+                            <button onclick="window.pads['content_body'].clear()" id="btn_clear_content_body" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1.5 rounded-md font-bold hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 펜 지우기</button>
+                        </div>
+                    </div>
+                    <div class="md:w-[80%] p-0 bg-white relative min-h-[500px]">
+                        <!-- 키보드 입력창 -->
+                        <textarea id="content_body" class="absolute inset-0 w-full h-full p-6 text-xl md:text-2xl font-medium text-gray-800 resize-none overflow-y-auto outline-none focus:bg-green-50 transition-colors dashed-bg" placeholder="이곳에 발표할 내용을 자유롭게 적어보세요.&#13;&#10;&#13;&#10;👈 왼쪽의 '🖊️ 펜' 버튼을 누르면 직접 손글씨를 그릴 수 있습니다!" oninput="window.saveLocal()"></textarea>
+                        <!-- 손글씨(펜) 캔버스 -->
+                        <canvas id="canvas_content_body" width="1000" height="800" class="absolute inset-0 w-full h-full hidden dashed-bg touch-none cursor-crosshair bg-white" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 끝맺는 말 -->
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-[20%] bg-pink-50 p-4 flex items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
+                        끝맺는 말
+                    </div>
+                    <div class="md:w-[80%] p-6 text-xl md:text-2xl font-medium text-gray-800 leading-relaxed bg-white flex flex-col gap-4">
+                        <div>
+                            지금까지 <span class="text-rose-700 font-bold border-b-2 border-rose-400 px-4 min-w-[150px] inline-block text-center bg-rose-50 rounded-sm" id="topic_blank_2">(주제)</span> 에 대해 발표했습니다.
+                        </div>
+                        <input type="text" id="closing_remark" class="w-full border-b-2 border-gray-400 focus:border-rose-500 outline-none bg-transparent py-2 transition-colors font-bold text-gray-800" placeholder="제 발표를 들어주셔서 감사합니다." oninput="window.saveLocal()">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 발표할 때 주의할 점 (자동 채점) -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-4 border-b-4 border-green-200 pb-2">
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">2</div>
+                    <h2 class="text-2xl font-jua text-green-900">아래 빈칸을 채우고, 주의할 점을 익혀보세요.</h2>
+                </div>
+                <div id="quizScoreDisplay" class="font-jua text-2xl text-blue-600 bg-blue-50 px-4 py-1 rounded-full hidden">0 / 3점</div>
+            </div>
+
+            <div class="bg-white rounded-2xl border-2 border-stone-200 p-6 md:p-8 shadow-sm">
+                <h3 class="font-bold text-stone-700 text-lg mb-6 text-center bg-stone-100 py-2 rounded-lg">💡 발표할 때 주의할 점</h3>
+                
+                <ul class="space-y-8 text-lg md:text-xl px-2 md:px-10 font-medium">
+                    <li class="flex items-center gap-3 leading-loose">
+                        <span class="text-green-500"><i class="fa-solid fa-check-circle"></i></span>
+                        <div>알맞은 목소리 크기와 <input type="text" id="q1" class="inline-blank" placeholder="ㅅㄷ" oninput="window.saveLocal()" autocomplete="off"> 로 발표한다. <span id="mark1" class="ml-2"></span></div>
+                    </li>
+                    <li class="flex items-start gap-3 leading-loose">
+                        <span class="text-green-500 mt-1"><i class="fa-solid fa-check-circle"></i></span>
+                        <div>처음 시작하는 말에서 <input type="text" id="q2" class="inline-blank" placeholder="ㅈㅈ" oninput="window.saveLocal()" autocomplete="off"> 를 제시하거나 중요한 내용을 말할 때 목소리를 크게 한다. <span id="mark2" class="ml-2"></span></div>
+                    </li>
+                    <li class="flex items-start gap-3 leading-loose">
+                        <span class="text-green-500 mt-1"><i class="fa-solid fa-check-circle"></i></span>
+                        <div>설명하는 부분에서는 듣는 사람과 <input type="text" id="q3" class="inline-blank" placeholder="ㄴ" oninput="window.saveLocal()" autocomplete="off"> 을 맞추며 몸을 조금 앞으로 숙인다. <span id="mark3" class="ml-2"></span></div>
+                    </li>
+                </ul>
+
+                <div class="mt-8 text-center">
+                    <button onclick="window.gradeQuiz()" class="bg-stone-700 hover:bg-stone-800 text-white font-jua text-xl py-3 px-8 rounded-full shadow-md transition transform hover:scale-105">
+                        <i class="fa-solid fa-clipboard-check mr-2"></i> 정답 확인하기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 되돌아보기 (키보드/펜 전환 가능) -->
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-4 border-b-4 border-green-200 pb-2">
+                <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">3</div>
+                <h2 class="text-2xl font-jua text-green-900">자신의 발표를 되돌아봅시다.</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 잘한 점 -->
+                <div class="bg-blue-50 p-5 rounded-2xl border-2 border-blue-200 flex flex-col h-[350px]">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="font-bold text-blue-900 flex items-center gap-2 text-lg"><i class="fa-regular fa-face-smile-beam text-2xl text-blue-500"></i> 잘한 점</label>
+                        <!-- 토글 UI -->
+                        <div class="flex bg-blue-200/50 p-1 rounded-lg w-32 relative">
+                            <button onclick="window.setMode('ref_good', 'text')" id="btn_text_ref_good" class="flex-1 py-1 text-xs font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                            <button onclick="window.setMode('ref_good', 'draw')" id="btn_draw_ref_good" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                        </div>
+                    </div>
+                    <button onclick="window.pads['ref_good'].clear()" id="btn_clear_ref_good" class="text-xs text-rose-500 bg-white border border-rose-200 px-2 py-1 rounded-md self-end mb-2 hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 모두 지우기</button>
+                    
+                    <div class="relative flex-1 w-full h-full">
+                        <textarea id="ref_good" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-blue-100 transition-colors" placeholder="발표하면서 스스로 잘했다고 생각하는 부분을 적어보세요." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_ref_good" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-blue-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+
+                <!-- 더 노력할 점 -->
+                <div class="bg-orange-50 p-5 rounded-2xl border-2 border-orange-200 flex flex-col h-[350px]">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="font-bold text-orange-900 flex items-center gap-2 text-lg"><i class="fa-solid fa-seedling text-2xl text-orange-500"></i> 더 노력할 점</label>
+                        <!-- 토글 UI -->
+                        <div class="flex bg-orange-200/50 p-1 rounded-lg w-32 relative">
+                            <button onclick="window.setMode('ref_improve', 'text')" id="btn_text_ref_improve" class="flex-1 py-1 text-xs font-bold bg-white text-orange-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                            <button onclick="window.setMode('ref_improve', 'draw')" id="btn_draw_ref_improve" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                        </div>
+                    </div>
+                    <button onclick="window.pads['ref_improve'].clear()" id="btn_clear_ref_improve" class="text-xs text-rose-500 bg-white border border-rose-200 px-2 py-1 rounded-md self-end mb-2 hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 모두 지우기</button>
+
+                    <div class="relative flex-1 w-full h-full">
+                        <textarea id="ref_improve" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-orange-100 transition-colors" placeholder="다음 발표 때는 어떤 점을 보완하면 좋을지 적어보세요." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_ref_improve" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-orange-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center relative z-10 mt-12">
+            <button onclick="window.submitAll()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-jua text-2xl py-4 px-16 rounded-full shadow-xl transform transition hover:scale-105 hover:shadow-2xl active:scale-95">
+                <i class="fa-solid fa-paper-plane mr-2"></i> 선생님께 학습지 제출하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 오류 알림창 -->
+    <div id="customAlertModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3">💬</div>
+            <p id="customAlertMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <!-- 결과 안내 팝업 -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-[90] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-t-8 border-green-500">
+            <div class="text-6xl mb-2 mt-4">🎉</div>
+            <h3 class="text-3xl font-jua text-green-700 mb-2">제출 완료!</h3>
+            <p class="text-gray-600 mb-6 font-bold leading-relaxed">
+                발표 준비하느라 정말 수고 많았어요.<br>멋진 발표 기대할게요!
+            </p>
+            <button onclick="location.reload()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md">
+                확인 (새로고침)
+            </button>
+        </div>
+    </div>
+
+    <!-- 선생님 모드 입장 버튼 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <button onclick="window.openPasswordModal()" class="bg-stone-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-stone-900 transition flex items-center gap-2 font-bold text-sm opacity-50 hover:opacity-100">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 모드
+        </button>
+    </div>
+
+    <!-- 선생님 인증 팝업 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="window.closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-xl font-jua text-stone-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-stone-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-stone-500" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') window.checkPassword()">
+            <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+            <button onclick="window.checkPassword()" class="w-full bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-xl transition mt-2">확인</button>
+        </div>
+    </div>
+
+    <!-- 선생님 대시보드 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 z-[60] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-7xl w-full h-[90vh] flex flex-col shadow-2xl relative modal-animate">
+            <button onclick="window.closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+            
+            <h2 class="text-2xl font-jua text-green-800 mb-2"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (자신 있게 발표하기)</h2>
+            <p class="text-sm text-gray-600 mb-4 ml-1">💡 펜으로 그린 그림은 작은 네모로 보입니다. (마우스를 올리면 크게 보입니다.)</p>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 bg-stone-100 p-3 rounded-xl border border-stone-200">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-stone-800"><i class="fa-solid fa-filter"></i> 반별 모아보기:</span>
+                    <select id="classFilter" onchange="window.renderTable()" class="border-2 border-stone-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-green-600 font-bold text-gray-700 bg-white shadow-sm flex-1 sm:flex-none">
+                        <option value="all">모든 반 전체 보기</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="window.downloadCSV()" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl transition text-sm flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 bg-white rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
+                    <thead class="bg-green-50 sticky top-0 shadow-sm z-10 border-b-2 border-green-200">
+                        <tr>
+                            <th class="p-3 font-bold text-green-900 w-16 text-center">반/번호</th>
+                            <th class="p-3 font-bold text-green-900 w-20">이름</th>
+                            <th class="p-3 font-bold text-green-900 w-28">발표 주제</th>
+                            <th class="p-3 font-bold text-green-900 w-[25%]">발표 내용 (글/그림)</th>
+                            <th class="p-3 font-bold text-green-900 w-20 text-center">퀴즈점수</th>
+                            <th class="p-3 font-bold text-green-900 w-[20%]">잘한 점 / 노력할 점</th>
+                            <th class="p-3 font-bold text-green-900 w-24 text-center">제출일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 알림창 헬퍼
+        window.customAlert = function(msg) {
+            document.getElementById('customAlertMessage').innerHTML = msg;
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        // Firebase 설정 
+        let firebaseConfig = {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk", 
+            projectId: "default-project"
+        };
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch(e) {}
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInAnonymously(auth); 
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch(e) { console.error("인증 에러:", e); }
+        };
+        initAuth();
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'korean-presentation-ws';
+        const COLLECTION_NAME = 'korean_presentation_results_v2'; 
+        let allResults = [];
+
+        window.appData = {
+            quizScore: 0,
+            isGraded: false,
+            modes: {
+                content_body: 'text',
+                ref_good: 'text',
+                ref_improve: 'text'
+            }
+        };
+
+        /* ---------------- 그리기(캔버스) 로직 시작 ---------------- */
+        window.pads = {};
+        function initDrawing(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+
+            // 캔버스 크기 및 스케일 매핑
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function start(e) {
+                e.preventDefault(); // 스크롤 방지
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#1f2937'; // 펜 색상(진회색)
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+            
+            function move(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function stop(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                isDrawing = false;
+                window.saveLocal(); // 선을 그릴 때마다 임시 저장
+            }
+
+            canvas.addEventListener('mousedown', start);
+            canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('mouseout', stop);
+
+            canvas.addEventListener('touchstart', start, {passive: false});
+            canvas.addEventListener('touchmove', move, {passive: false});
+            canvas.addEventListener('touchend', stop, {passive: false});
+            canvas.addEventListener('touchcancel', stop, {passive: false});
+            
+            return {
+                clear: () => { 
+                    ctx.clearRect(0,0,canvas.width,canvas.height); 
+                    window.saveLocal(); 
+                },
+                toDataURL: () => canvas.toDataURL('image/png'),
+                loadFromDataURL: (dataUrl) => {
+                    if(!dataUrl) return;
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = dataUrl;
+                }
+            };
+        }
+
+        window.addEventListener('load', () => {
+            // 캔버스 초기화
+            window.pads['content_body'] = initDrawing('canvas_content_body');
+            window.pads['ref_good'] = initDrawing('canvas_ref_good');
+            window.pads['ref_improve'] = initDrawing('canvas_ref_improve');
+            window.loadLocal();
+        });
+
+        // 입력 모드 (키보드 <-> 펜) 변경
+        window.setMode = function(field, mode) {
+            window.appData.modes[field] = mode;
+            
+            const txt = document.getElementById(field);
+            const cvs = document.getElementById('canvas_' + field);
+            const btnText = document.getElementById('btn_text_' + field);
+            const btnDraw = document.getElementById('btn_draw_' + field);
+            const btnClear = document.getElementById('btn_clear_' + field);
+
+            if(mode === 'text') {
+                txt.classList.remove('hidden');
+                cvs.classList.add('hidden');
+                btnText.classList.replace('text-gray-500', 'text-blue-600');
+                btnText.classList.replace('hover:text-gray-800', 'bg-white');
+                btnText.classList.add('shadow-sm');
+                btnDraw.classList.replace('text-blue-600', 'text-gray-500');
+                btnDraw.classList.replace('bg-white', 'hover:text-gray-800');
+                btnDraw.classList.remove('shadow-sm');
+                btnClear.classList.add('hidden');
+            } else {
+                txt.classList.add('hidden');
+                cvs.classList.remove('hidden');
+                btnDraw.classList.replace('text-gray-500', 'text-blue-600');
+                btnDraw.classList.replace('hover:text-gray-800', 'bg-white');
+                btnDraw.classList.add('shadow-sm');
+                btnText.classList.replace('text-blue-600', 'text-gray-500');
+                btnText.classList.replace('bg-white', 'hover:text-gray-800');
+                btnText.classList.remove('shadow-sm');
+                btnClear.classList.remove('hidden');
+                
+                // 모드 전환 시 브라우저 강제 리페인트 (좌표 어긋남 방지)
+                window.dispatchEvent(new Event('resize')); 
+            }
+            window.saveLocal();
+        };
+        /* ---------------- 그리기(캔버스) 로직 끝 ---------------- */
+
+        window.updateTopicBlanks = function() {
+            const topic = document.getElementById('topic').value.trim();
+            const text = topic ? topic : "(주제를 입력하세요)";
+            document.getElementById('topic_blank_1').innerText = text;
+            document.getElementById('topic_blank_2').innerText = text;
+        };
+
+        window.gradeQuiz = function() {
+            const ans1 = document.getElementById('q1').value.replace(/\s+/g, '');
+            const ans2 = document.getElementById('q2').value.replace(/\s+/g, '');
+            const ans3 = document.getElementById('q3').value.replace(/\s+/g, '');
+            
+            let score = 0;
+            const check = (id, ans, correctAns) => {
+                const inputEl = document.getElementById(id);
+                const markEl = document.getElementById('mark' + id.replace('q', ''));
+                if (ans === correctAns) {
+                    inputEl.classList.remove('wrong'); inputEl.classList.add('correct');
+                    markEl.innerHTML = '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>';
+                    score++;
+                } else {
+                    inputEl.classList.remove('correct'); inputEl.classList.add('wrong');
+                    markEl.innerHTML = '<i class="fa-solid fa-xmark text-red-500 text-xl"></i>';
+                }
+            };
+
+            check('q1', ans1, '속도');
+            check('q2', ans2, '주제');
+            check('q3', ans3, '눈');
+
+            window.appData.quizScore = score;
+            window.appData.isGraded = true;
+            
+            const scoreDisplay = document.getElementById('quizScoreDisplay');
+            scoreDisplay.innerText = `${score} / 3점`;
+            scoreDisplay.classList.remove('hidden');
+
+            window.saveLocal();
+        };
+
+        window.saveLocal = function() {
+            const dataToSave = {
+                grade: document.getElementById('grade').value,
+                classNum: document.getElementById('classNum').value,
+                studentNum: document.getElementById('studentNum').value,
+                studentName: document.getElementById('studentName').value,
+                topic: document.getElementById('topic').value,
+                content_body: document.getElementById('content_body').value,
+                canvas_content_body: window.pads['content_body']?.toDataURL(),
+                closing_remark: document.getElementById('closing_remark').value,
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                q3: document.getElementById('q3').value,
+                ref_good: document.getElementById('ref_good').value,
+                canvas_ref_good: window.pads['ref_good']?.toDataURL(),
+                ref_improve: document.getElementById('ref_improve').value,
+                canvas_ref_improve: window.pads['ref_improve']?.toDataURL(),
+                appData: window.appData
+            };
+            localStorage.setItem('koreanPresentationData', JSON.stringify(dataToSave));
+            
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.opacity = 1;
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => { indicator.style.opacity = 0; }, 2000);
+        };
+
+        window.loadLocal = function() {
+            const saved = localStorage.getItem('koreanPresentationData');
+            if(saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    const fields = ['grade', 'classNum', 'studentNum', 'studentName', 'topic', 'content_body', 'closing_remark', 'q1', 'q2', 'q3', 'ref_good', 'ref_improve'];
+                    fields.forEach(f => { if(data[f] !== undefined) document.getElementById(f).value = data[f]; });
+                    
+                    if(data.appData) {
+                        window.appData.quizScore = data.appData.quizScore;
+                        window.appData.isGraded = data.appData.isGraded;
+                        if(data.appData.modes) window.appData.modes = data.appData.modes;
+                        
+                        if(window.appData.isGraded) window.gradeQuiz(); 
+                    }
+                    
+                    // 캔버스 데이터 복원
+                    if(data.canvas_content_body) window.pads['content_body'].loadFromDataURL(data.canvas_content_body);
+                    if(data.canvas_ref_good) window.pads['ref_good'].loadFromDataURL(data.canvas_ref_good);
+                    if(data.canvas_ref_improve) window.pads['ref_improve'].loadFromDataURL(data.canvas_ref_improve);
+
+                    // 모드 버튼 UI 복원
+                    ['content_body', 'ref_good', 'ref_improve'].forEach(f => window.setMode(f, window.appData.modes[f]));
+
+                    window.updateTopicBlanks();
+                } catch(e) { console.error("로컬 저장소 로드 에러"); }
+            } else {
+                // 저장된게 없다면 기본 키보드 모드로 초기화
+                ['content_body', 'ref_good', 'ref_improve'].forEach(f => window.setMode(f, 'text'));
+            }
+        };
+
+        // 최종 제출
+        window.submitAll = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const classNum = document.getElementById('classNum').value;
+            const studentNum = document.getElementById('studentNum').value;
+            const topic = document.getElementById('topic').value.trim();
+
+            if(!studentName || !classNum || !studentNum) {
+                window.customAlert("반, 번호, 이름을 정확히 적어주세요!"); return;
+            }
+            if(!topic) {
+                window.customAlert("발표 주제를 입력해주세요!"); return;
+            }
+            if(!window.appData.isGraded) {
+                window.customAlert("2번 활동의 '정답 확인하기' 버튼을 눌러 채점을 완료해주세요!"); return;
+            }
+
+            if (!auth.currentUser) {
+                window.customAlert("서버 연결이 준비되지 않았습니다. 잠시 후 다시 시도해주세요."); return;
+            }
+
+            try {
+                // 선택된 모드에 따라 텍스트 또는 캔버스 이미지 저장
+                const getFinalData = (field) => {
+                    return window.appData.modes[field] === 'text' 
+                        ? document.getElementById(field).value 
+                        : window.pads[field].toDataURL();
+                };
+
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                await addDoc(resultsRef, {
+                    grade: document.getElementById('grade').value,
+                    classNum: classNum,
+                    studentNum: studentNum,
+                    studentName: studentName,
+                    topic: topic,
+                    
+                    content_body_mode: window.appData.modes['content_body'],
+                    content_body: getFinalData('content_body'),
+                    
+                    closing_remark: document.getElementById('closing_remark').value,
+                    quizScore: window.appData.quizScore,
+                    
+                    ref_good_mode: window.appData.modes['ref_good'],
+                    ref_good: getFinalData('ref_good'),
+                    
+                    ref_improve_mode: window.appData.modes['ref_improve'],
+                    ref_improve: getFinalData('ref_improve'),
+                    
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.removeItem('koreanPresentationData');
+                document.getElementById('resultModal').classList.remove('hidden');
+            } catch (e) { 
+                console.error("데이터 저장 에러: ", e); 
+                window.customAlert("저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.");
+            }
+        };
+
+        /* ---------------- 선생님 대시보드 ---------------- */
+        const TEACHER_PASSWORD = "0402"; 
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+        window.closePasswordModal = function() { document.getElementById('passwordModal').classList.add('hidden'); };
+        window.checkPassword = function() {
+            if (document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD) {
+                window.closePasswordModal(); window.openDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            if (auth.currentUser) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    allResults = [];
+                    snapshot.forEach(doc => { allResults.push({ id: doc.id, ...doc.data() }); });
+                    allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    window.updateFilterOptions();
+                    window.renderTable();
+                });
+            }
+        };
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if(unsubscribe) { unsubscribe(); unsubscribe = null; }
+        };
+
+        window.updateFilterOptions = function() {
+            const filter = document.getElementById('classFilter');
+            const current = filter.value;
+            const unique = [...new Set(allResults.map(i => `${i.grade}-${i.classNum}`))].sort();
+            let html = `<option value="all">모든 반 전체 보기</option>`;
+            unique.forEach(c => html += `<option value="${c}">${c}반</option>`);
+            filter.innerHTML = html;
+            if(unique.includes(current)) filter.value = current;
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('dashboardTableBody');
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            
+            tbody.innerHTML = '';
+            if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">제출된 기록이 없습니다.</td></tr>`; return; }
+
+            // 글/그림 모드에 따라 렌더링을 다르게 해주는 함수
+            const renderCell = (mode, data) => {
+                if(mode === 'draw' && data && data.startsWith('data:image')) {
+                    return `<img src="${data}" class="h-24 w-auto object-contain border border-gray-300 bg-white rounded cursor-zoom-in hover:scale-[3] origin-left transition-transform shadow-sm" alt="손글씨 이미지" />`;
+                } else {
+                    const text = data || '-';
+                    const trunc = text.length > 50 ? text.substring(0,50)+'...' : text;
+                    return `<div class="text-sm text-gray-700 whitespace-pre-wrap" title="${text}">${trunc}</div>`;
+                }
+            };
+
+            data.forEach(item => {
+                const d = new Date(item.timestamp);
+                const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                
+                let scoreColor = item.quizScore === 3 ? "text-blue-600" : "text-rose-500";
+                
+                const contentHtml = renderCell(item.content_body_mode, item.content_body);
+                const refGoodHtml = renderCell(item.ref_good_mode, item.ref_good);
+                const refImproveHtml = renderCell(item.ref_improve_mode, item.ref_improve);
+
+                const refHtml = `
+                    <div class="text-xs text-blue-700 mb-2"><b>[잘한점]</b><br>${refGoodHtml}</div>
+                    <div class="text-xs text-orange-700"><b>[노력할점]</b><br>${refImproveHtml}</div>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-green-50 transition border-b border-gray-100">
+                        <td class="p-3 text-center">${item.classNum}-${item.studentNum}</td>
+                        <td class="p-3 font-bold text-stone-900">${item.studentName}</td>
+                        <td class="p-3 font-bold text-green-800 bg-green-50 rounded-lg m-1">${item.topic || '-'}</td>
+                        <td class="p-3">${contentHtml}</td>
+                        <td class="p-3 text-center font-bold ${scoreColor}">${item.quizScore} / 3</td>
+                        <td class="p-3">${refHtml}</td>
+                        <td class="p-3 text-xs text-gray-500 text-center">${timeStr}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.downloadCSV = function() {
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
+
+            let csv = "\uFEFF제출일시,학년,반,번호,이름,발표주제,발표내용(요약),퀴즈점수,잘한점,노력할점\n";
+            data.forEach(i => {
+                const d = new Date(i.timestamp);
+                const t = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                
+                // 엑셀에서는 그림을 문자로 표시
+                const getContent = (mode, val) => mode === 'draw' ? "[손글씨 그림]" : (val || "");
+                const contentVal = getContent(i.content_body_mode, i.content_body);
+                const goodVal = getContent(i.ref_good_mode, i.ref_good);
+                const improveVal = getContent(i.ref_improve_mode, i.ref_improve);
+
+                const escapeCsv = (str) => `"${String(str).replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                
+                csv += `${escapeCsv(t)},${escapeCsv(i.grade)},${escapeCsv(i.classNum)},${escapeCsv(i.studentNum)},${escapeCsv(i.studentName)},${escapeCsv(i.topic)},${escapeCsv(contentVal)},${i.quizScore},${escapeCsv(goodVal)},${escapeCsv(improveVal)}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `국어발표_기록지_${filter==='all'?'전체':filter+'반'}_결과.csv`;
+            link.click();
+        };
+    </script>
+</body>
+</html>
