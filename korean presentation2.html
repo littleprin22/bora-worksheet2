@@ -135,13 +135,21 @@
                         <span>설명하는 말</span>
                         <span class="text-sm font-normal text-gray-500 mt-2 text-center">(발표 내용)</span>
                         
-                        <!-- 입력 모드 선택기 -->
+                        <!-- 입력 모드 선택기 및 툴바 -->
                         <div class="mt-4 flex flex-col w-full max-w-[150px] gap-2">
                             <div class="flex bg-gray-300 p-1 rounded-lg w-full">
                                 <button onclick="window.setMode('content_body', 'text')" id="btn_text_content_body" class="flex-1 py-1 text-sm font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
                                 <button onclick="window.setMode('content_body', 'draw')" id="btn_draw_content_body" class="flex-1 py-1 text-sm font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
                             </div>
-                            <button onclick="window.pads['content_body'].clear()" id="btn_clear_content_body" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1.5 rounded-md font-bold hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 펜 지우기</button>
+                            
+                            <!-- 펜 도구함 (부분 지우개 / 전체 지우기) -->
+                            <div id="toolbar_content_body" class="hidden flex-col gap-2">
+                                <div class="flex bg-green-100 p-1 rounded-lg w-full border border-green-200">
+                                    <button onclick="window.pads['content_body'].setTool('pen')" id="btn_tool_pen_content_body" class="flex-1 py-1 text-xs font-bold bg-white text-green-700 shadow-sm rounded-md transition-all" title="펜으로 글씨 쓰기">✏️ 쓰기</button>
+                                    <button onclick="window.pads['content_body'].setTool('eraser')" id="btn_tool_eraser_content_body" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="부분 지우개">🧹 지우개</button>
+                                </div>
+                                <button onclick="window.pads['content_body'].clear()" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1.5 rounded-md font-bold shadow-sm"><i class="fa-solid fa-trash-can"></i> 전체 지우기</button>
+                            </div>
                         </div>
                     </div>
                     <div class="md:w-[80%] p-0 bg-white relative min-h-[500px]">
@@ -213,17 +221,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 잘한 점 -->
                 <div class="bg-blue-50 p-5 rounded-2xl border-2 border-blue-200 flex flex-col h-[350px]">
-                    <div class="flex justify-between items-center mb-3">
+                    <div class="flex justify-between items-start mb-3">
                         <label class="font-bold text-blue-900 flex items-center gap-2 text-lg"><i class="fa-regular fa-face-smile-beam text-2xl text-blue-500"></i> 잘한 점</label>
-                        <!-- 토글 UI -->
-                        <div class="flex bg-blue-200/50 p-1 rounded-lg w-32 relative">
-                            <button onclick="window.setMode('ref_good', 'text')" id="btn_text_ref_good" class="flex-1 py-1 text-xs font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
-                            <button onclick="window.setMode('ref_good', 'draw')" id="btn_draw_ref_good" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                        <!-- 토글 및 툴바 UI -->
+                        <div class="flex flex-col gap-2 w-32 items-end z-10">
+                            <div class="flex bg-blue-200 p-1 rounded-lg w-full">
+                                <button onclick="window.setMode('ref_good', 'text')" id="btn_text_ref_good" class="flex-1 py-1 text-xs font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('ref_good', 'draw')" id="btn_draw_ref_good" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                            </div>
+                            <div id="toolbar_ref_good" class="hidden flex-col gap-1 w-full">
+                                <div class="flex bg-green-100 p-1 rounded-lg w-full border border-green-200">
+                                    <button onclick="window.pads['ref_good'].setTool('pen')" id="btn_tool_pen_ref_good" class="flex-1 py-1 text-xs font-bold bg-white text-green-700 shadow-sm rounded-md transition-all" title="쓰기">✏️</button>
+                                    <button onclick="window.pads['ref_good'].setTool('eraser')" id="btn_tool_eraser_ref_good" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="지우개">🧹</button>
+                                </div>
+                                <button onclick="window.pads['ref_good'].clear()" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1 rounded-md font-bold shadow-sm">전체 지우기</button>
+                            </div>
                         </div>
                     </div>
-                    <button onclick="window.pads['ref_good'].clear()" id="btn_clear_ref_good" class="text-xs text-rose-500 bg-white border border-rose-200 px-2 py-1 rounded-md self-end mb-2 hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 모두 지우기</button>
                     
-                    <div class="relative flex-1 w-full h-full">
+                    <div class="relative flex-1 w-full h-full -mt-4">
                         <textarea id="ref_good" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-blue-100 transition-colors" placeholder="발표하면서 스스로 잘했다고 생각하는 부분을 적어보세요." oninput="window.saveLocal()"></textarea>
                         <canvas id="canvas_ref_good" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-blue-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
                     </div>
@@ -231,17 +247,25 @@
 
                 <!-- 더 노력할 점 -->
                 <div class="bg-orange-50 p-5 rounded-2xl border-2 border-orange-200 flex flex-col h-[350px]">
-                    <div class="flex justify-between items-center mb-3">
+                    <div class="flex justify-between items-start mb-3">
                         <label class="font-bold text-orange-900 flex items-center gap-2 text-lg"><i class="fa-solid fa-seedling text-2xl text-orange-500"></i> 더 노력할 점</label>
-                        <!-- 토글 UI -->
-                        <div class="flex bg-orange-200/50 p-1 rounded-lg w-32 relative">
-                            <button onclick="window.setMode('ref_improve', 'text')" id="btn_text_ref_improve" class="flex-1 py-1 text-xs font-bold bg-white text-orange-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
-                            <button onclick="window.setMode('ref_improve', 'draw')" id="btn_draw_ref_improve" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                        <!-- 토글 및 툴바 UI -->
+                        <div class="flex flex-col gap-2 w-32 items-end z-10">
+                            <div class="flex bg-orange-200 p-1 rounded-lg w-full">
+                                <button onclick="window.setMode('ref_improve', 'text')" id="btn_text_ref_improve" class="flex-1 py-1 text-xs font-bold bg-white text-orange-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('ref_improve', 'draw')" id="btn_draw_ref_improve" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                            </div>
+                            <div id="toolbar_ref_improve" class="hidden flex-col gap-1 w-full">
+                                <div class="flex bg-green-100 p-1 rounded-lg w-full border border-green-200">
+                                    <button onclick="window.pads['ref_improve'].setTool('pen')" id="btn_tool_pen_ref_improve" class="flex-1 py-1 text-xs font-bold bg-white text-green-700 shadow-sm rounded-md transition-all" title="쓰기">✏️</button>
+                                    <button onclick="window.pads['ref_improve'].setTool('eraser')" id="btn_tool_eraser_ref_improve" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="지우개">🧹</button>
+                                </div>
+                                <button onclick="window.pads['ref_improve'].clear()" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1 rounded-md font-bold shadow-sm">전체 지우기</button>
+                            </div>
                         </div>
                     </div>
-                    <button onclick="window.pads['ref_improve'].clear()" id="btn_clear_ref_improve" class="text-xs text-rose-500 bg-white border border-rose-200 px-2 py-1 rounded-md self-end mb-2 hidden shadow-sm"><i class="fa-solid fa-eraser"></i> 모두 지우기</button>
 
-                    <div class="relative flex-1 w-full h-full">
+                    <div class="relative flex-1 w-full h-full -mt-4">
                         <textarea id="ref_improve" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-orange-100 transition-colors" placeholder="다음 발표 때는 어떤 점을 보완하면 좋을지 적어보세요." oninput="window.saveLocal()"></textarea>
                         <canvas id="canvas_ref_improve" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-orange-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
                     </div>
@@ -393,10 +417,11 @@
 
         /* ---------------- 그리기(캔버스) 로직 시작 ---------------- */
         window.pads = {};
-        function initDrawing(canvasId) {
+        function initDrawing(canvasId, fieldId) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             let isDrawing = false;
+            let currentTool = 'pen'; // 'pen' 또는 'eraser'
 
             // 캔버스 크기 및 스케일 매핑
             function getPos(e) {
@@ -414,9 +439,19 @@
                 isDrawing = true;
                 const pos = getPos(e);
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 1.5, 0, Math.PI * 2);
-                ctx.fillStyle = '#1f2937'; // 펜 색상(진회색)
+                
+                // 지우개 모드이면 투명하게, 펜이면 잉크색 적용
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4; // 지우개는 두껍게
+                
+                ctx.arc(pos.x, pos.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+                if(currentTool === 'pen') {
+                    ctx.fillStyle = '#1f2937';
+                } else {
+                    ctx.fillStyle = 'rgba(0,0,0,1)';
+                }
                 ctx.fill();
+                
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
             }
@@ -426,8 +461,11 @@
                 e.preventDefault();
                 const pos = getPos(e);
                 ctx.lineTo(pos.x, pos.y);
-                ctx.strokeStyle = '#1f2937';
-                ctx.lineWidth = 4;
+                
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(0,0,0,1)' : '#1f2937';
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4;
+                
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
@@ -464,18 +502,42 @@
                     const img = new Image();
                     img.onload = () => {
                         ctx.clearRect(0,0,canvas.width,canvas.height);
+                        ctx.globalCompositeOperation = 'source-over'; // 이미지 로드 시 덮어쓰기 모드
                         ctx.drawImage(img, 0, 0);
                     };
                     img.src = dataUrl;
+                },
+                setTool: (tool) => {
+                    currentTool = tool;
+                    // 버튼 UI 색상 업데이트
+                    const btnPen = document.getElementById(`btn_tool_pen_${fieldId}`);
+                    const btnEraser = document.getElementById(`btn_tool_eraser_${fieldId}`);
+                    if (btnPen && btnEraser) {
+                        if (tool === 'pen') {
+                            btnPen.classList.replace('text-gray-500', 'text-green-700');
+                            btnPen.classList.replace('hover:text-gray-800', 'bg-white');
+                            btnPen.classList.add('shadow-sm');
+                            btnEraser.classList.replace('text-green-700', 'text-gray-500');
+                            btnEraser.classList.replace('bg-white', 'hover:text-gray-800');
+                            btnEraser.classList.remove('shadow-sm');
+                        } else {
+                            btnEraser.classList.replace('text-gray-500', 'text-green-700');
+                            btnEraser.classList.replace('hover:text-gray-800', 'bg-white');
+                            btnEraser.classList.add('shadow-sm');
+                            btnPen.classList.replace('text-green-700', 'text-gray-500');
+                            btnPen.classList.replace('bg-white', 'hover:text-gray-800');
+                            btnPen.classList.remove('shadow-sm');
+                        }
+                    }
                 }
             };
         }
 
         window.addEventListener('load', () => {
-            // 캔버스 초기화
-            window.pads['content_body'] = initDrawing('canvas_content_body');
-            window.pads['ref_good'] = initDrawing('canvas_ref_good');
-            window.pads['ref_improve'] = initDrawing('canvas_ref_improve');
+            // 캔버스 초기화 (ID와 연결된 필드 이름 함께 전달)
+            window.pads['content_body'] = initDrawing('canvas_content_body', 'content_body');
+            window.pads['ref_good'] = initDrawing('canvas_ref_good', 'ref_good');
+            window.pads['ref_improve'] = initDrawing('canvas_ref_improve', 'ref_improve');
             window.loadLocal();
         });
 
@@ -487,7 +549,7 @@
             const cvs = document.getElementById('canvas_' + field);
             const btnText = document.getElementById('btn_text_' + field);
             const btnDraw = document.getElementById('btn_draw_' + field);
-            const btnClear = document.getElementById('btn_clear_' + field);
+            const toolbar = document.getElementById('toolbar_' + field);
 
             if(mode === 'text') {
                 txt.classList.remove('hidden');
@@ -498,7 +560,11 @@
                 btnDraw.classList.replace('text-blue-600', 'text-gray-500');
                 btnDraw.classList.replace('bg-white', 'hover:text-gray-800');
                 btnDraw.classList.remove('shadow-sm');
-                btnClear.classList.add('hidden');
+                
+                if (toolbar) {
+                    toolbar.classList.add('hidden');
+                    toolbar.classList.remove('flex');
+                }
             } else {
                 txt.classList.add('hidden');
                 cvs.classList.remove('hidden');
@@ -508,7 +574,13 @@
                 btnText.classList.replace('text-blue-600', 'text-gray-500');
                 btnText.classList.replace('bg-white', 'hover:text-gray-800');
                 btnText.classList.remove('shadow-sm');
-                btnClear.classList.remove('hidden');
+                
+                if (toolbar) {
+                    toolbar.classList.remove('hidden');
+                    toolbar.classList.add('flex');
+                }
+                // 펜 모드로 들어올 때 항상 쓰기 모드로 초기화
+                window.pads[field].setTool('pen');
                 
                 // 모드 전환 시 브라우저 강제 리페인트 (좌표 어긋남 방지)
                 window.dispatchEvent(new Event('resize')); 
