@@ -608,48 +608,23 @@
         }
 
         // === 더욱 튼튼해진 Gemini API 호출 함수 (상세 에러 반환) ===
-        async function callGeminiAPIWithRetry(payload, retries = 3) {
-            // 선생님의 실제 구글 AI API 키
-            const apiKey = "AIzaSyBc1fayUnD9syE4Hklae_lIpoDtva-nz9Y"; 
-            
-            // 2026년 현재 gemini-1.5-flash-latest는 v1beta generateContent에서 404가 날 수 있어 안정 모델로 교체했습니다.
-            // 이미지+텍스트 입력을 지원하는 Gemini Flash 모델입니다.
-            const modelNames = ['gemini-2.5-flash', 'gemini-2.0-flash'];
-            const delays = [1000, 2000, 4000];
+        async function checkHandwritingWithServer(imageBase64) {
+    const response = await fetch("/api/check-handwriting", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ imageBase64 })
+    });
 
-            let lastError = null;
-            for (const modelName of modelNames) {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const data = await response.json();
 
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
+    if (!response.ok) {
+        throw new Error(data.error || "서버 함수 호출 실패");
+    }
 
-                        if (!response.ok) {
-                            const errData = await response.json().catch(() => ({}));
-                            const message = errData.error?.message || "알 수 없는 API 에러 (API 키 권한을 확인해주세요)";
-
-                            // 해당 모델을 현재 API 키/버전에서 찾지 못하면 다음 모델로 자동 전환합니다.
-                            if (response.status === 404) {
-                                lastError = new Error(`[${modelName}] [상태코드: ${response.status}] ${message}`);
-                                break;
-                            }
-                            throw new Error(`[${modelName}] [상태코드: ${response.status}] ${message}`);
-                        }
-                        return await response.json();
-                    } catch (error) {
-                        lastError = error;
-                        if (i === retries - 1) break;
-                        await new Promise(res => setTimeout(res, delays[i]));
-                    }
-                }
-            }
-            throw lastError || new Error("Gemini API 호출에 실패했습니다.");
-        }
+    return data;
+}
 
         // === 제출 및 채점 로직 ===
         window.submitAll = async function() {
@@ -685,44 +660,8 @@
 
                 const base64Image = handwritingCanvas.toDataURL('image/png').split(',')[1];
 
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [
-                            { text: "이 이미지는 초등학교 4학년 학생이 스마트펜, 손가락, 또는 마우스로 직접 쓴 한국어 손글씨입니다. 질문은 '바른 식습관의 중요성을 2가지 이상 써 봅시다' 입니다.\n\n[중요한 인식 지침]\n- 글씨가 삐뚤거나 이어져 있거나 일부 획이 끊겨도 초등학생 손글씨라고 생각하고 문맥상 가장 자연스러운 한국어로 보정해서 읽어주세요.\n- 맞춤법이 조금 틀려도 뜻이 통하면 인정하세요.\n- 예: '건강해짐', '몸이 튼튼', '잘 자람', '성장', '힘이 남', '병 예방', '아프지 않음', '질병을 막음' 같은 표현은 모두 관련 내용으로 인정합니다.\n\n[채점 기준]\n성장, 힘/활력, 질병/병/예방, 건강/튼튼 계열 핵심 의미가 2개 이상 들어 있으면 is_correct를 true로 하세요. 단, 학생 답이 '건강해진다', '병에 안 걸린다', '질병에 안 걸린다', '아프지 않다', '몸이 튼튼해진다'처럼 선생님이 인정한 직접적인 뜻을 가진 문장이면 핵심어가 1개처럼 보여도 true로 인정하세요. 글씨 인식이 완벽하지 않아도 문맥상 위 의미가 추정되면 true로 인정하세요. 아무 내용이 없거나 질문과 전혀 관련 없는 말이면 false로 하세요.\n\n반드시 JSON 형식으로만 응답하세요:\n- extracted_text: 인식된 텍스트 원본\n- is_correct: 정답 여부 true/false\n- feedback: 학생을 위한 친절한 피드백" },
-                            { inline_data: { mime_type: "image/png", data: base64Image } }
-                        ]
-                    }],
-                    // AI 필터 검열을 가장 낮게 설정하여 정상적인 응답이 차단되지 않게 함
-                    safetySettings: [
-                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                    ],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                extracted_text: { type: "STRING" },
-                                is_correct: { type: "BOOLEAN" },
-                                feedback: { type: "STRING" }
-                            }
-                        }
-                    }
-                };
-
-                const result = await callGeminiAPIWithRetry(payload);
-                
-                if (!result.candidates || result.candidates.length === 0) {
-                    throw new Error("AI 응답이 비어있습니다.");
-                }
-
-                let responseText = result.candidates[0].content?.parts[0]?.text || "";
-                responseText = responseText.replace(/```json/i, '').replace(/```/g, '').trim();
-                
-                const aiResult = JSON.parse(responseText);
+                // Gemini API 키는 HTML에 직접 넣지 않고, Vercel 서버 함수로만 보냅니다.
+                const aiResult = await checkHandwritingWithServer(base64Image);
 
                 q1_rawText = aiResult.extracted_text || "(인식된 내용 없음)";
                 
