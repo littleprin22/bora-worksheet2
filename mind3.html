@@ -282,7 +282,7 @@
             };
         };
 
-        // Firebase 설정 (기존 설정 유지 및 지침 준수)
+        // 선생님의 Firebase 프로젝트 설정
         const firebaseConfig = {
             apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
             authDomain: "bora-worksheet.firebaseapp.com",
@@ -302,7 +302,7 @@
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } catch (tokenError) {
-                        console.warn("커스텀 토큰 인증 실패 (자체 Firebase 환경인 경우 정상). 익명 로그인으로 전환합니다.", tokenError);
+                        console.warn("커스텀 토큰 인증 실패. 익명 로그인으로 전환합니다.", tokenError);
                         await signInAnonymously(auth);
                     }
                 } else {
@@ -384,7 +384,7 @@
             document.getElementById(`q3_${qNum}_${score}`).classList.add('selected');
         };
 
-        // === 1번 캔버스 세팅 (스마트펜 최적화) ===
+        // === 1번 캔버스 세팅 ===
         const canvas = document.getElementById('drawCanvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -398,7 +398,6 @@
         }
 
         window.clearCanvas = function() {
-            // 투명 배경이 아닌 완전한 흰색 배경으로 채우기 (AI 인식을 위해 필수)
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         };
@@ -410,7 +409,6 @@
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        // 터치 및 스마트펜 인식 향상을 위해 선 굵기(lineWidth) 증가
         const drawPath = (p) => {
             ctx.strokeStyle = "#1e293b"; 
             ctx.lineWidth = 6; 
@@ -444,17 +442,14 @@
         window.addEventListener('load', resizeCanvas);
         window.addEventListener('resize', resizeCanvas);
 
-        // === 백오프 재시도가 포함된 안전한 Gemini API 호출 ===
-        async function callGeminiAPIWithRetry(payload, retries = 5) {
-            // ⚠️ Vercel 등 외부에 배포할 때는 아래 빈 따옴표("") 안에 발급받은 Gemini API 키를 꼭 넣어주세요!
-            // 🚨 주의: 이곳 테스트 화면(캔버스)에서 실행할 때는 반드시 "" (빈칸)으로 두셔야 합니다!
+        // === 더욱 튼튼해진 Gemini API 호출 함수 (상세 에러 반환) ===
+        async function callGeminiAPIWithRetry(payload, retries = 3) {
+            // 선생님의 실제 구글 AI API 키
             const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; 
-            
-            // apiKey 입력 여부에 따라 캔버스용(내부) 모델과 Vercel용(외부) 퍼블릭 모델을 자동 전환합니다.
-            const modelName = apiKey ? 'gemini-1.5-flash' : 'gemini-2.5-flash-preview-09-2025';
+            const modelName = 'gemini-1.5-flash'; 
             
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-            const delays = [1000, 2000, 4000, 8000, 16000];
+            const delays = [1000, 2000, 4000];
             
             for (let i = 0; i < retries; i++) {
                 try {
@@ -463,7 +458,11 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(`[상태코드: ${response.status}] ${errData.error?.message || "알 수 없는 API 에러 (API 키 권한을 확인해주세요)"}`);
+                    }
                     return await response.json();
                 } catch (error) {
                     if (i === retries - 1) throw error;
@@ -483,11 +482,9 @@
                 window.customAlert("반 번호와 이름을 모두 적어주세요!"); return;
             }
 
-            // O/X 체크 확인
             for(let i=1; i<=7; i++) {
                 if(!window.userAnswers.ox[i]) { window.customAlert(`2번 문제의 (${i})번 답을 선택해주세요!`); return; }
             }
-            // 자기평가 체크 확인
             for(let i=1; i<=4; i++) {
                 if(!window.userAnswers.self[i]) { window.customAlert(`3번 자기평가의 ${i}번째 항목을 선택해주세요!`); return; }
             }
@@ -499,10 +496,8 @@
             let q1_score = 0;
             
             try {
-                // 1. 캔버스 이미지를 Base64로 추출 (배경이 흰색이어야 함)
                 const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
 
-                // 2. Gemini Vision API를 이용해 손글씨 텍스트 추출 및 의미 분석 채점
                 const payload = {
                     contents: [{
                         role: "user",
@@ -511,6 +506,13 @@
                             { inlineData: { mimeType: "image/jpeg", data: base64Image } }
                         ]
                     }],
+                    // AI 필터 검열을 가장 낮게 설정하여 정상적인 응답이 차단되지 않게 함
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                    ],
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: {
@@ -526,15 +528,17 @@
 
                 const result = await callGeminiAPIWithRetry(payload);
                 
-                // AI 응답 텍스트를 안전하게 읽기 위해 마크다운 기호(```json) 제거
-                let responseText = result.candidates[0].content.parts[0].text;
+                if (!result.candidates || result.candidates.length === 0) {
+                    throw new Error("AI 응답이 비어있습니다.");
+                }
+
+                let responseText = result.candidates[0].content?.parts[0]?.text || "";
                 responseText = responseText.replace(/```json/i, '').replace(/```/g, '').trim();
                 
                 const aiResult = JSON.parse(responseText);
 
                 q1_rawText = aiResult.extracted_text || "(인식된 내용 없음)";
                 
-                // feedback이 undefined로 올 경우를 대비한 친절한 기본 응답 메시지 설정
                 const fallbackMsg = aiResult.is_correct 
                     ? "정말 훌륭하게 잘 썼어요! 바른 식습관의 중요성을 아주 정확히 알고 있네요." 
                     : "성장, 건강, 활력, 질병 예방 등의 핵심 내용이 조금 더 들어가면 완벽하겠어요!";
@@ -552,9 +556,10 @@
                 }
 
             } catch(e) {
+                // 화면에 진짜 에러 원인을 빨간 글씨로 출력
                 console.error("AI 인식 오류:", e);
-                q1_rawText = "(AI 통신 지연으로 임시 저장)";
-                q1_feedback = "앗, AI 선생님과 연결이 지연되고 있어요. 작성한 내용은 선생님께 잘 전달되었습니다!";
+                q1_rawText = "(AI 통신 오류 발생)";
+                q1_feedback = `<span class="text-red-600 font-bold">앗, AI 선생님 연결에 실패했어요.</span><br><span class="text-xs text-red-500 font-bold mt-2 p-2 bg-red-50 rounded block break-keep">상세 에러: ${e.message}</span>`;
             }
 
             // 2. O/X 채점 (총 7문제)
@@ -586,7 +591,7 @@
             }
 
             // 모달 표시
-            document.getElementById('q1_result_msg').innerHTML = `<span class="text-gray-500 text-xs block mb-1">인식된 글씨: ${q1_rawText}</span>${q1_feedback}`;
+            document.getElementById('q1_result_msg').innerHTML = `<span class="text-gray-500 text-xs block mb-1 border-b pb-1">인식된 글씨: ${q1_rawText}</span>${q1_feedback}`;
             document.getElementById('q2_score_msg').innerText = `${q2_score}점 (${q2_correct_count}/7개 정답)`;
             document.getElementById('q3_score_msg').innerText = `${q3_score}점 / 12점 만점`;
             
@@ -660,7 +665,6 @@
             data.forEach(item => {
                 const d = new Date(item.timestamp);
                 const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                // 정답이면 글씨를 녹색으로 표시
                 const q1_style = item.q1_score === 100 ? 'text-green-700 font-bold' : 'text-gray-700';
                 
                 tbody.innerHTML += `
