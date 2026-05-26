@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>체육수행평가 - 나의 건강한 일주일</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #fef3c7; /* 따뜻한 종이/클레이 배경 */ }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        /* 입력창 디자인 */
+        .clay-input {
+            background-color: #fffaf0;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .clay-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        
+        textarea.clay-input { resize: none; line-height: 1.6; }
+
+        /* 요일별 카드 색상 */
+        .card-mon { border-color: #3b82f6; background-color: #eff6ff; }
+        .card-tue { border-color: #22c55e; background-color: #f0fdf4; }
+        .card-wed { border-color: #f59e0b; background-color: #fffbeb; }
+        .card-thu { border-color: #14b8a6; background-color: #f0fdfa; }
+        .card-fri { border-color: #ef4444; background-color: #fef2f2; }
+
+        /* 감정 이모지 버튼 */
+        .mood-btn {
+            transition: all 0.2s;
+            filter: grayscale(100%);
+            opacity: 0.4;
+            cursor: pointer;
+        }
+        .mood-btn.selected {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* 별점 */
+        .star-btn { color: #d1d5db; cursor: pointer; transition: color 0.2s, transform 0.1s; }
+        .star-btn:hover { transform: scale(1.1); }
+        .star-btn.active { color: #f59e0b; }
+
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-animate { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="p-2 md:p-6 min-h-screen text-gray-800">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-[2rem] p-4 md:p-8 shadow-2xl relative border-8 border-orange-100">
+        
+        <!-- 오토세이브 알림 -->
+        <div id="saveIndicator" class="absolute top-4 right-6 text-sm font-bold text-green-600 opacity-0 transition-opacity duration-500">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 자동 저장됨
+        </div>
+
+        <!-- 헤더 영역 -->
+        <header class="mb-8 relative z-10 text-center">
+            <div class="bg-amber-700 text-white inline-block px-8 py-3 rounded-full shadow-md border-4 border-amber-800 mb-6">
+                <h1 class="text-2xl md:text-3xl font-jua tracking-wider">
+                    [체육수행평가] 나의 건강한 일주일: 생활 습관 실천 기록지
+                </h1>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 w-full max-w-2xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <input type="number" id="grade" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" value="4" readonly oninput="saveLocal()">학년
+                    <input type="number" id="classNum" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="반" oninput="saveLocal()">반
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="번" oninput="saveLocal()">번
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="studentName" class="w-24 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="이름" oninput="saveLocal()">
+                </div>
+            </div>
+        </header>
+
+        <!-- 1. 목표와 약속 -->
+        <section class="mb-10">
+            <h2 class="text-xl font-jua text-amber-900 mb-3 text-center border-b-2 border-amber-200 pb-2">이번 주 나의 건강 목표와 약속</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-orange-50 p-4 rounded-2xl border-2 border-orange-200 flex flex-col">
+                    <label class="font-bold text-orange-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-utensils"></i> 식사/영양 목표</label>
+                    <input type="text" id="goal_food" class="clay-input w-full p-3 flex-1 text-sm" placeholder="예) 매일 아침밥 먹기" oninput="saveLocal()">
+                </div>
+                <div class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-200 flex flex-col">
+                    <label class="font-bold text-blue-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-person-running"></i> 운동 목표</label>
+                    <input type="text" id="goal_ex" class="clay-input w-full p-3 flex-1 text-sm" placeholder="예) 줄넘기 매일 100개" oninput="saveLocal()">
+                </div>
+                <div class="bg-green-50 p-4 rounded-2xl border-2 border-green-200 flex flex-col">
+                    <label class="font-bold text-green-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-handshake-angle"></i> 내가 꼭 지킬 약속</label>
+                    <input type="text" id="goal_promise" class="clay-input w-full p-3 flex-1 text-sm" placeholder="예) 스마트폰 보며 밥 먹지 않기" oninput="saveLocal()">
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 주간 기록 (월~금) -->
+        <section class="mb-10">
+            <h2 class="text-xl font-jua text-amber-900 mb-4 text-center border-b-2 border-amber-200 pb-2">월요일부터 금요일까지 꼼꼼한 기록</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <!-- 월요일 -->
+                <div class="border-4 card-mon rounded-2xl p-3 flex flex-col gap-3">
+                    <h3 class="font-jua text-xl text-center text-blue-700 bg-blue-100 py-1 rounded-lg">월요일 🌞</h3>
+                    <div>
+                        <span class="text-xs font-bold text-blue-800"><i class="fa-solid fa-bowl-food"></i> 식사 기록</span>
+                        <textarea id="mon_food" class="clay-input w-full p-2 h-24 text-sm mt-1" placeholder="아침, 점심, 저녁, 간식" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-blue-800"><i class="fa-solid fa-stopwatch"></i> 운동 기록</span>
+                        <textarea id="mon_ex" class="clay-input w-full p-2 h-16 text-sm mt-1" placeholder="종류, 시간" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div class="mt-auto bg-white p-2 rounded-xl border border-blue-200 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-2">오늘의 점검</span>
+                        <div class="flex justify-center gap-2">
+                            <i id="mon_mood_3" class="fa-solid fa-face-smile text-2xl text-green-500 mood-btn" onclick="setMood('mon', 3)"></i>
+                            <i id="mon_mood_2" class="fa-solid fa-face-meh text-2xl text-yellow-500 mood-btn" onclick="setMood('mon', 2)"></i>
+                            <i id="mon_mood_1" class="fa-solid fa-face-frown text-2xl text-red-500 mood-btn" onclick="setMood('mon', 1)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 화요일 -->
+                <div class="border-4 card-tue rounded-2xl p-3 flex flex-col gap-3">
+                    <h3 class="font-jua text-xl text-center text-green-700 bg-green-100 py-1 rounded-lg">화요일 🌞</h3>
+                    <div>
+                        <span class="text-xs font-bold text-green-800"><i class="fa-solid fa-bowl-food"></i> 식사 기록</span>
+                        <textarea id="tue_food" class="clay-input w-full p-2 h-24 text-sm mt-1" placeholder="아침, 점심, 저녁, 간식" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-green-800"><i class="fa-solid fa-stopwatch"></i> 운동 기록</span>
+                        <textarea id="tue_ex" class="clay-input w-full p-2 h-16 text-sm mt-1" placeholder="종류, 시간" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div class="mt-auto bg-white p-2 rounded-xl border border-green-200 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-2">오늘의 점검</span>
+                        <div class="flex justify-center gap-2">
+                            <i id="tue_mood_3" class="fa-solid fa-face-smile text-2xl text-green-500 mood-btn" onclick="setMood('tue', 3)"></i>
+                            <i id="tue_mood_2" class="fa-solid fa-face-meh text-2xl text-yellow-500 mood-btn" onclick="setMood('tue', 2)"></i>
+                            <i id="tue_mood_1" class="fa-solid fa-face-frown text-2xl text-red-500 mood-btn" onclick="setMood('tue', 1)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 수요일 -->
+                <div class="border-4 card-wed rounded-2xl p-3 flex flex-col gap-3">
+                    <h3 class="font-jua text-xl text-center text-amber-700 bg-amber-100 py-1 rounded-lg">수요일 🌞</h3>
+                    <div>
+                        <span class="text-xs font-bold text-amber-800"><i class="fa-solid fa-bowl-food"></i> 식사 기록</span>
+                        <textarea id="wed_food" class="clay-input w-full p-2 h-24 text-sm mt-1" placeholder="아침, 점심, 저녁, 간식" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-amber-800"><i class="fa-solid fa-stopwatch"></i> 운동 기록</span>
+                        <textarea id="wed_ex" class="clay-input w-full p-2 h-16 text-sm mt-1" placeholder="종류, 시간" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div class="mt-auto bg-white p-2 rounded-xl border border-amber-200 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-2">오늘의 점검</span>
+                        <div class="flex justify-center gap-2">
+                            <i id="wed_mood_3" class="fa-solid fa-face-smile text-2xl text-green-500 mood-btn" onclick="setMood('wed', 3)"></i>
+                            <i id="wed_mood_2" class="fa-solid fa-face-meh text-2xl text-yellow-500 mood-btn" onclick="setMood('wed', 2)"></i>
+                            <i id="wed_mood_1" class="fa-solid fa-face-frown text-2xl text-red-500 mood-btn" onclick="setMood('wed', 1)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 목요일 -->
+                <div class="border-4 card-thu rounded-2xl p-3 flex flex-col gap-3">
+                    <h3 class="font-jua text-xl text-center text-teal-700 bg-teal-100 py-1 rounded-lg">목요일 🌞</h3>
+                    <div>
+                        <span class="text-xs font-bold text-teal-800"><i class="fa-solid fa-bowl-food"></i> 식사 기록</span>
+                        <textarea id="thu_food" class="clay-input w-full p-2 h-24 text-sm mt-1" placeholder="아침, 점심, 저녁, 간식" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-teal-800"><i class="fa-solid fa-stopwatch"></i> 운동 기록</span>
+                        <textarea id="thu_ex" class="clay-input w-full p-2 h-16 text-sm mt-1" placeholder="종류, 시간" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div class="mt-auto bg-white p-2 rounded-xl border border-teal-200 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-2">오늘의 점검</span>
+                        <div class="flex justify-center gap-2">
+                            <i id="thu_mood_3" class="fa-solid fa-face-smile text-2xl text-green-500 mood-btn" onclick="setMood('thu', 3)"></i>
+                            <i id="thu_mood_2" class="fa-solid fa-face-meh text-2xl text-yellow-500 mood-btn" onclick="setMood('thu', 2)"></i>
+                            <i id="thu_mood_1" class="fa-solid fa-face-frown text-2xl text-red-500 mood-btn" onclick="setMood('thu', 1)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 금요일 -->
+                <div class="border-4 card-fri rounded-2xl p-3 flex flex-col gap-3">
+                    <h3 class="font-jua text-xl text-center text-red-700 bg-red-100 py-1 rounded-lg">금요일 🌞</h3>
+                    <div>
+                        <span class="text-xs font-bold text-red-800"><i class="fa-solid fa-bowl-food"></i> 식사 기록</span>
+                        <textarea id="fri_food" class="clay-input w-full p-2 h-24 text-sm mt-1" placeholder="아침, 점심, 저녁, 간식" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-red-800"><i class="fa-solid fa-stopwatch"></i> 운동 기록</span>
+                        <textarea id="fri_ex" class="clay-input w-full p-2 h-16 text-sm mt-1" placeholder="종류, 시간" oninput="saveLocal()"></textarea>
+                    </div>
+                    <div class="mt-auto bg-white p-2 rounded-xl border border-red-200 text-center">
+                        <span class="text-xs font-bold text-gray-500 block mb-2">오늘의 점검</span>
+                        <div class="flex justify-center gap-2">
+                            <i id="fri_mood_3" class="fa-solid fa-face-smile text-2xl text-green-500 mood-btn" onclick="setMood('fri', 3)"></i>
+                            <i id="fri_mood_2" class="fa-solid fa-face-meh text-2xl text-yellow-500 mood-btn" onclick="setMood('fri', 2)"></i>
+                            <i id="fri_mood_1" class="fa-solid fa-face-frown text-2xl text-red-500 mood-btn" onclick="setMood('fri', 1)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 일주일 성찰 -->
+        <section class="mb-10">
+            <h2 class="text-xl font-jua text-amber-900 mb-4 text-center border-b-2 border-amber-200 pb-2">일주일 돌아보기 & 자기평가</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
+                    <label class="font-bold text-amber-900 mb-2 flex items-center gap-2"><span class="text-xl">🌟</span> 가장 잘 실천한 점</label>
+                    <textarea id="ref_best" class="clay-input w-full p-3 h-20 text-sm" placeholder="어떤 점을 가장 잘 했나요?" oninput="saveLocal()"></textarea>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl border-2 border-gray-200">
+                    <label class="font-bold text-gray-700 mb-2 flex items-center gap-2"><span class="text-xl">☁️</span> 아쉬웠던 점</label>
+                    <textarea id="ref_regret" class="clay-input w-full p-3 h-20 text-sm" placeholder="어떤 점이 아쉬웠나요?" oninput="saveLocal()"></textarea>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-2xl border-2 border-rose-200">
+                    <label class="font-bold text-rose-800 mb-2 flex items-center gap-2"><span class="text-xl">🚀</span> 앞으로 노력할 점</label>
+                    <textarea id="ref_future" class="clay-input w-full p-3 h-20 text-sm" placeholder="다음 주에는 어떻게 해볼까요?" oninput="saveLocal()"></textarea>
+                </div>
+            </div>
+
+            <!-- 4가지 항목 자기평가 점검 -->
+            <div class="bg-stone-50 p-6 rounded-2xl border-4 border-stone-200 flex flex-col md:flex-row gap-6 items-center">
+                <div class="flex-1 w-full space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2">
+                        <span class="font-bold text-stone-700">● 식습관 실천 (5점)</span>
+                        <div class="flex text-2xl" id="star_diet">
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('diet', 1)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('diet', 2)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('diet', 3)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('diet', 4)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('diet', 5)"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2">
+                        <span class="font-bold text-stone-700">● 운동 실천 (5점)</span>
+                        <div class="flex text-2xl" id="star_ex">
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('ex', 1)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('ex', 2)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('ex', 3)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('ex', 4)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('ex', 5)"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2">
+                        <span class="font-bold text-stone-700">● 성실한 기록 (5점)</span>
+                        <div class="flex text-2xl" id="star_record">
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('record', 1)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('record', 2)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('record', 3)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('record', 4)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('record', 5)"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+                        <span class="font-bold text-stone-700">● 고칠 점 발견 여부 (5점)</span>
+                        <div class="flex text-2xl" id="star_improve">
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('improve', 1)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('improve', 2)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('improve', 3)"></i><i class="fa-solid fa-star star-btn" onclick="setStar('improve', 4)"></i>
+                            <i class="fa-solid fa-star star-btn" onclick="setStar('improve', 5)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최종 등급 -->
+                <div class="w-full md:w-48 bg-white border-4 border-amber-300 rounded-2xl p-4 flex flex-col items-center justify-center h-full shadow-inner">
+                    <span class="font-jua text-amber-800 text-lg mb-2">최종 등급</span>
+                    <div id="finalGrade" class="text-6xl font-black text-gray-300 transition-all">-</div>
+                    <span id="finalScore" class="text-sm font-bold text-gray-500 mt-2">0 / 20점</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 경고 메시지 -->
+        <p class="text-center text-sm font-bold text-red-500 mb-4 bg-red-50 py-2 rounded-lg border border-red-200">
+            ⚠️ 주의: '최종 제출' 버튼은 금요일 일과가 모두 끝난 후 마지막에 한 번만 눌러주세요! (입력 내용은 태블릿에 자동 저장됩니다.)
+        </p>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center relative z-10">
+            <button onclick="window.submitAll()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-jua text-2xl py-4 px-16 rounded-full shadow-lg transform transition hover:scale-105 hover:shadow-xl active:scale-95">
+                <i class="fa-solid fa-paper-plane mr-2"></i> 선생님께 최종 제출하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 오류 알림용 커스텀 팝업창 -->
+    <div id="customAlertModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3">💬</div>
+            <p id="customAlertMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <!-- 결과 안내 팝업 (학생용) -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-[90] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-t-8 border-amber-500">
+            <div class="text-6xl mb-2 mt-4">🏅</div>
+            <h3 class="text-3xl font-jua text-amber-700 mb-2">제출 완료!</h3>
+            <p class="text-gray-600 mb-6 font-bold leading-relaxed">
+                일주일 동안 기록하느라 정말 수고 많았어요.<br>나의 건강한 습관이 평생 갑니다!
+            </p>
+            <button onclick="location.reload()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md">
+                확인 (새로고침)
+            </button>
+        </div>
+    </div>
+
+    <!-- 선생님 모드 입장 버튼 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <button onclick="window.openPasswordModal()" class="bg-stone-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-stone-900 transition flex items-center gap-2 font-bold text-sm opacity-50 hover:opacity-100">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 모드
+        </button>
+    </div>
+
+    <!-- 선생님 인증 팝업 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="window.closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-xl font-jua text-stone-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-stone-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-stone-500" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') window.checkPassword()">
+            <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+            <button onclick="window.checkPassword()" class="w-full bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-xl transition mt-2">확인</button>
+        </div>
+    </div>
+
+    <!-- 선생님 대시보드 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 z-[60] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-7xl w-full h-[90vh] flex flex-col shadow-2xl relative modal-animate">
+            <button onclick="window.closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+            
+            <h2 class="text-2xl font-jua text-stone-900 mb-2"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (나의 건강한 일주일)</h2>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 bg-stone-100 p-3 rounded-xl border border-stone-200">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-stone-800"><i class="fa-solid fa-filter"></i> 반별 모아보기:</span>
+                    <select id="classFilter" onchange="window.renderTable()" class="border-2 border-stone-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-stone-600 font-bold text-gray-700 bg-white shadow-sm flex-1 sm:flex-none">
+                        <option value="all">모든 반 전체 보기</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="window.downloadCSV()" class="flex-1 sm:flex-none bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-xl transition text-sm flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 bg-white rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
+                    <thead class="bg-stone-100 sticky top-0 shadow-sm z-10">
+                        <tr>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-16 text-center">반/번호</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-24">이름</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-20 text-center">최종등급</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-16 text-center">점수</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-[20%]">건강 목표</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-[25%]">일주일 성찰 (가장 잘한 점)</th>
+                            <th class="p-3 border-b border-stone-200 font-bold text-stone-800 w-24 text-center">제출일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.customAlert = function(msg) {
+            document.getElementById('customAlertMessage').innerHTML = msg;
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+            authDomain: "bora-worksheet.firebaseapp.com",
+            projectId: "bora-worksheet",
+            storageBucket: "bora-worksheet.firebasestorage.app",
+            messagingSenderId: "1091782933629",
+            appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        signInAnonymously(auth).catch(console.error);
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bora-worksheet';
+        const COLLECTION_NAME = 'pe_weekly_health_results'; 
+        let allResults = [];
+
+        // 데이터 상태 객체
+        window.appData = {
+            mood: { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0 },
+            stars: { diet: 0, ex: 0, record: 0, improve: 0 }
+        };
+
+        // 감정(점검) 이모지 선택
+        window.setMood = function(day, value) {
+            window.appData.mood[day] = value;
+            for(let i=1; i<=3; i++) { document.getElementById(`${day}_mood_${i}`).classList.remove('selected'); }
+            document.getElementById(`${day}_mood_${value}`).classList.add('selected');
+            window.saveLocal();
+        };
+
+        // 별점 선택
+        window.setStar = function(category, value) {
+            window.appData.stars[category] = value;
+            const container = document.getElementById(`star_${category}`);
+            const stars = container.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+                if (index < value) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+            window.updateFinalGrade();
+            window.saveLocal();
+        };
+
+        // 최종 등급 계산
+        window.updateFinalGrade = function() {
+            const total = window.appData.stars.diet + window.appData.stars.ex + window.appData.stars.record + window.appData.stars.improve;
+            document.getElementById('finalScore').innerText = `${total} / 20점`;
+            
+            const gradeEl = document.getElementById('finalGrade');
+            if (total === 0) { gradeEl.innerText = "-"; gradeEl.className = "text-6xl font-black text-gray-300 transition-all"; }
+            else if (total >= 16) { gradeEl.innerText = "A"; gradeEl.className = "text-6xl font-black text-green-500 transition-all scale-110 drop-shadow-md"; }
+            else if (total >= 11) { gradeEl.innerText = "B"; gradeEl.className = "text-6xl font-black text-blue-500 transition-all scale-110 drop-shadow-md"; }
+            else { gradeEl.innerText = "C"; gradeEl.className = "text-6xl font-black text-orange-500 transition-all scale-110 drop-shadow-md"; }
+        };
+
+        // ==========================================
+        // 💡 핵심 기능: LocalStorage 자동 임시 저장
+        // ==========================================
+        window.saveLocal = function() {
+            const dataToSave = {
+                grade: document.getElementById('grade').value,
+                classNum: document.getElementById('classNum').value,
+                studentNum: document.getElementById('studentNum').value,
+                studentName: document.getElementById('studentName').value,
+                goal_food: document.getElementById('goal_food').value,
+                goal_ex: document.getElementById('goal_ex').value,
+                goal_promise: document.getElementById('goal_promise').value,
+                mon_food: document.getElementById('mon_food').value,
+                mon_ex: document.getElementById('mon_ex').value,
+                tue_food: document.getElementById('tue_food').value,
+                tue_ex: document.getElementById('tue_ex').value,
+                wed_food: document.getElementById('wed_food').value,
+                wed_ex: document.getElementById('wed_ex').value,
+                thu_food: document.getElementById('thu_food').value,
+                thu_ex: document.getElementById('thu_ex').value,
+                fri_food: document.getElementById('fri_food').value,
+                fri_ex: document.getElementById('fri_ex').value,
+                ref_best: document.getElementById('ref_best').value,
+                ref_regret: document.getElementById('ref_regret').value,
+                ref_future: document.getElementById('ref_future').value,
+                mood: window.appData.mood,
+                stars: window.appData.stars
+            };
+            localStorage.setItem('weeklyHealthTracker', JSON.stringify(dataToSave));
+            
+            // "자동 저장됨" 텍스트 깜빡임 효과
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.opacity = 1;
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => { indicator.style.opacity = 0; }, 2000);
+        };
+
+        window.loadLocal = function() {
+            const saved = localStorage.getItem('weeklyHealthTracker');
+            if(saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    // 텍스트 인풋 복원
+                    const fields = ['grade', 'classNum', 'studentNum', 'studentName', 'goal_food', 'goal_ex', 'goal_promise', 'mon_food', 'mon_ex', 'tue_food', 'tue_ex', 'wed_food', 'wed_ex', 'thu_food', 'thu_ex', 'fri_food', 'fri_ex', 'ref_best', 'ref_regret', 'ref_future'];
+                    fields.forEach(f => { if(data[f]) document.getElementById(f).value = data[f]; });
+                    
+                    // 기분(무드) 버튼 복원
+                    if(data.mood) {
+                        for (const [day, val] of Object.entries(data.mood)) {
+                            if(val > 0) window.setMood(day, val);
+                        }
+                    }
+                    // 별점 복원
+                    if(data.stars) {
+                        for (const [cat, val] of Object.entries(data.stars)) {
+                            if(val > 0) window.setStar(cat, val);
+                        }
+                    }
+                } catch(e) { console.error("로컬 저장소 파싱 에러"); }
+            }
+        };
+
+        // 페이지 로드 시 자동 불러오기
+        window.addEventListener('load', window.loadLocal);
+
+        // === 최종 제출 로직 ===
+        window.submitAll = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const classNum = document.getElementById('classNum').value || "-";
+            const grade = document.getElementById('grade').value;
+            const studentNum = document.getElementById('studentNum').value || "-";
+
+            if(!studentName || classNum === "-" || studentNum === "-") {
+                window.customAlert("반, 번호, 이름을 정확히 적어주세요!"); return;
+            }
+
+            const totalStars = window.appData.stars.diet + window.appData.stars.ex + window.appData.stars.record + window.appData.stars.improve;
+            if(totalStars === 0) {
+                window.customAlert("맨 아래 자기평가 별점을 체크해주세요!"); return;
+            }
+
+            let finalGradeStr = "C";
+            if(totalStars >= 16) finalGradeStr = "A";
+            else if(totalStars >= 11) finalGradeStr = "B";
+
+            if (auth?.currentUser && db) {
+                try {
+                    const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                    await addDoc(resultsRef, {
+                        grade: grade, classNum: classNum, studentNum: studentNum, studentName: studentName,
+                        totalScore: totalStars,
+                        finalGrade: finalGradeStr,
+                        goal_promise: document.getElementById('goal_promise').value,
+                        ref_best: document.getElementById('ref_best').value,
+                        // 데이터를 너무 많이 보내면 무거우니 선생님이 볼 요약본 위주로 전송
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // 제출 성공 시 로컬스토리지 비우기 (새로운 시작)
+                    localStorage.removeItem('weeklyHealthTracker');
+                    
+                    document.getElementById('resultModal').classList.remove('hidden');
+                } catch (e) { 
+                    console.error("데이터 저장 중 오류 발생: ", e); 
+                    window.customAlert("저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.");
+                }
+            } else {
+                window.customAlert("서버 연결이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.");
+            }
+        };
+
+        // === 선생님 대시보드 ===
+        const TEACHER_PASSWORD = "0402"; 
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+        window.closePasswordModal = function() { document.getElementById('passwordModal').classList.add('hidden'); };
+        window.checkPassword = function() {
+            if (document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD) {
+                window.closePasswordModal(); window.openDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            if (auth?.currentUser && db) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    allResults = [];
+                    snapshot.forEach(doc => { allResults.push({ id: doc.id, ...doc.data() }); });
+                    allResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    window.updateFilterOptions();
+                    window.renderTable();
+                });
+            }
+        };
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if(unsubscribe) { unsubscribe(); unsubscribe = null; }
+        };
+
+        window.updateFilterOptions = function() {
+            const filter = document.getElementById('classFilter');
+            const current = filter.value;
+            const unique = [...new Set(allResults.map(i => `${i.grade}-${i.classNum}`))].sort();
+            let html = `<option value="all">모든 반 전체 보기</option>`;
+            unique.forEach(c => html += `<option value="${c}">${c}반</option>`);
+            filter.innerHTML = html;
+            if(unique.includes(current)) filter.value = current;
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('dashboardTableBody');
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            
+            tbody.innerHTML = '';
+            if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">제출된 기록이 없습니다.</td></tr>`; return; }
+
+            data.forEach(item => {
+                const d = new Date(item.timestamp);
+                const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                
+                let gradeColor = "text-gray-500";
+                if(item.finalGrade === "A") gradeColor = "text-green-600";
+                if(item.finalGrade === "B") gradeColor = "text-blue-500";
+                if(item.finalGrade === "C") gradeColor = "text-orange-500";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-stone-50 transition border-b border-gray-100">
+                        <td class="p-3 text-center">${item.classNum}-${item.studentNum}</td>
+                        <td class="p-3 font-bold text-stone-900">${item.studentName}</td>
+                        <td class="p-3 text-center text-2xl font-black ${gradeColor}">${item.finalGrade}</td>
+                        <td class="p-3 text-center font-bold text-stone-600">${item.totalScore}점</td>
+                        <td class="p-3 text-sm text-gray-700 truncate max-w-[150px]" title="${item.goal_promise || ''}">${item.goal_promise || '-'}</td>
+                        <td class="p-3 text-sm text-gray-700 truncate max-w-[200px]" title="${item.ref_best || ''}">${item.ref_best || '-'}</td>
+                        <td class="p-3 text-xs text-gray-500 text-center">${timeStr}</td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.downloadCSV = function() {
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
+
+            let csv = "\uFEFF제출일시,학년,반,번호,이름,최종등급,점수,건강목표,가장잘한점\n";
+            data.forEach(i => {
+                const d = new Date(i.timestamp);
+                const t = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                const goal = i.goal_promise ? i.goal_promise.replace(/"/g, '""').replace(/\n/g, ' ') : '';
+                const ref = i.ref_best ? i.ref_best.replace(/"/g, '""').replace(/\n/g, ' ') : '';
+                csv += `"${t}","${i.grade}","${i.classNum}","${i.studentNum}","${i.studentName}","${i.finalGrade}","${i.totalScore}","${goal}","${ref}"\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `건강일주일_기록지_${filter==='all'?'전체':filter+'반'}_결과.csv`;
+            link.click();
+        };
+    </script>
+</body>
+</html>
