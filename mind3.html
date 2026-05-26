@@ -446,7 +446,9 @@
         async function callGeminiAPIWithRetry(payload, retries = 3) {
             // 선생님의 실제 구글 AI API 키
             const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; 
-            const modelName = 'gemini-1.5-flash'; 
+            
+            // gemini-1.5-flash 모델명으로 인해 404 에러가 발생하는 것을 방지하기 위해 '-latest'를 추가했습니다.
+            const modelName = 'gemini-1.5-flash-latest'; 
             
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             const delays = [1000, 2000, 4000];
