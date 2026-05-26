@@ -384,93 +384,271 @@
             document.getElementById(`q3_${qNum}_${score}`).classList.add('selected');
         };
 
-        // === 1번 캔버스 세팅 ===
+        // === 1번 캔버스 세팅: 스마트펜/손가락 입력 위치 보정 + AI 인식용 이미지 보정 ===
         const canvas = document.getElementById('drawCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0, lastY = 0;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-        function resizeCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            window.clearCanvas();
+        let isDrawing = false;
+        let activePointerId = null;
+        let lastX = 0, lastY = 0;
+        let hasDrawing = false;
+
+        // 실제 캔버스 픽셀 좌표 기준으로 학생이 쓴 영역을 추적합니다.
+        let inkBounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+
+        function resetInkBounds() {
+            inkBounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+        }
+
+        function updateInkBounds(x, y) {
+            const margin = Math.max(12, Math.round((window.devicePixelRatio || 1) * 10));
+            inkBounds.minX = Math.min(inkBounds.minX, x - margin);
+            inkBounds.minY = Math.min(inkBounds.minY, y - margin);
+            inkBounds.maxX = Math.max(inkBounds.maxX, x + margin);
+            inkBounds.maxY = Math.max(inkBounds.maxY, y + margin);
+        }
+
+        function paintCanvasWhite() {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+        }
+
+        function setCanvasSize(preserve = true) {
+            const wrapper = canvas.parentElement;
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = Math.max(window.devicePixelRatio || 1, 1);
+            const oldImage = preserve && hasDrawing ? canvas.toDataURL('image/png') : null;
+
+            // CSS 크기와 실제 픽셀 크기를 분리하되, 좌표 계산은 항상 실제 픽셀 기준으로 합니다.
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            canvas.width = Math.max(1, Math.round(rect.width * dpr));
+            canvas.height = Math.max(1, Math.round(rect.height * dpr));
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            paintCanvasWhite();
+
+            if (oldImage) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = oldImage;
+            } else {
+                resetInkBounds();
+            }
         }
 
         window.clearCanvas = function() {
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            paintCanvasWhite();
+            hasDrawing = false;
+            resetInkBounds();
         };
 
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
         }
 
-        const drawPath = (p) => {
-            ctx.strokeStyle = "#1e293b"; 
-            ctx.lineWidth = 6; 
-            ctx.lineJoin = "round"; 
+        function getLineWidth(e) {
+            const dpr = Math.max(window.devicePixelRatio || 1, 1);
+            // 펜 압력이 들어오면 살짝 반영하되 너무 굵어지지 않게 제한합니다.
+            const pressure = e.pressure && e.pressure > 0 ? e.pressure : 0.5;
+            return Math.max(2.4 * dpr, Math.min(4.0 * dpr, (2.6 + pressure * 1.4) * dpr));
+        }
+
+        function drawDot(x, y, lineWidth) {
+            ctx.fillStyle = "#111827";
+            ctx.beginPath();
+            ctx.arc(x, y, Math.max(1.2, lineWidth / 2.2), 0, Math.PI * 2);
+            ctx.fill();
+            hasDrawing = true;
+            updateInkBounds(x, y);
+        }
+
+        function drawPath(p, lineWidth) {
+            ctx.strokeStyle = "#111827";
+            ctx.lineWidth = lineWidth;
+            ctx.lineJoin = "round";
             ctx.lineCap = "round";
-            ctx.beginPath(); 
-            ctx.moveTo(lastX, lastY); 
-            ctx.lineTo(p.x, p.y); 
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(p.x, p.y);
             ctx.stroke();
+
+            hasDrawing = true;
+            updateInkBounds(lastX, lastY);
+            updateInkBounds(p.x, p.y);
             [lastX, lastY] = [p.x, p.y];
         }
 
-        canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; });
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
+        function startDraw(e) {
             e.preventDefault();
-            drawPath(getPos(e));
+            isDrawing = true;
+            activePointerId = e.pointerId;
+            try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+
+            const p = getPos(e);
+            [lastX, lastY] = [p.x, p.y];
+            drawDot(p.x, p.y, getLineWidth(e));
+        }
+
+        function moveDraw(e) {
+            if (!isDrawing || e.pointerId !== activePointerId) return;
+            e.preventDefault();
+            if (e.pointerType === "mouse" && e.buttons !== 1) return;
+            drawPath(getPos(e), getLineWidth(e));
+        }
+
+        function stopDraw(e) {
+            if (!isDrawing || e.pointerId !== activePointerId) return;
+            e.preventDefault();
+            isDrawing = false;
+            activePointerId = null;
+            try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+
+        canvas.addEventListener('pointerdown', startDraw, { passive: false });
+        canvas.addEventListener('pointermove', moveDraw, { passive: false });
+        canvas.addEventListener('pointerup', stopDraw, { passive: false });
+        canvas.addEventListener('pointercancel', stopDraw, { passive: false });
+        canvas.addEventListener('lostpointercapture', () => { isDrawing = false; activePointerId = null; });
+
+        window.addEventListener('load', () => setCanvasSize(false));
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => setCanvasSize(true), 250);
         });
-        const stopDraw = () => { isDrawing = false; };
-        canvas.addEventListener('mouseup', stopDraw); 
-        canvas.addEventListener('mouseout', stopDraw);
-        
-        canvas.addEventListener('touchstart', (e) => { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; }, {passive:false});
-        canvas.addEventListener('touchmove', (e) => {
-            if (!isDrawing) return; 
-            e.preventDefault();
-            drawPath(getPos(e));
-        }, {passive:false});
-        canvas.addEventListener('touchend', stopDraw);
-        
-        window.addEventListener('load', resizeCanvas);
-        window.addEventListener('resize', resizeCanvas);
+
+        // AI 인식률 향상용: 학생이 쓴 영역만 잘라서 흰 배경 PNG로 확대해 보냅니다.
+        function getHandwritingImageForAI() {
+            if (!hasDrawing) return null;
+
+            const padding = Math.round(Math.max(canvas.width, canvas.height) * 0.04);
+            const cropX = Math.max(0, Math.floor(inkBounds.minX - padding));
+            const cropY = Math.max(0, Math.floor(inkBounds.minY - padding));
+            const cropRight = Math.min(canvas.width, Math.ceil(inkBounds.maxX + padding));
+            const cropBottom = Math.min(canvas.height, Math.ceil(inkBounds.maxY + padding));
+            const cropW = Math.max(1, cropRight - cropX);
+            const cropH = Math.max(1, cropBottom - cropY);
+
+            const scale = Math.max(2, Math.min(4, 1200 / cropW));
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = Math.max(1000, Math.round(cropW * scale));
+            outCanvas.height = Math.max(420, Math.round(cropH * scale));
+
+            const outCtx = outCanvas.getContext('2d');
+            outCtx.fillStyle = "white";
+            outCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+            outCtx.imageSmoothingEnabled = true;
+            outCtx.imageSmoothingQuality = "high";
+
+            const targetPadding = 36;
+            outCtx.drawImage(
+                canvas,
+                cropX,
+                cropY,
+                cropW,
+                cropH,
+                targetPadding,
+                targetPadding,
+                outCanvas.width - targetPadding * 2,
+                outCanvas.height - targetPadding * 2
+            );
+
+            return outCanvas;
+        }
+
+        // AI가 살짝 보수적으로 채점하거나 글씨를 일부 이상하게 읽어도, 핵심어 기준으로 한 번 더 보정합니다.
+        function localCheckQ1Answer(text) {
+            const normalized = (text || "")
+                .replace(/\s+/g, "")
+                .replace(/[.,!?~^;:·ㆍ]/g, "")
+                .toLowerCase();
+
+            const groups = [
+                { name: "성장", patterns: ["성장", "자람", "잘자", "키가", "크게"] },
+                { name: "힘", patterns: ["힘", "활기", "에너지", "기운"] },
+                { name: "질병", patterns: ["질병", "병", "아프", "감기", "예방", "안걸", "걸리지", "막", "물리"] },
+                { name: "건강", patterns: ["건강", "튼튼", "몸에좋", "몸이좋"] }
+            ];
+
+            const matched = groups.filter(g => g.patterns.some(p => normalized.includes(p))).map(g => g.name);
+
+            // 원래 기준: 성장/힘/질병/건강 계열 키워드가 2개 이상이면 정답
+            if (matched.length >= 2) {
+                return { isCorrect: true, matched };
+            }
+
+            // 선생님이 추가로 말씀하신 인정 답안: 건강해진다, 병에 안 걸린다, 질병에 안 걸린다 등의 뜻이면 정답
+            // AI가 '건강해진다'를 '건강이 지니'처럼 어색하게 읽는 경우도 일부 보정합니다.
+            const meaningPatterns = [
+                "건강해", "건강하", "건강이좋", "건강하게", "건강해지", "건강해진",
+                "건강이지", "건강이지니", "건강지니", "건강이진",
+                "튼튼해", "튼튼하", "몸이튼튼", "몸튼튼",
+                "병에안걸", "병이안걸", "병안걸", "병에걸리지", "병걸리지",
+                "질병에안걸", "질병이안걸", "질병안걸", "질병에걸리지", "질병걸리지",
+                "아프지않", "덜아프", "예방", "막아", "막을", "물리칠"
+            ];
+            if (meaningPatterns.some(p => normalized.includes(p))) {
+                return { isCorrect: true, matched };
+            }
+
+            return { isCorrect: false, matched };
+        }
 
         // === 더욱 튼튼해진 Gemini API 호출 함수 (상세 에러 반환) ===
         async function callGeminiAPIWithRetry(payload, retries = 3) {
             // 선생님의 실제 구글 AI API 키
             const apiKey = "AIzaSyD94jJwfhxCsWtd0dVNOglZjppR2zah3h4"; 
             
-            // gemini-1.5-flash 모델명으로 인해 404 에러가 발생하는 것을 방지하기 위해 '-latest'를 추가했습니다.
-            const modelName = 'gemini-1.5-flash-latest'; 
-            
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            // 2026년 현재 gemini-1.5-flash-latest는 v1beta generateContent에서 404가 날 수 있어 안정 모델로 교체했습니다.
+            // 이미지+텍스트 입력을 지원하는 Gemini Flash 모델입니다.
+            const modelNames = ['gemini-2.5-flash', 'gemini-2.0-flash'];
             const delays = [1000, 2000, 4000];
-            
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (!response.ok) {
-                        const errData = await response.json().catch(() => ({}));
-                        throw new Error(`[상태코드: ${response.status}] ${errData.error?.message || "알 수 없는 API 에러 (API 키 권한을 확인해주세요)"}`);
+
+            let lastError = null;
+            for (const modelName of modelNames) {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({}));
+                            const message = errData.error?.message || "알 수 없는 API 에러 (API 키 권한을 확인해주세요)";
+
+                            // 해당 모델을 현재 API 키/버전에서 찾지 못하면 다음 모델로 자동 전환합니다.
+                            if (response.status === 404) {
+                                lastError = new Error(`[${modelName}] [상태코드: ${response.status}] ${message}`);
+                                break;
+                            }
+                            throw new Error(`[${modelName}] [상태코드: ${response.status}] ${message}`);
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        lastError = error;
+                        if (i === retries - 1) break;
+                        await new Promise(res => setTimeout(res, delays[i]));
                     }
-                    return await response.json();
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await new Promise(res => setTimeout(res, delays[i]));
                 }
             }
+            throw lastError || new Error("Gemini API 호출에 실패했습니다.");
         }
 
         // === 제출 및 채점 로직 ===
@@ -498,14 +676,21 @@
             let q1_score = 0;
             
             try {
-                const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                const handwritingCanvas = getHandwritingImageForAI();
+                if (!handwritingCanvas) {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    window.customAlert("1번 문제의 빈칸에 답을 먼저 써 주세요!");
+                    return;
+                }
+
+                const base64Image = handwritingCanvas.toDataURL('image/png').split(',')[1];
 
                 const payload = {
                     contents: [{
                         role: "user",
                         parts: [
-                            { text: "이 이미지는 초등학생이 스마트펜이나 마우스로 직접 쓴 글씨입니다. 질문은 '바른 식습관의 중요성을 2가지 이상 써 봅시다' 입니다. \n\n[채점 기준]\n'성장(건강하게 성장한다)', '힘/활기(힘이 난다, 활기가 생긴다)', '질병 예방(병에 걸리지 않는다, 질병을 물리친다)', '건강(건강해진다)' 등 건강, 성장, 활력, 질병 예방에 관한 비슷한 뉘앙스의 뜻이 '1개 이상' 포함되어 있으면 무조건 정답(true)으로 인정하세요.\n\nJSON 형식으로 응답해주세요:\n- extracted_text: 인식된 텍스트 원본 (최대한 문맥에 맞게 보정해서 읽어주세요)\n- is_correct: 정답 여부 (true/false)\n- feedback: 학생을 위한 친절한 피드백 (정답이면 칭찬, 부족하면 격려와 정답 예시 안내)" },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                            { text: "이 이미지는 초등학교 4학년 학생이 스마트펜, 손가락, 또는 마우스로 직접 쓴 한국어 손글씨입니다. 질문은 '바른 식습관의 중요성을 2가지 이상 써 봅시다' 입니다.\n\n[중요한 인식 지침]\n- 글씨가 삐뚤거나 이어져 있거나 일부 획이 끊겨도 초등학생 손글씨라고 생각하고 문맥상 가장 자연스러운 한국어로 보정해서 읽어주세요.\n- 맞춤법이 조금 틀려도 뜻이 통하면 인정하세요.\n- 예: '건강해짐', '몸이 튼튼', '잘 자람', '성장', '힘이 남', '병 예방', '아프지 않음', '질병을 막음' 같은 표현은 모두 관련 내용으로 인정합니다.\n\n[채점 기준]\n성장, 힘/활력, 질병/병/예방, 건강/튼튼 계열 핵심 의미가 2개 이상 들어 있으면 is_correct를 true로 하세요. 단, 학생 답이 '건강해진다', '병에 안 걸린다', '질병에 안 걸린다', '아프지 않다', '몸이 튼튼해진다'처럼 선생님이 인정한 직접적인 뜻을 가진 문장이면 핵심어가 1개처럼 보여도 true로 인정하세요. 글씨 인식이 완벽하지 않아도 문맥상 위 의미가 추정되면 true로 인정하세요. 아무 내용이 없거나 질문과 전혀 관련 없는 말이면 false로 하세요.\n\n반드시 JSON 형식으로만 응답하세요:\n- extracted_text: 인식된 텍스트 원본\n- is_correct: 정답 여부 true/false\n- feedback: 학생을 위한 친절한 피드백" },
+                            { inline_data: { mime_type: "image/png", data: base64Image } }
                         ]
                     }],
                     // AI 필터 검열을 가장 낮게 설정하여 정상적인 응답이 차단되지 않게 함
@@ -549,9 +734,13 @@
                     ? aiResult.feedback 
                     : fallbackMsg;
                 
-                if (aiResult.is_correct) {
+                const localCheck = localCheckQ1Answer(q1_rawText);
+                const finalIsCorrect = Boolean(aiResult.is_correct) || localCheck.isCorrect;
+
+                if (finalIsCorrect) {
                     q1_score = 100;
-                    q1_feedback = `<span class="text-green-600 font-bold">정답입니다! 🎉</span><br><span class="text-gray-700 mt-1 block">💡 선생님 코멘트: ${finalFeedback}</span>`;
+                    const matchedText = localCheck.matched.length ? `<br><span class="text-xs text-green-700">인정된 핵심어: ${localCheck.matched.join(', ')}</span>` : '';
+                    q1_feedback = `<span class="text-green-600 font-bold">정답입니다! 🎉</span>${matchedText}<br><span class="text-gray-700 mt-1 block">💡 선생님 코멘트: ${finalFeedback}</span>`;
                 } else {
                     q1_score = 0;
                     q1_feedback = `<span class="text-red-500 font-bold">아쉽지만 다시 생각해볼까요?</span><br><span class="text-gray-700 mt-1 block">💡 선생님 코멘트: ${finalFeedback}</span>`;
