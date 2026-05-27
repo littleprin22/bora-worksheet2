@@ -375,16 +375,15 @@
             document.getElementById('customAlertModal').classList.remove('hidden');
         };
 
-        // Firebase 설정 
-        let firebaseConfig = {
-            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk", 
-            projectId: "default-project"
+        // 선생님의 실제 데이터베이스 주소
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+            authDomain: "bora-worksheet.firebaseapp.com",
+            projectId: "bora-worksheet",
+            storageBucket: "bora-worksheet.firebasestorage.app",
+            messagingSenderId: "1091782933629",
+            appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
         };
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch(e) {}
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -392,17 +391,14 @@
         
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInAnonymously(auth); 
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch(e) { console.error("인증 에러:", e); }
         };
         initAuth();
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'korean-presentation-ws';
-        const COLLECTION_NAME = 'korean_presentation_results_v2'; 
+        // ★ 해결된 부분: 학생들이 처음 제출했던 정확한 방 이름으로 복구!
+        const appId = 'korean-presentation-ws'; 
+        const COLLECTION_NAME = 'korean_presentation_results'; 
         let allResults = [];
 
         window.appData = {
@@ -803,7 +799,7 @@
             tbody.innerHTML = '';
             if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">제출된 기록이 없습니다.</td></tr>`; return; }
 
-            // 글/그림 모드에 따라 렌더링을 다르게 해주는 함수
+            // 글/그림 모드에 따라 렌더링을 다르게 해주는 함수 (이전 제출된 텍스트와 새로운 그림을 모두 호환해서 보여줍니다)
             const renderCell = (mode, data) => {
                 if(mode === 'draw' && data && data.startsWith('data:image')) {
                     return `<img src="${data}" class="h-24 w-auto object-contain border border-gray-300 bg-white rounded cursor-zoom-in hover:scale-[3] origin-left transition-transform shadow-sm" alt="손글씨 이미지" />`;
