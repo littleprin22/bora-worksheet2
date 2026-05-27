@@ -1,147 +1,83 @@
-export async function POST(request) {
+export default async function handler(req, res) {
+  // CORS 처리 (웹페이지에서 API를 호출할 수 있도록 허용)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const { imageBase64 } = await request.json();
-
-    if (!imageBase64) {
-      return Response.json(
-        { error: "imageBase64가 없습니다." },
-        { status: 400 }
-      );
-    }
-
+    const { questionNumber, typedText, imageBase64, rubric } = req.body || {};
+    
+    // Vercel에 숨겨둔 Gemini API 키 불러오기
     const apiKey = process.env.GEMINI_API_KEY;
-
     if (!apiKey) {
-      return Response.json(
-        { error: "서버에 GEMINI_API_KEY 환경 변수가 설정되지 않았습니다." },
-        { status: 500 }
-      );
+      return res.status(500).json({ error: 'GEMINI_API_KEY is missing' });
     }
 
-    const prompt = `
-이 이미지는 초등학생이 스마트펜이나 손가락으로 쓴 손글씨 답안입니다.
+    const exampleAnswers = questionNumber === 1
+      ? [
+          '지역의 역사를 알리는 일에 참여한다.',
+          '지역의 국가유산에 관심을 가지고 자주 찾아간다.',
+          '국가유산에 대해 자세히 공부한다.',
+          '박물관, 기념관, 유적지를 찾아가 살펴본다.',
+          '국가유산을 함부로 훼손하지 않고 보호한다.',
+          '국가유산 지킴이 활동이나 축제에 참여한다.'
+        ]
+      : [
+          '4학년 1학기 동안 우리 지역의 국가유산에 대해 자세히 공부한다.',
+          '주말에 가족과 우리 지역의 국가유산을 직접 찾아가 본다.',
+          '우리 지역의 박물관이나 유적지를 방문한다.',
+          '지역 국가유산을 조사하여 친구들에게 소개한다.',
+          '국가유산을 보호하는 포스터나 안내문을 만든다.',
+          '국가유산을 훼손하지 않고 깨끗하게 이용한다.'
+        ];
 
-문제:
-바른 식습관의 중요성을 2가지 이상 써 봅시다.
+    // AI에게 내릴 채점 프롬프트(명령어)
+    const prompt = `초등 4학년 사회 서술형 답안을 채점해 주세요.\n문항 번호: ${questionNumber}\n채점 기준: ${rubric}\n예시 답안: ${exampleAnswers.join(' / ')}\n키보드 입력: ${typedText || ''}\n손글씨 이미지가 있으면 먼저 글자를 인식한 뒤 채점하세요.\n채점 원칙: 예시 답안과 단어가 완전히 같지 않아도 의미가 비슷하면 정답 또는 부분 정답으로 인정하세요. 지역의 역사, 국가유산, 보존, 보호, 알리기, 방문, 조사, 지킴이, 축제, 실천 계획의 의미가 들어가면 긍정적으로 평가하세요.\n점수는 0~10점입니다. 의미가 충분히 비슷하면 8~10점, 일부만 맞으면 5~7점, 관련성이 낮으면 0~4점으로 주세요.\n반드시 JSON만 반환하세요. {"extracted_text":"","score":0,"is_correct":true,"feedback":"","keywords_found":[]}`;
 
-채점 기준:
-다음 의미가 2개 이상 들어 있으면 정답으로 인정합니다.
-- 성장: 잘 자란다, 성장에 도움이 된다
-- 힘/활력: 힘이 난다, 활기가 생긴다
-- 질병 예방: 병에 안 걸린다, 질병에 안 걸린다, 아프지 않다
-- 건강: 건강해진다, 몸이 튼튼해진다
-
-단, 학생 손글씨 인식 과정에서 '건강해짐'이 '건강점', '건강이 지니', '건강짐'처럼 조금 이상하게 읽혀도 문맥상 건강해진다는 뜻이면 정답으로 인정하세요.
-
-답이 너무 짧더라도 '건강해짐', '병에 안 걸림', '몸이 튼튼해짐'처럼 핵심 의미가 분명하면 정답입니다.
-
-반드시 JSON으로만 응답하세요.
-
-형식:
-{
-  "extracted_text": "인식한 학생 답안",
-  "is_correct": true 또는 false,
-  "feedback": "학생에게 줄 짧고 친절한 피드백"
-}
-`;
-
-    const payload = {
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: "image/png",
-                data: imageBase64
-              }
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    };
-
-    const modelNames = ["gemini-2.5-flash", "gemini-2.0-flash"];
-    let lastError = null;
-
-    for (const modelName of modelNames) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-        const geminiResponse = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await geminiResponse.json();
-
-        if (!geminiResponse.ok) {
-          lastError = data?.error?.message || `Gemini API 오류: ${geminiResponse.status}`;
-          continue;
-        }
-
-        const responseText =
-          data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        if (!responseText) {
-          lastError = "Gemini 응답이 비어 있습니다.";
-          continue;
-        }
-
-        let parsed;
-        try {
-          parsed = JSON.parse(
-            responseText
-              .replace(/```json/gi, "")
-              .replace(/```/g, "")
-              .trim()
-          );
-        } catch (parseError) {
-          parsed = {
-            extracted_text: responseText,
-            is_correct: false,
-            feedback: "AI가 답을 읽었지만 채점 형식이 올바르지 않아 선생님 확인이 필요합니다."
-          };
-        }
-
-        return Response.json({
-          extracted_text: parsed.extracted_text || "(인식된 내용 없음)",
-          is_correct: !!parsed.is_correct,
-          feedback:
-            parsed.feedback ||
-            "답안을 확인했습니다. 선생님이 한 번 더 살펴볼게요.",
-          model: modelName
-        });
-      } catch (error) {
-        lastError = error.message;
-      }
+    const parts = [{ text: prompt }];
+    
+    // 손글씨 이미지가 있으면 추가
+    if (imageBase64) {
+      parts.push({ 
+        inline_data: { mime_type: 'image/png', data: imageBase64 } 
+      });
     }
 
-    return Response.json(
-      {
-        error: lastError || "Gemini API 호출에 실패했습니다.",
-        extracted_text: "(AI 통신 오류 발생)",
-        is_correct: false,
-        feedback: "AI 선생님 연결에 실패했습니다. 선생님이 직접 확인할 예정입니다."
-      },
-      { status: 500 }
-    );
+    // Gemini API 호출
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        contents: [{ role: 'user', parts }],
+        generationConfig: {
+          responseMimeType: "application/json",
+        }
+      })
+    });
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    const parsed = JSON.parse(text);
+    
+    return res.status(200).json(parsed);
+
   } catch (error) {
-    return Response.json(
-      {
-        error: error.message,
-        extracted_text: "(서버 오류 발생)",
-        is_correct: false,
-        feedback: "서버 처리 중 오류가 발생했습니다. 선생님이 직접 확인할 예정입니다."
-      },
-      { status: 500 }
-    );
+    console.error('Serverless Function Error:', error);
+    return res.status(500).json({ 
+      error: String(error), 
+      extracted_text: '', 
+      score: 0, 
+      is_correct: false, 
+      feedback: '서버리스 AI 채점 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 
+      keywords_found: [] 
+    });
   }
 }
