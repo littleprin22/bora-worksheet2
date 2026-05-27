@@ -15,10 +15,10 @@ export default async function handler(req, res) {
   try {
     const { questionNumber, typedText, imageBase64, rubric } = req.body || {};
     
-    // Vercel에 숨겨둔 Gemini API 키 불러오기
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Vercel에 숨겨둔 Gemini API 키 불러오기 (이름을 GEMINI_API_KEY2로 변경)
+    const apiKey = process.env.GEMINI_API_KEY2;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY is missing' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY2 is missing' });
     }
 
     const exampleAnswers = questionNumber === 1
