@@ -111,13 +111,11 @@
             </div>
 
             <div class="border-[6px] border-pink-300 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col mx-auto max-w-4xl">
-                <!-- 발표 주제 -->
                 <div class="bg-white border-b-4 border-pink-300 p-5 flex flex-col md:flex-row md:items-center justify-center gap-4">
                     <span class="font-bold text-xl text-gray-800 text-center whitespace-nowrap">자신이 발표할 주제 :</span>
                     <input type="text" id="topic" class="border-b-2 border-dashed border-gray-400 bg-transparent text-2xl font-bold text-center text-blue-700 focus:outline-none focus:border-blue-500 px-4 py-2 w-full md:w-2/3 transition-colors" placeholder="(예: 멸종 위기 동물)" oninput="window.updateTopicBlanks(); window.saveLocal();">
                 </div>
                 
-                <!-- 시작하는 말 -->
                 <div class="flex flex-col md:flex-row border-b-[3px] border-gray-200">
                     <div class="md:w-[20%] bg-pink-50 p-4 flex items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
                         시작하는 말
@@ -128,7 +126,6 @@
                     </div>
                 </div>
                 
-                <!-- 설명하는 말 (키보드/펜 전환 가능) -->
                 <div class="flex flex-col md:flex-row border-b-[3px] border-gray-200">
                     <div class="md:w-[20%] bg-pink-50 p-4 flex flex-col items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
                         <span>설명하는 말</span>
@@ -155,7 +152,6 @@
                     </div>
                 </div>
                 
-                <!-- 끝맺는 말 -->
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-[20%] bg-pink-50 p-4 flex items-center justify-center font-bold text-gray-800 border-b md:border-b-0 md:border-r-[3px] border-gray-200 text-lg shrink-0">
                         끝맺는 말
@@ -283,6 +279,18 @@
         </div>
     </div>
 
+    <!-- 삭제 확인 알림창 -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 z-[110] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3 text-rose-500">⚠️</div>
+            <p id="customConfirmMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <div class="flex gap-3">
+                <button onclick="window.closeConfirmModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl transition">취소</button>
+                <button id="customConfirmOkBtn" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-4 rounded-xl transition">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 결과 안내 팝업 -->
     <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-[90] hidden flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-t-8 border-green-500">
@@ -323,17 +331,14 @@
             <h2 class="text-2xl font-jua text-green-800 mb-2"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (자신 있게 발표하기)</h2>
             <p class="text-sm text-gray-600 mb-4 ml-1">💡 한 학생이 여러 번 낸 경우, 가장 '최근 제출본'이 표시됩니다. 미제출 번호도 자동으로 찾아줍니다!</p>
 
-            <!-- 컨트롤 바: 필터, 총인원, 미제출자, 다운로드 -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 bg-stone-100 p-4 rounded-xl border border-stone-200">
                 <div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
-                    <!-- 반 필터 -->
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-stone-800"><i class="fa-solid fa-filter"></i> 반 선택:</span>
                         <select id="classFilter" onchange="window.renderTable()" class="border-2 border-stone-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-green-600 font-bold text-gray-700 bg-white shadow-sm">
                             <option value="all">모든 반 전체 보기</option>
                         </select>
                     </div>
-                    <!-- 미제출자 확인용 인원 입력 (세로선 구분) -->
                     <div class="hidden md:block w-px h-6 bg-stone-300"></div>
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-stone-700">총 인원:</span>
@@ -361,7 +366,7 @@
                             <th class="p-3 font-bold text-green-900 w-[25%]">발표 내용 (글/그림)</th>
                             <th class="p-3 font-bold text-green-900 w-20 text-center">퀴즈점수</th>
                             <th class="p-3 font-bold text-green-900 w-[20%]">잘한 점 / 노력할 점</th>
-                            <th class="p-3 font-bold text-green-900 w-28 text-center">상태 및 일시</th>
+                            <th class="p-3 font-bold text-green-900 w-32 text-center">상태 및 일시</th>
                         </tr>
                     </thead>
                     <tbody id="dashboardTableBody"></tbody>
@@ -374,11 +379,25 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // 알림창 헬퍼
         window.customAlert = function(msg) {
             document.getElementById('customAlertMessage').innerHTML = msg;
             document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        window.customConfirm = function(msg, onConfirm) {
+            document.getElementById('customConfirmMessage').innerText = msg;
+            document.getElementById('customConfirmModal').classList.remove('hidden');
+            const okBtn = document.getElementById('customConfirmOkBtn');
+            okBtn.onclick = function() {
+                window.closeConfirmModal();
+                onConfirm();
+            };
+        };
+        window.closeConfirmModal = function() {
+            document.getElementById('customConfirmModal').classList.add('hidden');
         };
 
         const firebaseConfig = {
@@ -686,7 +705,20 @@
             }
         };
 
-        /* --- 선생님 대시보드 (업데이트됨) --- */
+        /* --- 선생님 대시보드 삭제 기능 추가 --- */
+        window.deleteSubmission = function(docId) {
+            window.customConfirm("이 학생의 결과물을 정말 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)", async () => {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docId);
+                    await deleteDoc(docRef);
+                    // 삭제 완료 후 onSnapshot에 의해 자동으로 표가 갱신됩니다.
+                } catch (e) {
+                    console.error("삭제 중 오류:", e);
+                    window.customAlert("삭제 중 오류가 발생했습니다.");
+                }
+            });
+        };
+
         const TEACHER_PASSWORD = "0402"; 
         window.openPasswordModal = function() {
             document.getElementById('passwordModal').classList.remove('hidden');
@@ -732,7 +764,6 @@
             if(unique.includes(current)) filter.value = current;
         };
 
-        // 토글 함수: 같은 학생의 과거 기록 펼치기/접기
         window.toggleHistory = function(histClass) {
             const rows = document.querySelectorAll('.' + histClass);
             rows.forEach(r => r.classList.toggle('hidden'));
@@ -751,7 +782,6 @@
                 return; 
             }
 
-            // 1. 학생별 그룹화 (학년-반-번호 기준)
             const studentMap = {};
             data.forEach(item => {
                 const sNum = parseInt(item.studentNum) || item.studentNum;
@@ -760,12 +790,10 @@
                 studentMap[groupKey].push(item);
             });
 
-            // 2. 각 그룹 내에서 최신 제출본이 맨 위로 오게 정렬
             Object.keys(studentMap).forEach(key => {
                 studentMap[key].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             });
 
-            // 3. 미제출자 계산 로직 (특정 반이 선택되었을 때만)
             const missingDiv = document.getElementById('missingStudents');
             if (filter !== 'all') {
                 const submittedNums = Object.values(studentMap).map(arr => parseInt(arr[0].studentNum)).filter(n => !isNaN(n));
@@ -785,14 +813,12 @@
                 missingDiv.className = "text-gray-600 font-bold bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 shadow-sm text-sm";
             }
 
-            // 4. 번호순(오름차순)으로 학생 리스트 정렬
             const sortedGroups = Object.values(studentMap).sort((groupA, groupB) => {
                 const aNum = parseInt(groupA[0].studentNum) || 999;
                 const bNum = parseInt(groupB[0].studentNum) || 999;
                 return aNum - bNum;
             });
 
-            // 테이블 렌더링 헬퍼
             const renderCell = (mode, cellData) => {
                 if(mode === 'draw' && cellData && cellData.startsWith('data:image')) {
                     return `<img src="${cellData}" class="h-20 w-auto object-contain border border-gray-300 bg-white rounded cursor-zoom-in hover:scale-[3] origin-left transition-transform shadow-sm" alt="손글씨" />`;
@@ -811,7 +837,7 @@
             tbody.innerHTML = '';
             
             sortedGroups.forEach(group => {
-                const latest = group[0]; // 가장 최근 기록
+                const latest = group[0]; 
                 const hasHistory = group.length > 1;
                 const histClass = `hist-${latest.id}`;
                 
@@ -821,7 +847,6 @@
                     <div class="text-xs text-orange-700"><b>[노력할점]</b><br>${renderCell(latest.ref_improve_mode, latest.ref_improve)}</div>
                 `;
 
-                // 최신 기록 줄 (기본 표시)
                 tbody.innerHTML += `
                     <tr class="hover:bg-green-50 transition border-b-2 border-stone-200">
                         <td class="p-3 text-center font-bold text-lg text-stone-700">${latest.classNum}-${latest.studentNum}</td>
@@ -832,13 +857,15 @@
                         <td class="p-3">${refHtml}</td>
                         <td class="p-3 text-center">
                             <div class="text-xs font-bold text-blue-600 bg-blue-50 py-1 rounded-md mb-1 border border-blue-200">최종본</div>
-                            <div class="text-xs text-gray-500">${formatTime(latest.timestamp)}</div>
-                            ${hasHistory ? `<button onclick="window.toggleHistory('${histClass}')" class="mt-2 text-xs bg-stone-200 hover:bg-stone-300 text-stone-700 py-1 px-2 rounded font-bold w-full transition">과거 기록 보기 (${group.length-1}건) ▼</button>` : ''}
+                            <div class="text-xs text-gray-500 flex justify-center items-center gap-2">
+                                ${formatTime(latest.timestamp)}
+                                <button onclick="window.deleteSubmission('${latest.id}')" class="text-rose-400 hover:text-rose-600 transition p-1" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            ${hasHistory ? `<button onclick="window.toggleHistory('${histClass}')" class="mt-2 text-xs bg-stone-200 hover:bg-stone-300 text-stone-700 py-1 px-2 rounded font-bold w-full transition">과 기록 보기 (${group.length-1}건) ▼</button>` : ''}
                         </td>
                     </tr>
                 `;
 
-                // 과거 기록 줄 (기본적으로 숨김 처리)
                 if (hasHistory) {
                     for(let i = 1; i < group.length; i++) {
                         const past = group[i];
@@ -857,7 +884,11 @@
                                 <td class="p-3 text-center ${pScoreColor}">${past.quizScore} / 3</td>
                                 <td class="p-3">${pRefHtml}</td>
                                 <td class="p-3 text-center text-xs text-gray-400">
-                                    과거 제출본<br>${formatTime(past.timestamp)}
+                                    과거 제출본<br>
+                                    <div class="flex justify-center items-center gap-2 mt-1">
+                                        ${formatTime(past.timestamp)}
+                                        <button onclick="window.deleteSubmission('${past.id}')" class="text-rose-300 hover:text-rose-500 transition p-1" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -871,7 +902,6 @@
             let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
             if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
 
-            // 다운로드할 때도 번호 순서(오름차순) -> 최신순 정렬
             data.sort((a, b) => {
                 const numA = parseInt(a.studentNum) || 999;
                 const numB = parseInt(b.studentNum) || 999;
