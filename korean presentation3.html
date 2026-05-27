@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>왕곡초 발표 노트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 귀여운 땡땡이 핑크 배경 */
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: #fff0f5; 
+            background-image: radial-gradient(#ffd1dc 15%, transparent 16%), radial-gradient(#ffd1dc 15%, transparent 16%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: #4a4a4a;
+        }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        .font-gowun { font-family: 'Gowun Dodum', sans-serif; }
+        
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 5px; border: 2px solid #fff; }
+        ::-webkit-scrollbar-thumb:hover { background: #f472b6; }
+
+        /* 메인 컨테이너 스타일 */
+        .cute-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 3rem;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.5);
+            border: 6px solid #fff;
+        }
+
+        /* 텍스트 입력창 스타일 */
+        .cute-input {
+            background-color: #fff;
+            border: 3px solid #fbcfe8;
+            border-radius: 1rem;
+            transition: all 0.2s;
+        }
+        .cute-input:focus {
+            outline: none;
+            border-color: #f472b6;
+            box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.2);
+        }
+
+        /* 퀴즈 빈칸 스타일 */
+        .inline-blank {
+            width: 80px;
+            text-align: center;
+            border-bottom: 4px dashed #f472b6;
+            background-color: transparent;
+            font-weight: bold;
+            color: #be185d;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+        .inline-blank:focus { outline: none; border-bottom-color: #db2777; background-color: #fdf2f8; }
+        .inline-blank.correct { border-bottom: 4px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
+        .inline-blank.wrong { border-bottom: 4px solid #ef4444; background-color: #fef2f2; color: #b91c1c; }
+        .inline-blank::placeholder { color: #fbcfe8; font-weight: normal; }
+
+        /* 모달 애니메이션 */
+        .modal-animate { animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes bounceIn { 
+            0% { opacity: 0; transform: scale(0.8); } 
+            100% { opacity: 1; transform: scale(1); } 
+        }
+        
+        /* 텍스트 영역 배경줄 */
+        .dashed-bg {
+            line-height: 60px !important;
+            background-image: linear-gradient(transparent 58px, #fce7f3 58px, #fce7f3 60px);
+            background-size: 100% 60px;
+            background-attachment: local;
+            background-position-y: 20px;
+        }
+
+        /* 말풍선 타이틀 공통 스타일 */
+        .bubble-title {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            border-radius: 9999px;
+            font-family: 'Jua', sans-serif;
+            border: 4px solid;
+            background-color: white;
+            font-size: 1.5rem;
+            position: relative;
+            top: -1.8rem;
+            margin-bottom: -1.5rem;
+            z-index: 10;
+        }
+        .title-green { border-color: #86efac; color: #166534; box-shadow: 4px 4px 0 #bbf7d0; }
+        .title-purple { border-color: #d8b4fe; color: #581c87; box-shadow: 4px 4px 0 #e9d5ff; }
+        .title-blue { border-color: #93c5fd; color: #1e3a8a; box-shadow: 4px 4px 0 #bfdbfe; }
+        .title-pink { border-color: #f9a8d4; color: #9d174d; box-shadow: 4px 4px 0 #fbcfe8; }
+        
+        /* 각 섹션 카드 박스 */
+        .section-box-green { border: 4px solid #bbf7d0; background-color: #f0fdf4; border-radius: 2rem; }
+        .section-box-purple { border: 4px solid #e9d5ff; background-color: #faf5ff; border-radius: 2rem; }
+        .section-box-blue { border: 4px solid #bfdbfe; background-color: #eff6ff; border-radius: 2rem; }
+
+        .history-row { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="p-2 md:p-6 min-h-screen">
+
+    <div class="max-w-5xl mx-auto cute-container p-6 md:p-12 relative mt-4 md:mt-8">
+        
+        <div id="saveIndicator" class="absolute top-6 right-8 text-sm font-bold text-pink-500 opacity-0 transition-opacity duration-500 z-50 bg-pink-100 px-4 py-2 rounded-full border-2 border-pink-200">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 자동 저장중 💖
+        </div>
+
+        <header class="mb-16 relative z-10 text-center">
+            <!-- 교표 및 메인 타이틀 -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+                <!-- 왕곡초 교표 -->
+                <div class="bg-white p-2 rounded-full shadow-md border-4 border-pink-100">
+                    <img src="https://i.ibb.co/RGGK87Pf/image.jpg" alt="왕곡초등학교 로고" class="w-20 h-20 md:w-24 md:h-24 object-contain rounded-full">
+                </div>
+                <div class="flex flex-col items-center md:items-start">
+                    <span class="text-pink-500 font-bold tracking-widest text-sm mb-2 bg-pink-100 px-4 py-1 rounded-full border border-pink-200">⭐ 자신 있게 발표해요! ⭐</span>
+                    <h1 class="text-4xl md:text-5xl font-jua text-gray-800 tracking-wide text-shadow-sm leading-tight">
+                        왕곡 발표 계획서 마스터하기
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- 학생 정보 입력란 -->
+            <div class="flex flex-wrap justify-center items-center gap-4 bg-pink-50/50 p-5 rounded-full border-2 border-pink-100 shadow-inner w-full max-w-3xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <input type="number" id="grade" class="w-16 text-center border-b-4 border-pink-300 bg-white rounded-lg focus:outline-none focus:border-pink-500 font-bold text-2xl text-gray-700 py-1" value="4" readonly oninput="window.saveLocal()">
+                    <span class="font-jua text-xl text-gray-600">학년</span>
+                </div>
+                <div class="flex items-center gap-2 ml-2">
+                    <input type="number" id="classNum" class="w-16 text-center border-b-4 border-pink-300 bg-white rounded-lg focus:outline-none focus:border-pink-500 font-bold text-2xl text-gray-700 py-1" placeholder="반" oninput="window.saveLocal()">
+                    <span class="font-jua text-xl text-gray-600">반</span>
+                </div>
+                <div class="flex items-center gap-2 ml-2">
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-4 border-pink-300 bg-white rounded-lg focus:outline-none focus:border-pink-500 font-bold text-2xl text-gray-700 py-1" placeholder="번" oninput="window.saveLocal()">
+                    <span class="font-jua text-xl text-gray-600">번</span>
+                </div>
+                <div class="flex items-center gap-2 ml-4">
+                    <input type="text" id="studentName" class="w-32 text-center border-b-4 border-pink-300 bg-white rounded-lg focus:outline-none focus:border-pink-500 font-bold text-2xl text-gray-700 py-1" placeholder="이름" oninput="window.saveLocal()">
+                </div>
+            </div>
+        </header>
+
+        <!-- 1. 발표할 내용 정리 (구조화된 3단계) -->
+        <section class="mb-16">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-jua text-gray-800 bg-yellow-100 inline-block px-8 py-3 rounded-full border-4 border-yellow-300 shadow-sm">
+                    🎤 발표문을 구조에 맞게 작성해봐요!
+                </h2>
+                <p class="mt-4 text-gray-600 font-bold text-lg">주제를 정하고 시작하는 말, 설명하는 말, 끝맺는 말로 나누어 적어봅시다.</p>
+            </div>
+
+            <!-- 주제 배너 -->
+            <div class="flex justify-center mb-12">
+                <div class="bg-yellow-50 border-4 border-yellow-300 px-8 py-4 rounded-2xl shadow-md flex flex-col md:flex-row items-center gap-4 relative">
+                    <div class="absolute -top-5 -left-5 text-4xl transform -rotate-12">📝</div>
+                    <span class="font-jua text-2xl text-yellow-800">나의 발표 주제:</span>
+                    <input type="text" id="topic" class="border-b-4 border-dashed border-yellow-400 bg-transparent text-2xl font-bold text-center text-gray-800 focus:outline-none focus:border-yellow-600 px-4 py-1 min-w-[250px] transition-colors placeholder-yellow-300" placeholder="(예: 멸종 위기 동물)" oninput="window.updateTopicBlanks(); window.saveLocal();">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-12 max-w-4xl mx-auto">
+                
+                <!-- 시작하는 말 (도입) -->
+                <div class="section-box-green relative p-6 md:p-8 flex flex-col md:flex-row gap-6 shadow-sm">
+                    <div class="absolute -top-6 -right-4 text-5xl">⏰</div>
+                    <div class="md:w-1/3 flex flex-col items-center justify-center text-center">
+                        <div class="bubble-title title-green">시작하는 말 (도입)</div>
+                        <p class="font-jua text-lg text-green-700 mt-2 bg-white px-4 py-2 rounded-xl border-2 border-green-200">발표 주제를<br>당당하게 소개해요!</p>
+                    </div>
+                    <div class="md:w-2/3 bg-white rounded-xl border-2 border-green-200 p-6 text-xl md:text-2xl font-medium text-gray-700 leading-relaxed flex items-center shadow-inner">
+                        <div>
+                            지금부터 제가 준비한 발표를 시작하겠습니다.<br><br>
+                            제가 조사한 주제는 <span class="text-green-700 font-bold border-b-4 border-green-300 px-4 min-w-[150px] inline-block text-center bg-green-50 rounded-sm" id="topic_blank_1">(주제)</span> 입니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 설명하는 말 (전개) -->
+                <div class="section-box-purple relative p-6 md:p-8 flex flex-col gap-4 shadow-sm">
+                    <div class="absolute -top-6 -left-4 text-5xl">💡</div>
+                    <div class="text-center">
+                        <div class="bubble-title title-purple">설명하는 말 (전개)</div>
+                        <p class="font-jua text-lg text-purple-700 mt-2">조사한 내용을 자세하고 조리 있게 설명해요!</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border-2 border-purple-200 p-2 shadow-inner flex flex-col h-[500px] relative">
+                        <!-- 툴바 -->
+                        <div class="flex justify-end gap-2 p-2 border-b-2 border-purple-100 bg-purple-50/50 rounded-t-lg">
+                            <div class="flex bg-white p-1 rounded-lg border border-purple-200 shadow-sm">
+                                <button onclick="window.setMode('content_body', 'text')" id="btn_text_content_body" class="px-4 py-1 text-sm font-bold bg-purple-100 text-purple-700 rounded transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('content_body', 'draw')" id="btn_draw_content_body" class="px-4 py-1 text-sm font-bold text-gray-400 hover:text-gray-700 rounded transition-all">🖊️ 손글씨/그림</button>
+                            </div>
+                            <div id="toolbar_content_body" class="hidden gap-2">
+                                <div class="flex bg-white p-1 rounded-lg border border-purple-200 shadow-sm">
+                                    <button onclick="window.pads['content_body'].setTool('pen')" id="btn_tool_pen_content_body" class="px-3 py-1 text-xs font-bold bg-purple-100 text-purple-700 rounded transition-all">✏️ 펜</button>
+                                    <button onclick="window.pads['content_body'].setTool('eraser')" id="btn_tool_eraser_content_body" class="px-3 py-1 text-xs font-bold text-gray-400 hover:text-gray-700 rounded transition-all">🧹 지우개</button>
+                                </div>
+                                <button onclick="window.pads['content_body'].clear()" class="px-3 py-1 text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 rounded font-bold border border-rose-200"><i class="fa-solid fa-trash-can"></i> 싹지우기</button>
+                            </div>
+                        </div>
+                        <!-- 입력영역 -->
+                        <div class="relative flex-1 w-full overflow-hidden rounded-b-lg">
+                            <textarea id="content_body" class="absolute inset-0 w-full h-full p-6 text-xl md:text-2xl font-medium text-gray-700 resize-none outline-none focus:bg-purple-50/30 transition-colors dashed-bg font-gowun" placeholder="이곳에 발표할 내용을 자유롭게 적어보세요.&#13;&#10;글을 쓰거나 그림을 그려서 핵심 내용을 전달해보세요!" oninput="window.saveLocal()"></textarea>
+                            <canvas id="canvas_content_body" width="1000" height="800" class="absolute inset-0 w-full h-full hidden dashed-bg touch-none cursor-crosshair bg-white" style="background-color: transparent;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 끝맺는 말 (정리) -->
+                <div class="section-box-blue relative p-6 md:p-8 flex flex-col md:flex-row gap-6 shadow-sm">
+                    <div class="absolute -top-5 -right-5 text-5xl">🎀</div>
+                    <div class="md:w-1/3 flex flex-col items-center justify-center text-center">
+                        <div class="bubble-title title-blue">끝맺는 말 (정리)</div>
+                        <p class="font-jua text-lg text-blue-700 mt-2 bg-white px-4 py-2 rounded-xl border-2 border-blue-200">발표를 정리하며<br>감사 인사를 전해요.</p>
+                    </div>
+                    <div class="md:w-2/3 bg-white rounded-xl border-2 border-blue-200 p-6 text-xl md:text-2xl font-medium text-gray-700 leading-relaxed flex flex-col justify-center gap-4 shadow-inner">
+                        <div>
+                            지금까지 <span class="text-blue-700 font-bold border-b-4 border-blue-300 px-4 min-w-[150px] inline-block text-center bg-blue-50 rounded-sm" id="topic_blank_2">(주제)</span> 에 대해 발표했습니다.
+                        </div>
+                        <input type="text" id="closing_remark" class="w-full border-b-4 border-dashed border-gray-300 focus:border-blue-400 outline-none bg-transparent py-2 transition-colors font-bold text-gray-800 placeholder-gray-400" placeholder="(예: 제 발표를 들어주셔서 감사합니다.)" oninput="window.saveLocal()">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 발표 직전 꿀팁 / 체크리스트 (퀴즈) -->
+        <section class="mb-16">
+            <div class="bg-pink-50 border-4 border-pink-200 rounded-[2.5rem] p-6 md:p-10 shadow-sm relative mx-auto max-w-4xl">
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                    <div class="bubble-title title-pink">발표 왕이 되는 꿀팁 체크리스트 ✨</div>
+                </div>
+                <div id="quizScoreDisplay" class="absolute top-4 right-6 font-jua text-2xl text-pink-600 bg-white px-4 py-1 rounded-full border-2 border-pink-300 hidden shadow-sm">0 / 3점</div>
+
+                <div class="mt-8 flex flex-col md:flex-row gap-8">
+                    <!-- 꿀팁 가이드 영역 (왼쪽) -->
+                    <div class="md:w-1/3 flex flex-col gap-4">
+                        <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 shadow-sm flex items-start gap-3">
+                            <div class="text-3xl">📢</div>
+                            <div>
+                                <h4 class="font-jua text-lg text-pink-700">목소리 크기와 속도</h4>
+                                <p class="text-sm font-medium text-gray-600 mt-1">모두가 잘 들을 수 있도록 또박또박 천천히!</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border-2 border-pink-100 shadow-sm flex items-start gap-3">
+                            <div class="text-3xl">👀</div>
+                            <div>
+                                <h4 class="font-jua text-lg text-pink-700">따뜻한 시선과 당당함</h4>
+                                <p class="text-sm font-medium text-gray-600 mt-1">친구들과 눈을 맞추고 몸을 앞으로 살짝 숙여요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 퀴즈 영역 (오른쪽) -->
+                    <div class="md:w-2/3 bg-white p-6 rounded-3xl border-4 border-pink-100 shadow-inner">
+                        <p class="font-jua text-xl text-gray-700 mb-6 text-center">아래 빈칸을 채우며 스스로 점검해 보세요!</p>
+                        <ul class="space-y-6 text-lg md:text-xl font-medium text-gray-700 font-gowun">
+                            <li class="flex items-center gap-3">
+                                <span class="text-pink-400 text-2xl">☑️</span>
+                                <div>알맞은 목소리 크기와 <input type="text" id="q1" class="inline-blank" placeholder="ㅅㄷ" oninput="window.saveLocal()" autocomplete="off"> 로 발표한다. <span id="mark1" class="ml-1"></span></div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-pink-400 text-2xl mt-1">☑️</span>
+                                <div class="leading-relaxed">처음 시작하는 말에서 <input type="text" id="q2" class="inline-blank" placeholder="ㅈㅈ" oninput="window.saveLocal()" autocomplete="off"> 를 제시하거나 중요한 내용을 말할 때 목소리를 크게 한다. <span id="mark2" class="ml-1"></span></div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-pink-400 text-2xl mt-1">☑️</span>
+                                <div class="leading-relaxed">설명하는 부분에서는 듣는 사람과 <input type="text" id="q3" class="inline-blank" placeholder="ㄴ" oninput="window.saveLocal()" autocomplete="off"> 을 맞추며 몸을 조금 앞으로 숙인다. <span id="mark3" class="ml-1"></span></div>
+                            </li>
+                        </ul>
+
+                        <div class="mt-8 text-center">
+                            <button onclick="window.gradeQuiz()" class="bg-pink-400 hover:bg-pink-500 text-white font-jua text-xl py-2 px-8 rounded-full shadow-md transition transform hover:scale-105 border-2 border-pink-500">
+                                💯 정답 확인하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 되돌아보기 -->
+        <section class="mb-10 mx-auto max-w-4xl">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-jua text-gray-800 bg-white inline-block px-8 py-3 rounded-full border-4 border-gray-200 shadow-sm">
+                    🌱 자신의 발표를 되돌아봅시다.
+                </h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 잘한 점 -->
+                <div class="bg-blue-50/80 p-6 rounded-[2rem] border-4 border-blue-200 flex flex-col h-[350px] shadow-sm relative">
+                    <div class="absolute -top-5 left-8 text-4xl">😄</div>
+                    <div class="flex justify-between items-start mb-4 pl-10">
+                        <label class="font-jua text-blue-700 text-2xl">스스로 잘한 점</label>
+                        <div class="flex flex-col gap-1 w-28 items-end z-10">
+                            <div class="flex bg-white p-1 rounded-lg border border-blue-200">
+                                <button onclick="window.setMode('ref_good', 'text')" id="btn_text_ref_good" class="flex-1 py-1 text-xs font-bold bg-blue-100 text-blue-600 rounded">자판</button>
+                                <button onclick="window.setMode('ref_good', 'draw')" id="btn_draw_ref_good" class="flex-1 py-1 text-xs font-bold text-gray-400 hover:text-gray-700 rounded">펜</button>
+                            </div>
+                            <div id="toolbar_ref_good" class="hidden flex-col gap-1 w-full">
+                                <button onclick="window.pads['ref_good'].clear()" class="w-full text-xs bg-rose-50 text-rose-500 border border-rose-200 py-1 rounded-md font-bold">지우기</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex-1 w-full h-full bg-white rounded-xl border-2 border-blue-100 overflow-hidden">
+                        <textarea id="ref_good" class="absolute inset-0 w-full h-full p-4 text-lg font-gowun resize-none dashed-bg outline-none focus:bg-blue-50/30" placeholder="발표하면서 내가 잘했다고 생각하는 부분은 무엇인가요?" oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_ref_good" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg touch-none cursor-crosshair bg-transparent"></canvas>
+                    </div>
+                </div>
+
+                <!-- 더 노력할 점 -->
+                <div class="bg-amber-50/80 p-6 rounded-[2rem] border-4 border-amber-200 flex flex-col h-[350px] shadow-sm relative">
+                    <div class="absolute -top-5 left-8 text-4xl">💪</div>
+                    <div class="flex justify-between items-start mb-4 pl-10">
+                        <label class="font-jua text-amber-700 text-2xl">더 노력할 점</label>
+                        <div class="flex flex-col gap-1 w-28 items-end z-10">
+                            <div class="flex bg-white p-1 rounded-lg border border-amber-200">
+                                <button onclick="window.setMode('ref_improve', 'text')" id="btn_text_ref_improve" class="flex-1 py-1 text-xs font-bold bg-amber-100 text-amber-600 rounded">자판</button>
+                                <button onclick="window.setMode('ref_improve', 'draw')" id="btn_draw_ref_improve" class="flex-1 py-1 text-xs font-bold text-gray-400 hover:text-gray-700 rounded">펜</button>
+                            </div>
+                            <div id="toolbar_ref_improve" class="hidden flex-col gap-1 w-full">
+                                <button onclick="window.pads['ref_improve'].clear()" class="w-full text-xs bg-rose-50 text-rose-500 border border-rose-200 py-1 rounded-md font-bold">지우기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 w-full h-full bg-white rounded-xl border-2 border-amber-100 overflow-hidden">
+                        <textarea id="ref_improve" class="absolute inset-0 w-full h-full p-4 text-lg font-gowun resize-none dashed-bg outline-none focus:bg-amber-50/30" placeholder="다음 발표 때는 어떤 점을 보완하면 좋을지 적어보세요." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_ref_improve" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg touch-none cursor-crosshair bg-transparent"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center relative z-10 mt-16 mb-4">
+            <button onclick="window.submitAll()" class="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-jua text-3xl py-5 px-20 rounded-full shadow-lg transform transition hover:-translate-y-2 hover:shadow-2xl active:scale-95 border-4 border-white">
+                💌 선생님께 제출하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 오류 알림창 -->
+    <div id="customAlertModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-4 border-pink-300">
+            <div class="text-5xl mb-4 text-pink-400"><i class="fa-solid fa-face-surprise"></i></div>
+            <p id="customAlertMessage" class="text-gray-700 font-bold mb-8 break-keep text-lg font-gowun"></p>
+            <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-jua text-xl py-3 px-4 rounded-xl transition">확인했어요</button>
+        </div>
+    </div>
+
+    <!-- 삭제 확인 알림창 -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[110] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-4 border-rose-300">
+            <div class="text-5xl mb-4 text-rose-400"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <p id="customConfirmMessage" class="text-gray-700 font-bold mb-8 break-keep text-lg font-gowun"></p>
+            <div class="flex gap-3 font-jua text-xl">
+                <button onclick="window.closeConfirmModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl transition">취소</button>
+                <button id="customConfirmOkBtn" class="flex-1 bg-rose-400 hover:bg-rose-500 text-white py-3 px-4 rounded-xl transition">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결과 안내 팝업 -->
+    <div id="resultModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[90] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-[2rem] p-10 max-w-sm w-full text-center shadow-2xl modal-animate border-4 border-yellow-300">
+            <div class="text-6xl mb-4 mt-2">🎉</div>
+            <h3 class="text-4xl font-jua text-pink-500 mb-4">제출 완료!</h3>
+            <p class="text-gray-600 mb-8 font-bold leading-relaxed text-lg font-gowun">
+                발표 준비하느라 정말 수고 많았어요.<br>멋진 발표를 응원합니다! 파이팅! 💖
+            </p>
+            <button onclick="location.reload()" class="w-full bg-yellow-300 hover:bg-yellow-400 text-yellow-900 font-jua text-2xl py-3 px-4 rounded-xl transition shadow-sm border-2 border-yellow-500">
+                새로고침 (확인)
+            </button>
+        </div>
+    </div>
+
+    <!-- 선생님 모드 입장 버튼 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <button onclick="window.openPasswordModal()" class="bg-white/80 backdrop-blur text-pink-400 border-2 border-pink-200 px-4 py-2 rounded-full shadow-sm hover:bg-pink-50 hover:text-pink-600 transition flex items-center gap-2 font-bold text-sm">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 메뉴
+        </button>
+    </div>
+
+    <!-- 선생님 인증 팝업 -->
+    <div id="passwordModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl modal-animate relative border-4 border-purple-200">
+            <button onclick="window.closePasswordModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-3xl font-jua text-purple-700 mb-6"><i class="fa-solid fa-lock text-purple-400 mr-2"></i>선생님 메뉴</h3>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-purple-100 bg-purple-50 rounded-xl px-4 py-3 mb-2 text-center font-bold text-lg focus:outline-none focus:border-purple-300 transition-colors" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') window.checkPassword()">
+            <p id="passwordError" class="text-rose-500 text-sm hidden mb-4 font-bold">비밀번호가 틀렸습니다.</p>
+            <button onclick="window.checkPassword()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-jua text-xl py-3 px-4 rounded-xl transition mt-4">확인</button>
+        </div>
+    </div>
+
+    <!-- 선생님 대시보드 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[60] hidden flex justify-center items-center p-4 md:p-10">
+        <div class="bg-white rounded-[2rem] p-6 md:p-8 w-full h-full md:h-[95vh] flex flex-col shadow-2xl relative modal-animate border-8 border-pink-200">
+            <button onclick="window.closeDashboard()" class="absolute top-5 right-6 text-gray-400 hover:text-pink-500 text-4xl transition"><i class="fa-solid fa-circle-xmark"></i></button>
+            
+            <div class="flex items-center gap-4 mb-2">
+                <div class="bg-pink-50 p-2 rounded-full border-2 border-pink-200"><img src="https://i.ibb.co/RGGK87Pf/image.jpg" alt="로고" class="w-12 h-12 rounded-full"></div>
+                <h2 class="text-4xl font-jua text-gray-800">학생 제출 현황 📊</h2>
+            </div>
+            <p class="text-sm text-gray-500 mb-6 ml-20 font-medium">💡 학생이 여러 번 제출한 경우, 과거 기록도 함께 표시됩니다.</p>
+
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 bg-pink-50/50 p-4 rounded-2xl border-2 border-pink-100">
+                <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                    <div class="flex items-center gap-2">
+                        <span class="font-jua text-xl text-pink-700"><i class="fa-solid fa-filter"></i> 반 선택:</span>
+                        <select id="classFilter" onchange="window.renderTable()" class="border-2 border-pink-200 rounded-xl px-3 py-1 focus:outline-none focus:border-pink-400 font-bold text-gray-700 bg-white shadow-sm cursor-pointer text-lg">
+                            <option value="all">모든 반 전체 보기</option>
+                        </select>
+                    </div>
+                    <div class="hidden lg:block w-px h-8 bg-pink-200"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-jua text-xl text-pink-700">총 인원:</span>
+                        <input type="number" id="totalStudentCount" value="30" class="w-16 border-2 border-pink-200 rounded-xl px-2 py-1 text-center font-bold bg-white text-gray-700 focus:outline-none focus:border-pink-400 text-lg" onchange="window.renderTable()">
+                    </div>
+                    <div id="missingStudents" class="text-rose-600 font-bold bg-white px-4 py-2 rounded-xl border-2 border-rose-100 shadow-sm text-sm">
+                        미제출: 특정 반을 선택하세요.
+                    </div>
+                </div>
+                
+                <div class="flex w-full lg:w-auto">
+                    <button onclick="window.downloadCSV()" class="w-full lg:w-auto bg-green-500 hover:bg-green-600 text-white font-jua text-xl py-2 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm border-2 border-green-600">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀로 다운로드
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 bg-white rounded-2xl border-4 border-pink-100 shadow-inner">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
+                    <thead class="bg-pink-50 sticky top-0 shadow-sm z-10 border-b-2 border-pink-200 font-jua text-lg text-pink-800">
+                        <tr>
+                            <th class="p-4 w-20 text-center">반/번호</th>
+                            <th class="p-4 w-24">이름</th>
+                            <th class="p-4 w-32">발표 주제</th>
+                            <th class="p-4 w-[25%]">발표 내용 (전개)</th>
+                            <th class="p-4 w-20 text-center">퀴즈</th>
+                            <th class="p-4 w-[20%]">스스로 평가</th>
+                            <th class="p-4 w-32 text-center">제출 정보</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody" class="font-gowun font-bold"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.customAlert = function(msg) {
+            document.getElementById('customAlertMessage').innerHTML = msg;
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        window.customConfirm = function(msg, onConfirm) {
+            document.getElementById('customConfirmMessage').innerText = msg;
+            document.getElementById('customConfirmModal').classList.remove('hidden');
+            const okBtn = document.getElementById('customConfirmOkBtn');
+            okBtn.onclick = function() {
+                window.closeConfirmModal();
+                onConfirm();
+            };
+        };
+        window.closeConfirmModal = function() {
+            document.getElementById('customConfirmModal').classList.add('hidden');
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+            authDomain: "bora-worksheet.firebaseapp.com",
+            projectId: "bora-worksheet",
+            storageBucket: "bora-worksheet.firebasestorage.app",
+            messagingSenderId: "1091782933629",
+            appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const initAuth = async () => {
+            try { await signInAnonymously(auth); } catch(e) { console.error("인증 에러:", e); }
+        };
+        initAuth();
+
+        const appId = 'wanggok-presentation-ws'; 
+        const COLLECTION_NAME = 'wanggok_results'; 
+        let allResults = [];
+
+        window.appData = {
+            quizScore: 0,
+            isGraded: false,
+            modes: { content_body: 'text', ref_good: 'text', ref_improve: 'text' }
+        };
+
+        window.pads = {};
+        function initDrawing(canvasId, fieldId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let currentTool = 'pen'; 
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function start(e) {
+                e.preventDefault(); 
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4; 
+                ctx.arc(pos.x, pos.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+                if(currentTool === 'pen') ctx.fillStyle = '#4a4a4a'; 
+                else ctx.fillStyle = 'rgba(0,0,0,1)';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+            
+            function move(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(0,0,0,1)' : '#4a4a4a'; 
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function stop(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                isDrawing = false;
+                window.saveLocal();
+            }
+
+            canvas.addEventListener('mousedown', start);
+            canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('mouseout', stop);
+            canvas.addEventListener('touchstart', start, {passive: false});
+            canvas.addEventListener('touchmove', move, {passive: false});
+            canvas.addEventListener('touchend', stop, {passive: false});
+            canvas.addEventListener('touchcancel', stop, {passive: false});
+            
+            return {
+                clear: () => { ctx.clearRect(0,0,canvas.width,canvas.height); window.saveLocal(); },
+                toDataURL: () => canvas.toDataURL('image/png'),
+                loadFromDataURL: (dataUrl) => {
+                    if(!dataUrl) return;
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = dataUrl;
+                },
+                setTool: (tool) => {
+                    currentTool = tool;
+                    const btnPen = document.getElementById(`btn_tool_pen_${fieldId}`);
+                    const btnEraser = document.getElementById(`btn_tool_eraser_${fieldId}`);
+                    if (btnPen && btnEraser) {
+                        const activeColor = fieldId === 'content_body' ? 'bg-purple-100 text-purple-700' : (fieldId === 'ref_good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700');
+                        if (tool === 'pen') {
+                            btnPen.className = `px-3 py-1 text-xs font-bold ${activeColor} rounded transition-all`;
+                            btnEraser.className = `px-3 py-1 text-xs font-bold text-gray-400 hover:text-gray-700 bg-transparent rounded transition-all`;
+                        } else {
+                            btnEraser.className = `px-3 py-1 text-xs font-bold ${activeColor} rounded transition-all`;
+                            btnPen.className = `px-3 py-1 text-xs font-bold text-gray-400 hover:text-gray-700 bg-transparent rounded transition-all`;
+                        }
+                    }
+                }
+            };
+        }
+
+        window.addEventListener('load', () => {
+            window.pads['content_body'] = initDrawing('canvas_content_body', 'content_body');
+            window.pads['ref_good'] = initDrawing('canvas_ref_good', 'ref_good');
+            window.pads['ref_improve'] = initDrawing('canvas_ref_improve', 'ref_improve');
+            window.loadLocal();
+        });
+
+        window.setMode = function(field, mode) {
+            window.appData.modes[field] = mode;
+            const txt = document.getElementById(field);
+            const cvs = document.getElementById('canvas_' + field);
+            const btnText = document.getElementById('btn_text_' + field);
+            const btnDraw = document.getElementById('btn_draw_' + field);
+            const toolbar = document.getElementById('toolbar_' + field);
+
+            let activeText = 'bg-purple-100 text-purple-700';
+            if(field==='ref_good') activeText = 'bg-blue-100 text-blue-600';
+            if(field==='ref_improve') activeText = 'bg-amber-100 text-amber-600';
+
+            const inactiveText = 'text-gray-400 hover:text-gray-700 bg-transparent';
+
+            if(mode === 'text') {
+                txt.classList.remove('hidden'); cvs.classList.add('hidden');
+                btnText.className = `flex-1 py-1 px-4 text-sm font-bold ${activeText} rounded transition-all`;
+                btnDraw.className = `flex-1 py-1 px-4 text-sm font-bold ${inactiveText} rounded transition-all`;
+                if (toolbar) { toolbar.classList.add('hidden'); toolbar.classList.remove('flex'); }
+            } else {
+                txt.classList.add('hidden'); cvs.classList.remove('hidden');
+                btnDraw.className = `flex-1 py-1 px-4 text-sm font-bold ${activeText} rounded transition-all`;
+                btnText.className = `flex-1 py-1 px-4 text-sm font-bold ${inactiveText} rounded transition-all`;
+                if (toolbar) { toolbar.classList.remove('hidden'); toolbar.classList.add('flex'); }
+                window.pads[field].setTool('pen');
+                window.dispatchEvent(new Event('resize')); 
+            }
+            window.saveLocal();
+        };
+
+        window.updateTopicBlanks = function() {
+            const topic = document.getElementById('topic').value.trim();
+            const text = topic ? topic : "(주제를 입력하세요)";
+            document.getElementById('topic_blank_1').innerText = text;
+            document.getElementById('topic_blank_2').innerText = text;
+        };
+
+        window.gradeQuiz = function() {
+            const check = (id, ans, correctAns) => {
+                const inputEl = document.getElementById(id);
+                const markEl = document.getElementById('mark' + id.replace('q', ''));
+                if (ans === correctAns) {
+                    inputEl.classList.remove('wrong'); inputEl.classList.add('correct');
+                    markEl.innerHTML = '<i class="fa-solid fa-star text-yellow-400 text-2xl"></i>';
+                    return 1;
+                } else {
+                    inputEl.classList.remove('correct'); inputEl.classList.add('wrong');
+                    markEl.innerHTML = '<i class="fa-solid fa-xmark text-rose-500 text-2xl"></i>';
+                    return 0;
+                }
+            };
+            let score = 0;
+            score += check('q1', document.getElementById('q1').value.replace(/\s+/g, ''), '속도');
+            score += check('q2', document.getElementById('q2').value.replace(/\s+/g, ''), '주제');
+            score += check('q3', document.getElementById('q3').value.replace(/\s+/g, ''), '눈');
+
+            window.appData.quizScore = score;
+            window.appData.isGraded = true;
+            document.getElementById('quizScoreDisplay').innerText = `⭐ ${score} / 3점`;
+            document.getElementById('quizScoreDisplay').classList.remove('hidden');
+            window.saveLocal();
+        };
+
+        window.saveLocal = function() {
+            const dataToSave = {
+                grade: document.getElementById('grade').value,
+                classNum: document.getElementById('classNum').value,
+                studentNum: document.getElementById('studentNum').value,
+                studentName: document.getElementById('studentName').value,
+                topic: document.getElementById('topic').value,
+                content_body: document.getElementById('content_body').value,
+                canvas_content_body: window.pads['content_body']?.toDataURL(),
+                closing_remark: document.getElementById('closing_remark').value,
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                q3: document.getElementById('q3').value,
+                ref_good: document.getElementById('ref_good').value,
+                ref_improve: document.getElementById('ref_improve').value,
+                canvas_ref_good: window.pads['ref_good']?.toDataURL(),
+                canvas_ref_improve: window.pads['ref_improve']?.toDataURL(),
+                appData: window.appData
+            };
+            localStorage.setItem('wanggokPresentationDataCute', JSON.stringify(dataToSave));
+            
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.opacity = 1;
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => { indicator.style.opacity = 0; }, 2000);
+        };
+
+        window.loadLocal = function() {
+            const saved = localStorage.getItem('wanggokPresentationDataCute');
+            if(saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    ['grade', 'classNum', 'studentNum', 'studentName', 'topic', 'content_body', 'closing_remark', 'q1', 'q2', 'q3', 'ref_good', 'ref_improve'].forEach(f => { 
+                        if(data[f] !== undefined) document.getElementById(f).value = data[f]; 
+                    });
+                    
+                    if(data.appData) {
+                        window.appData.quizScore = data.appData.quizScore;
+                        window.appData.isGraded = data.appData.isGraded;
+                        if(data.appData.modes) window.appData.modes = data.appData.modes;
+                        if(window.appData.isGraded) window.gradeQuiz(); 
+                    }
+                    
+                    if(data.canvas_content_body) window.pads['content_body'].loadFromDataURL(data.canvas_content_body);
+                    if(data.canvas_ref_good) window.pads['ref_good'].loadFromDataURL(data.canvas_ref_good);
+                    if(data.canvas_ref_improve) window.pads['ref_improve'].loadFromDataURL(data.canvas_ref_improve);
+
+                    ['content_body', 'ref_good', 'ref_improve'].forEach(f => window.setMode(f, window.appData.modes[f]));
+                    window.updateTopicBlanks();
+                } catch(e) {}
+            } else {
+                ['content_body', 'ref_good', 'ref_improve'].forEach(f => window.setMode(f, 'text'));
+            }
+        };
+
+        window.submitAll = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const classNum = document.getElementById('classNum').value;
+            const studentNum = document.getElementById('studentNum').value;
+            const topic = document.getElementById('topic').value.trim();
+
+            if(!studentName || !classNum || !studentNum) return window.customAlert("반, 번호, 이름을 정확히 적어주세요! 😊");
+            if(!topic) return window.customAlert("멋진 발표 주제를 입력해주세요! 💡");
+            if(!window.appData.isGraded) return window.customAlert("퀴즈 정답을 확인해야 제출할 수 있어요! 💯");
+            if (!auth.currentUser) return window.customAlert("서버와 연결 중입니다. 잠시 후 다시 눌러주세요.");
+
+            try {
+                const getFinalData = (field) => window.appData.modes[field] === 'text' ? document.getElementById(field).value : window.pads[field].toDataURL();
+
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                await addDoc(resultsRef, {
+                    grade: document.getElementById('grade').value,
+                    classNum: classNum,
+                    studentNum: studentNum,
+                    studentName: studentName,
+                    topic: topic,
+                    content_body_mode: window.appData.modes['content_body'],
+                    content_body: getFinalData('content_body'),
+                    closing_remark: document.getElementById('closing_remark').value,
+                    quizScore: window.appData.quizScore,
+                    ref_good_mode: window.appData.modes['ref_good'],
+                    ref_good: getFinalData('ref_good'),
+                    ref_improve_mode: window.appData.modes['ref_improve'],
+                    ref_improve: getFinalData('ref_improve'),
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.removeItem('wanggokPresentationDataCute');
+                document.getElementById('resultModal').classList.remove('hidden');
+            } catch (e) { 
+                window.customAlert("저장 중 오류가 발생했어요. 인터넷 연결을 확인해주세요. 🥲");
+            }
+        };
+
+        window.deleteSubmission = function(docId) {
+            window.customConfirm("선택한 학생의 결과물을 정말 삭제하시겠습니까?<br>삭제 후에는 복구할 수 없습니다.", async () => {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docId);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    window.customAlert("삭제 중 오류가 발생했습니다.");
+                }
+            });
+        };
+
+        const TEACHER_PASSWORD = "0402"; 
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+        window.closePasswordModal = function() { document.getElementById('passwordModal').classList.add('hidden'); };
+        window.checkPassword = function() {
+            if (document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD) {
+                window.closePasswordModal(); window.openDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            if (auth.currentUser) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    allResults = [];
+                    snapshot.forEach(doc => { allResults.push({ id: doc.id, ...doc.data() }); });
+                    window.updateFilterOptions();
+                    window.renderTable();
+                });
+            }
+        };
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if(unsubscribe) { unsubscribe(); unsubscribe = null; }
+        };
+
+        window.updateFilterOptions = function() {
+            const filter = document.getElementById('classFilter');
+            const current = filter.value;
+            const unique = [...new Set(allResults.map(i => `${i.grade}-${i.classNum}`))].sort();
+            let html = `<option value="all">모든 반 전체 보기</option>`;
+            unique.forEach(c => html += `<option value="${c}">${c}반</option>`);
+            filter.innerHTML = html;
+            if(unique.includes(current)) filter.value = current;
+        };
+
+        window.toggleHistory = function(histClass, btn) {
+            const rows = document.querySelectorAll('.' + histClass);
+            let isHidden = false;
+            rows.forEach(r => {
+                r.classList.toggle('hidden');
+                if (r.classList.contains('hidden')) isHidden = true;
+            });
+            if (btn) {
+                if (isHidden) {
+                    btn.innerHTML = `과거 기록 보기 (${rows.length}) ▼`;
+                    btn.className = "mt-3 text-sm bg-pink-100 hover:bg-pink-200 text-pink-700 py-1.5 px-3 rounded-full font-bold transition w-full shadow-sm";
+                } else {
+                    btn.innerHTML = `과거 기록 숨기기 (${rows.length}) ▲`;
+                    btn.className = "mt-3 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-full font-bold transition w-full shadow-sm";
+                }
+            }
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('dashboardTableBody');
+            const filter = document.getElementById('classFilter').value;
+            const totalCount = parseInt(document.getElementById('totalStudentCount').value) || 30;
+            
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            
+            if(data.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 font-bold bg-gray-50 text-xl font-jua">제출된 기록이 아직 없어요!</td></tr>`; 
+                document.getElementById('missingStudents').innerHTML = `제출 내역이 없습니다.`;
+                return; 
+            }
+
+            const studentMap = {};
+            data.forEach(item => {
+                const sNum = parseInt(item.studentNum) || item.studentNum;
+                const groupKey = `${item.grade}-${item.classNum}-${sNum}`;
+                if(!studentMap[groupKey]) studentMap[groupKey] = [];
+                studentMap[groupKey].push(item);
+            });
+
+            Object.keys(studentMap).forEach(key => {
+                studentMap[key].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            });
+
+            const missingDiv = document.getElementById('missingStudents');
+            if (filter !== 'all') {
+                const submittedNums = Object.values(studentMap).map(arr => parseInt(arr[0].studentNum)).filter(n => !isNaN(n));
+                const missing = [];
+                for(let i=1; i<=totalCount; i++) {
+                    if(!submittedNums.includes(i)) missing.push(i);
+                }
+                if(missing.length === 0) {
+                    missingDiv.innerHTML = `<span class="text-green-600 font-jua text-lg"><i class="fa-solid fa-face-smile-beam"></i> 전원 제출 완료! 최고!</span>`;
+                    missingDiv.className = "bg-green-50 px-4 py-2 rounded-xl border-2 border-green-200 shadow-sm";
+                } else {
+                    missingDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 안 낸 번호: ${missing.join(', ')}`;
+                    missingDiv.className = "text-rose-600 font-jua text-lg bg-rose-50 px-4 py-2 rounded-xl border-2 border-rose-200 shadow-sm";
+                }
+            } else {
+                missingDiv.innerHTML = `<span class="text-pink-500 font-jua text-lg">반을 고르면 안 낸 학생을 찾아줘요!</span>`;
+                missingDiv.className = "bg-pink-50 px-4 py-2 rounded-xl border-2 border-pink-100 shadow-sm";
+            }
+
+            const sortedGroups = Object.values(studentMap).sort((groupA, groupB) => {
+                const aNum = parseInt(groupA[0].studentNum) || 999;
+                const bNum = parseInt(groupB[0].studentNum) || 999;
+                return aNum - bNum;
+            });
+
+            const renderCell = (mode, cellData) => {
+                if(mode === 'draw' && cellData && cellData.startsWith('data:image')) {
+                    return `<img src="${cellData}" class="h-24 w-auto object-contain border-2 border-gray-100 bg-white rounded cursor-zoom-in hover:scale-[2.5] origin-left transition-transform shadow-sm" alt="손글씨" />`;
+                } else {
+                    const text = cellData || '-';
+                    const trunc = text.length > 50 ? text.substring(0,50)+'...' : text;
+                    return `<div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed" title="${text}">${trunc}</div>`;
+                }
+            };
+
+            const formatTime = (isoString) => {
+                const d = new Date(isoString);
+                return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            };
+
+            tbody.innerHTML = '';
+            
+            sortedGroups.forEach(group => {
+                const latest = group[0]; 
+                const hasHistory = group.length > 1;
+                const histClass = `hist-${latest.id}`;
+                
+                let scoreColor = latest.quizScore === 3 ? "text-blue-600 bg-blue-50 border-blue-200" : "text-rose-500 bg-rose-50 border-rose-200";
+                const refHtml = `
+                    <div class="text-[13px] text-blue-700 mb-2 bg-blue-50/50 p-2 rounded-lg border border-blue-100"><b>👍 잘한점:</b><br>${renderCell(latest.ref_good_mode, latest.ref_good)}</div>
+                    <div class="text-[13px] text-amber-700 bg-amber-50/50 p-2 rounded-lg border border-amber-100"><b>💡 노력할점:</b><br>${renderCell(latest.ref_improve_mode, latest.ref_improve)}</div>
+                `;
+
+                // 기본적으로 과거 기록이 펼쳐진 상태로 렌더링되게 함 (이전 요청사항)
+                tbody.innerHTML += `
+                    <tr class="hover:bg-pink-50/30 transition border-b-2 border-pink-100">
+                        <td class="p-4 text-center font-jua text-xl text-gray-700">${latest.classNum}-${latest.studentNum}</td>
+                        <td class="p-4 font-jua text-gray-800 text-xl">${latest.studentName}</td>
+                        <td class="p-4 font-bold text-pink-700 bg-pink-50/50 rounded-xl m-2 border border-pink-100">${latest.topic || '-'}</td>
+                        <td class="p-4">${renderCell(latest.content_body_mode, latest.content_body)}</td>
+                        <td class="p-4 text-center">
+                            <span class="font-jua ${scoreColor} border-2 px-3 py-1 rounded-full text-lg inline-block shadow-sm">${latest.quizScore} / 3</span>
+                        </td>
+                        <td class="p-4">${refHtml}</td>
+                        <td class="p-4 text-center">
+                            <div class="text-xs font-bold text-white bg-pink-400 py-1 px-3 rounded-full mb-2 inline-block shadow-sm">최종본 ✨</div>
+                            <div class="text-xs text-gray-500 flex justify-center items-center gap-2">
+                                ${formatTime(latest.timestamp)}
+                                <button onclick="window.deleteSubmission('${latest.id}')" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded p-1.5 transition" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            ${hasHistory ? `<button onclick="window.toggleHistory('${histClass}', this)" class="mt-3 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-full font-bold transition w-full shadow-sm">과거 기록 숨기기 (${group.length-1}) ▲</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+
+                if (hasHistory) {
+                    for(let i = 1; i < group.length; i++) {
+                        const past = group[i];
+                        let pScoreColor = past.quizScore === 3 ? "text-blue-500" : "text-rose-400";
+                        const pRefHtml = `
+                            <div class="text-xs text-blue-500 mb-1 border-l-2 border-blue-200 pl-2"><b>잘한점:</b><br>${renderCell(past.ref_good_mode, past.ref_good)}</div>
+                            <div class="text-xs text-amber-500 border-l-2 border-amber-200 pl-2"><b>노력할점:</b><br>${renderCell(past.ref_improve_mode, past.ref_improve)}</div>
+                        `;
+                        
+                        // 기본적으로 과거 기록이 보이도록 'hidden' 클래스를 뺌
+                        tbody.innerHTML += `
+                            <tr class="${histClass} history-row border-b border-gray-100 text-sm">
+                                <td class="p-3 text-center text-gray-400 text-lg"><i class="fa-solid fa-arrow-turn-up rotate-90"></i></td>
+                                <td class="p-3 text-gray-500 font-jua">${past.studentName}</td>
+                                <td class="p-3 text-gray-500">${past.topic || '-'}</td>
+                                <td class="p-3 opacity-70">${renderCell(past.content_body_mode, past.content_body)}</td>
+                                <td class="p-3 text-center font-bold ${pScoreColor}">${past.quizScore} / 3</td>
+                                <td class="p-3 opacity-70">${pRefHtml}</td>
+                                <td class="p-3 text-center text-xs text-gray-400">
+                                    <span class="bg-gray-200 px-2 py-0.5 rounded-md text-gray-600 font-bold">과거 기록</span><br>
+                                    <div class="flex justify-center items-center gap-2 mt-1.5">
+                                        ${formatTime(past.timestamp)}
+                                        <button onclick="window.deleteSubmission('${past.id}')" class="text-rose-300 hover:text-rose-500 transition p-1" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+            });
+        };
+
+        window.downloadCSV = function() {
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
+
+            data.sort((a, b) => {
+                const numA = parseInt(a.studentNum) || 999;
+                const numB = parseInt(b.studentNum) || 999;
+                if(numA !== numB) return numA - numB;
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+            let csv = "\uFEFF제출일시,학년,반,번호,이름,발표주제,발표내용(요약),퀴즈점수,잘한점,노력할점\n";
+            data.forEach(i => {
+                const d = new Date(i.timestamp);
+                const t = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                
+                const getContent = (mode, val) => mode === 'draw' ? "[손글씨 그림]" : (val || "");
+                const contentVal = getContent(i.content_body_mode, i.content_body);
+                const goodVal = getContent(i.ref_good_mode, i.ref_good);
+                const improveVal = getContent(i.ref_improve_mode, i.ref_improve);
+
+                const escapeCsv = (str) => `"${String(str).replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                
+                csv += `${escapeCsv(t)},${escapeCsv(i.grade)},${escapeCsv(i.classNum)},${escapeCsv(i.studentNum)},${escapeCsv(i.studentName)},${escapeCsv(i.topic)},${escapeCsv(contentVal)},${i.quizScore},${escapeCsv(goodVal)},${escapeCsv(improveVal)}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `왕곡초_발표계획서_${filter==='all'?'전체':filter+'반'}_결과.csv`;
+            link.click();
+        };
+    </script>
+</body>
+</html>
