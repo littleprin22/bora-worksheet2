@@ -317,6 +317,8 @@
 
     .mini-actions .danger { background: #ffe0e0; color: #9b111e; }
     .mini-actions .ai { background: #e0f1ff; color: #005f9e; }
+    
+    /* 펜/지우개 도구 버튼 스타일 */
     .mini-actions .tool-btn { background: #fff; border: 1px solid #ccc; color: #555; padding: 8px 12px; }
     .mini-actions .tool-btn.active { background: #eaf6e8; border: 1px solid #2f6b2f; color: #2f6b2f; }
 
@@ -535,8 +537,9 @@
             <textarea id="writing1" placeholder="예: 지역의 국가유산에 관심을 가지고 직접 찾아가 봅니다."></textarea>
             <div class="canvas-wrap"><canvas id="canvas1" class="handwriting"></canvas></div>
             <div class="mini-actions">
-              <button class="tool-btn active" type="button" onclick="canvases.canvas1.setTool('pen')" id="btn_pen_canvas1">✏️ 펜</button>
-              <button class="tool-btn" type="button" onclick="canvases.canvas1.setTool('eraser')" id="btn_eraser_canvas1">🧹 부분 지우개</button>
+              <!-- 펜/지우개 도구 버튼 적용 -->
+              <button class="tool-btn active" type="button" onclick="window.setTool('canvas1', 'pen')" id="btn_pen_canvas1">✏️ 펜</button>
+              <button class="tool-btn" type="button" onclick="window.setTool('canvas1', 'eraser')" id="btn_eraser_canvas1">🧹 부분 지우개</button>
               <button class="danger" type="button" data-clear="canvas1">전체 지우기</button>
               <button class="ai" type="button" data-ai="1">손글씨 인식/채점</button>
               <span id="aiStatus1">대기 중</span>
@@ -547,8 +550,9 @@
             <textarea id="writing2" placeholder="예: 주말에 가족과 우리 지역 박물관을 찾아가 보겠습니다."></textarea>
             <div class="canvas-wrap"><canvas id="canvas2" class="handwriting"></canvas></div>
             <div class="mini-actions">
-              <button class="tool-btn active" type="button" onclick="canvases.canvas2.setTool('pen')" id="btn_pen_canvas2">✏️ 펜</button>
-              <button class="tool-btn" type="button" onclick="canvases.canvas2.setTool('eraser')" id="btn_eraser_canvas2">🧹 부분 지우개</button>
+              <!-- 펜/지우개 도구 버튼 적용 -->
+              <button class="tool-btn active" type="button" onclick="window.setTool('canvas2', 'pen')" id="btn_pen_canvas2">✏️ 펜</button>
+              <button class="tool-btn" type="button" onclick="window.setTool('canvas2', 'eraser')" id="btn_eraser_canvas2">🧹 부분 지우개</button>
               <button class="danger" type="button" data-clear="canvas2">전체 지우기</button>
               <button class="ai" type="button" data-ai="2">손글씨 인식/채점</button>
               <span id="aiStatus2">대기 중</span>
@@ -557,7 +561,6 @@
         </div>
       </section>
 
-      <!-- 삭제되었던 O/X 퀴즈 영역 복구 -->
       <section class="panel writing-panel">
         <h2><span class="badge">◎</span> 배운 내용 정리 O/X</h2>
         <div class="ox-row">
@@ -575,14 +578,12 @@
       </section>
     </main>
 
-    <!-- 삭제되었던 제출 버튼 영역 복구 -->
     <div class="main-actions">
       <button type="button" class="save-btn" id="saveTempBtn">임시 저장</button>
       <button type="button" class="submit-btn" id="submitBtn">선생님께 최종 제출하기</button>
       <button type="button" class="reset-btn" id="resetBtn">입력 내용 초기화</button>
     </div>
 
-    <!-- 삭제되었던 채점 결과 안내 영역 복구 -->
     <section id="result" class="result" aria-live="polite">
       <div class="score-big" id="scoreText">점수</div>
       <div id="summaryText"></div>
@@ -663,7 +664,6 @@
     /******************************************************************
      * Firebase 설정
      * 실제 배포 시 아래 firebaseConfig 값을 선생님 프로젝트 값으로 교체하세요.
-     * Firebase config의 apiKey는 Gemini API 키가 아닙니다.
      ******************************************************************/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -709,7 +709,7 @@
 
     const aiCache = { 1: null, 2: null };
 
-    // 커스텀 다이얼로그 함수 (미리보기 화면에서 차단되는 alert, confirm, prompt 대체)
+    // 커스텀 다이얼로그 함수
     function showDialog(type, msg, callback) {
       const dialog = $('customDialog');
       const msgEl = $('dialogMsg');
@@ -787,10 +787,11 @@
       };
     }
 
+    // 캔버스 설정 (펜, 지우개 도구 기능 포함)
     function setupCanvas(canvas) {
       const ctx = canvas.getContext('2d');
       let drawing = false, last = null;
-      let currentTool = 'pen';
+      let currentTool = 'pen'; // 현재 도구 상태 저장
 
       function resizeCanvasPreserve() {
         const old = document.createElement('canvas');
@@ -802,7 +803,7 @@
         canvas.width = Math.max(1, Math.floor(rect.width * ratio));
         canvas.height = Math.max(1, Math.floor(rect.height * ratio));
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 2.2; ctx.strokeStyle = '#111';
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
         if (old.width > 1 && old.height > 1) ctx.drawImage(old, 0, 0, rect.width, rect.height);
       }
@@ -813,8 +814,12 @@
         if (!drawing) return; 
         e.preventDefault(); 
         const p = point(e); 
+        
+        // 지우개면 투명하게 지우고, 펜이면 검은색으로 그리기
         ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
         ctx.lineWidth = currentTool === 'eraser' ? 24 : 2.2;
+        ctx.strokeStyle = '#111';
+        
         ctx.beginPath(); 
         ctx.moveTo(last.x, last.y); 
         ctx.lineTo(p.x, p.y); 
@@ -828,7 +833,11 @@
       window.addEventListener('resize', resizeCanvasPreserve); setTimeout(resizeCanvasPreserve, 50);
 
       return {
-        clear() { ctx.clearRect(0, 0, canvas.width, canvas.height); saveTemp(); },
+        clear() { 
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.clearRect(0, 0, canvas.width, canvas.height); 
+          saveTemp(); 
+        },
         toBase64() { return canvas.toDataURL('image/png').split(',')[1]; },
         hasInk() {
           const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
@@ -862,6 +871,11 @@
     }
 
     const canvases = { canvas1: setupCanvas($('canvas1')), canvas2: setupCanvas($('canvas2')) };
+
+    // HTML 버튼에서 호출할 수 있도록 윈도우 객체에 등록
+    window.setTool = function(canvasId, tool) {
+      if(canvases[canvasId]) canvases[canvasId].setTool(tool);
+    };
 
     async function checkHandwritingWithServer(questionNumber) {
       const canvasId = questionNumber === 1 ? 'canvas1' : 'canvas2';
