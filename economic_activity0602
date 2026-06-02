@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사회 활동지 - 합리적 선택</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #fffbeb; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        .clay-input {
+            background-color: #ffffff;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        .clay-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        textarea.clay-input { resize: none; line-height: 1.8; }
+
+        .inline-blank {
+            width: 70px;
+            text-align: center;
+            border-bottom: 3px dashed #f59e0b;
+            background-color: transparent;
+            font-weight: bold;
+            color: #b45309;
+            transition: all 0.3s;
+        }
+        .inline-blank:focus { outline: none; border-bottom-color: #d97706; background-color: #fef3c7; }
+        .inline-blank.correct { border-bottom: 3px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
+        .inline-blank.wrong { border-bottom: 3px solid #ef4444; background-color: #fef2f2; color: #b91c1c; }
+        .inline-blank::placeholder { color: #9ca3af; font-weight: normal; }
+        
+        .ox-blank { width: 40px; }
+
+        .food-card { transition: all 0.2s ease-in-out; }
+        .food-card.selected { border-color: #f59e0b; background-color: #fef3c7; transform: scale(1.05); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-animate { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .dashed-bg {
+            line-height: 64px !important;
+            background-image: linear-gradient(transparent 62px, #fde68a 62px, #fde68a 64px);
+            background-size: 100% 64px;
+            background-attachment: local;
+            background-position-y: 24px;
+        }
+        
+        .dashed-bg-sm {
+            line-height: 48px !important;
+            background-image: linear-gradient(transparent 46px, #fde68a 46px, #fde68a 48px);
+            background-size: 100% 48px;
+            background-attachment: local;
+            background-position-y: 16px;
+        }
+
+        .history-row { background-color: #f8fafc; opacity: 0.9; }
+    </style>
+</head>
+<body class="p-2 md:p-6 min-h-screen text-gray-800">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-[2rem] p-4 md:p-8 shadow-2xl relative border-8 border-amber-100">
+        
+        <div id="saveIndicator" class="absolute top-4 right-6 text-sm font-bold text-amber-600 opacity-0 transition-opacity duration-500 z-50">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 자동 저장됨
+        </div>
+
+        <header class="mb-10 relative z-10 text-center mt-4">
+            <div class="mb-2 text-amber-700 font-bold tracking-widest text-sm">사회 3. 경제활동과 지역 간 교류</div>
+            <div class="bg-amber-500 text-white inline-block px-8 py-3 rounded-full shadow-md border-4 border-amber-600 mb-6">
+                <h1 class="text-2xl md:text-4xl font-jua tracking-wider">
+                    [4차시] 합리적 선택이 필요한 까닭은 무엇일까요?
+                </h1>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 w-full max-w-2xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <input type="number" id="grade" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" value="4" readonly oninput="window.saveLocal()">학년
+                    <input type="number" id="classNum" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="반" oninput="window.saveLocal()">반
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="studentNum" class="w-16 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="번" oninput="window.saveLocal()">번
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="studentName" class="w-24 text-center border-b-2 border-amber-400 bg-transparent focus:outline-none font-bold text-lg" placeholder="이름" oninput="window.saveLocal()">
+                </div>
+            </div>
+        </header>
+
+        <!-- 1. 경제활동에서의 선택 경험 -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-4 border-b-4 border-amber-200 pb-2">
+                <div class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">1</div>
+                <h2 class="text-2xl font-jua text-amber-900">경제활동을 하면서 선택했던 경험을 나누어 봅시다.</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 후회한 경험 -->
+                <div class="bg-rose-50 p-5 rounded-2xl border-2 border-rose-200 flex flex-col h-[350px]">
+                    <div class="flex justify-between items-start mb-3">
+                        <label class="font-bold text-rose-900 flex items-center gap-2 text-lg"><i class="fa-regular fa-face-frown-open text-2xl text-rose-500"></i> 선택을 후회한 경험</label>
+                        <div class="flex flex-col gap-2 w-32 items-end z-10">
+                            <div class="flex bg-rose-200 p-1 rounded-lg w-full">
+                                <button onclick="window.setMode('exp_regret', 'text')" id="btn_text_exp_regret" class="flex-1 py-1 text-xs font-bold bg-white text-rose-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('exp_regret', 'draw')" id="btn_draw_exp_regret" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                            </div>
+                            <div id="toolbar_exp_regret" class="hidden flex-col gap-1 w-full">
+                                <div class="flex bg-amber-100 p-1 rounded-lg w-full border border-amber-200">
+                                    <button onclick="window.pads['exp_regret'].setTool('pen')" id="btn_tool_pen_exp_regret" class="flex-1 py-1 text-xs font-bold bg-white text-amber-700 shadow-sm rounded-md transition-all" title="쓰기">✏️</button>
+                                    <button onclick="window.pads['exp_regret'].setTool('eraser')" id="btn_tool_eraser_exp_regret" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="지우개">🧹</button>
+                                </div>
+                                <button onclick="window.pads['exp_regret'].clear()" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1 rounded-md font-bold shadow-sm">전체 지우기</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex-1 w-full h-full -mt-4">
+                        <textarea id="exp_regret" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-rose-100 transition-colors" placeholder="(예) 할인 매장에서 과자를 샀는데 생각보다 양이 적어서 속상했던 적이 있습니다." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_exp_regret" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-rose-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+
+                <!-- 만족한 경험 -->
+                <div class="bg-blue-50 p-5 rounded-2xl border-2 border-blue-200 flex flex-col h-[350px]">
+                    <div class="flex justify-between items-start mb-3">
+                        <label class="font-bold text-blue-900 flex items-center gap-2 text-lg"><i class="fa-regular fa-face-smile-beam text-2xl text-blue-500"></i> 선택에 만족한 경험</label>
+                        <div class="flex flex-col gap-2 w-32 items-end z-10">
+                            <div class="flex bg-blue-200 p-1 rounded-lg w-full">
+                                <button onclick="window.setMode('exp_satisfy', 'text')" id="btn_text_exp_satisfy" class="flex-1 py-1 text-xs font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                                <button onclick="window.setMode('exp_satisfy', 'draw')" id="btn_draw_exp_satisfy" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                            </div>
+                            <div id="toolbar_exp_satisfy" class="hidden flex-col gap-1 w-full">
+                                <div class="flex bg-amber-100 p-1 rounded-lg w-full border border-amber-200">
+                                    <button onclick="window.pads['exp_satisfy'].setTool('pen')" id="btn_tool_pen_exp_satisfy" class="flex-1 py-1 text-xs font-bold bg-white text-amber-700 shadow-sm rounded-md transition-all" title="쓰기">✏️</button>
+                                    <button onclick="window.pads['exp_satisfy'].setTool('eraser')" id="btn_tool_eraser_exp_satisfy" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="지우개">🧹</button>
+                                </div>
+                                <button onclick="window.pads['exp_satisfy'].clear()" class="w-full text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 py-1 rounded-md font-bold shadow-sm">전체 지우기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 w-full h-full -mt-4">
+                        <textarea id="exp_satisfy" class="absolute inset-0 w-full h-full clay-input p-4 text-lg font-medium resize-none dashed-bg-sm outline-none focus:bg-blue-100 transition-colors" placeholder="(예) 가방을 살 때 가격과 품질을 미리 비교해 보고 구입했습니다." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_exp_satisfy" width="800" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg-sm touch-none cursor-crosshair border-2 border-blue-300 rounded-xl bg-white/50" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 음식 월드컵 (합리적 선택 연습) -->
+        <section class="mb-12">
+            <div class="flex justify-between items-end mb-4 border-b-4 border-amber-200 pb-2">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">2</div>
+                    <h2 class="text-2xl font-jua text-amber-900">내가 먹고 싶은 음식 월드컵! 자신의 선택 기준을 적어보세요.</h2>
+                </div>
+            </div>
+
+            <div class="bg-white border-4 border-amber-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                <div class="text-center mb-6 text-gray-600 font-bold">👇 자신이 가장 먹고 싶은 음식을 하나 선택하세요.</div>
+                
+                <!-- 선택 그리드 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="food-card border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer bg-gray-50" onclick="window.selectFood('치킨')">
+                        <div class="text-4xl mb-2">🍗</div>
+                        <div class="font-bold text-lg">치킨</div>
+                        <div class="text-gray-500 text-sm">(15,000원)</div>
+                    </div>
+                    <div class="food-card border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer bg-gray-50" onclick="window.selectFood('샐러드')">
+                        <div class="text-4xl mb-2">🥗</div>
+                        <div class="font-bold text-lg">샐러드</div>
+                        <div class="text-gray-500 text-sm">(9,500원)</div>
+                    </div>
+                    <div class="food-card border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer bg-gray-50" onclick="window.selectFood('삼겹살')">
+                        <div class="text-4xl mb-2">🥓</div>
+                        <div class="font-bold text-lg">삼겹살</div>
+                        <div class="text-gray-500 text-sm">(16,000원)</div>
+                    </div>
+                    <div class="food-card border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer bg-gray-50" onclick="window.selectFood('마라탕')">
+                        <div class="text-4xl mb-2">🍲</div>
+                        <div class="font-bold text-lg">마라탕</div>
+                        <div class="text-gray-500 text-sm">(16,000원)</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col border-[3px] border-amber-300 rounded-xl overflow-hidden">
+                    <div class="bg-amber-100 p-4 flex justify-between items-center font-bold text-amber-900 border-b-[3px] border-amber-300">
+                        <span class="text-lg">내가 위 음식을 선택한 기준은?</span>
+                        <div class="flex bg-white p-1 rounded-lg w-32 border border-amber-200">
+                            <button onclick="window.setMode('reason', 'text')" id="btn_text_reason" class="flex-1 py-1 text-xs font-bold bg-white text-blue-600 shadow-sm rounded-md transition-all">⌨️ 자판</button>
+                            <button onclick="window.setMode('reason', 'draw')" id="btn_draw_reason" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all">🖊️ 펜</button>
+                        </div>
+                    </div>
+                    
+                    <div id="toolbar_reason" class="hidden flex bg-amber-50 p-2 gap-2 justify-end border-b border-amber-200">
+                        <div class="flex bg-white p-1 rounded-lg border border-amber-200 w-32">
+                            <button onclick="window.pads['reason'].setTool('pen')" id="btn_tool_pen_reason" class="flex-1 py-1 text-xs font-bold bg-white text-amber-700 shadow-sm rounded-md transition-all" title="펜">✏️</button>
+                            <button onclick="window.pads['reason'].setTool('eraser')" id="btn_tool_eraser_reason" class="flex-1 py-1 text-xs font-bold text-gray-500 hover:text-gray-800 rounded-md transition-all" title="지우개">🧹</button>
+                        </div>
+                        <button onclick="window.pads['reason'].clear()" class="text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 px-3 py-1 rounded-md font-bold shadow-sm">지우기</button>
+                    </div>
+
+                    <div class="p-0 bg-white relative min-h-[250px]">
+                        <textarea id="reason" class="absolute inset-0 w-full h-full p-6 text-xl font-medium text-gray-800 resize-none overflow-y-auto outline-none focus:bg-amber-50 transition-colors dashed-bg" placeholder="(예) 고기와 야채를 함께 먹을 수 있어 마라탕을 선택했습니다." oninput="window.saveLocal()"></textarea>
+                        <canvas id="canvas_reason" width="1000" height="400" class="absolute inset-0 w-full h-full hidden dashed-bg touch-none cursor-crosshair bg-white" style="background-color: transparent;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 배운 내용 정리 & 정답 확인 -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-4 border-b-4 border-amber-200 pb-2">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl font-jua">3</div>
+                    <h2 class="text-2xl font-jua text-amber-900">오늘 배운 내용을 정리해 봅시다.</h2>
+                </div>
+                <div id="quizScoreDisplay" class="font-jua text-2xl text-blue-600 bg-blue-50 px-4 py-1 rounded-full hidden">0 / 7점</div>
+            </div>
+
+            <div class="bg-white rounded-2xl border-2 border-amber-200 p-6 md:p-8 shadow-sm">
+                
+                <div class="mb-10">
+                    <h3 class="font-bold text-amber-800 text-lg mb-4 text-center bg-amber-100 py-2 rounded-lg">📝 빈칸에 알맞은 단어를 적으세요.</h3>
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 text-lg md:text-xl font-medium leading-loose text-center md:text-left">
+                        사람들은 경제활동을 하면서 수많은 선택을 합니다. <br class="hidden md:block">
+                        이때, <input type="text" id="q1" class="inline-blank" placeholder="ㄱㄱ" oninput="window.saveLocal()" autocomplete="off"><span id="mark1" class="ml-1 mr-2"></span>, 
+                        <input type="text" id="q2" class="inline-blank" placeholder="ㅍㅈ" oninput="window.saveLocal()" autocomplete="off"><span id="mark2" class="ml-1 mr-2"></span>, 
+                        <input type="text" id="q3" class="inline-blank" placeholder="ㄷㅈㅇ" oninput="window.saveLocal()" autocomplete="off"><span id="mark3" class="ml-1 mr-2"></span> 등 여러 가지를 고려하여 <br class="hidden md:block">
+                        <input type="text" id="q4" class="inline-blank" placeholder="ㅎㄹㅈ" oninput="window.saveLocal()" autocomplete="off"><span id="mark4" class="ml-1"></span>으로 선택해야 합니다.
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-amber-800 text-lg mb-4 text-center bg-amber-100 py-2 rounded-lg">⭕❌ O/X 퀴즈를 풀어보세요.</h3>
+                    <ul class="space-y-6 text-lg md:text-xl px-2 md:px-6 font-medium">
+                        <li class="flex items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                            <div class="flex-1 leading-snug">1. 경제활동을 할 때 가격, 품질, 디자인 등을 고려하여 선택해야 한다.</div>
+                            <div class="flex items-center gap-2">
+                                (<input type="text" id="q5" class="inline-blank ox-blank text-center uppercase" placeholder="O/X" maxlength="1" oninput="window.saveLocal()" autocomplete="off">)<span id="mark5"></span>
+                            </div>
+                        </li>
+                        <li class="flex items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                            <div class="flex-1 leading-snug">2. 합리적인 선택을 하면 돈이나 자원을 낭비하게 된다.</div>
+                            <div class="flex items-center gap-2">
+                                (<input type="text" id="q6" class="inline-blank ox-blank text-center uppercase" placeholder="O/X" maxlength="1" oninput="window.saveLocal()" autocomplete="off">)<span id="mark6"></span>
+                            </div>
+                        </li>
+                        <li class="flex items-center justify-between gap-4 pb-2">
+                            <div class="flex-1 leading-snug">3. 경제활동을 할 때 합리적인 선택을 하면 큰 만족을 얻을 수 있다.</div>
+                            <div class="flex items-center gap-2">
+                                (<input type="text" id="q7" class="inline-blank ox-blank text-center uppercase" placeholder="O/X" maxlength="1" oninput="window.saveLocal()" autocomplete="off">)<span id="mark7"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="window.gradeQuiz()" class="bg-amber-600 hover:bg-amber-700 text-white font-jua text-xl py-3 px-8 rounded-full shadow-md transition transform hover:scale-105">
+                        <i class="fa-solid fa-clipboard-check mr-2"></i> 정답 확인하기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 제출 버튼 -->
+        <div class="text-center relative z-10 mt-12">
+            <button onclick="window.submitAll()" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-jua text-2xl py-4 px-16 rounded-full shadow-xl transform transition hover:scale-105 hover:shadow-2xl active:scale-95">
+                <i class="fa-solid fa-paper-plane mr-2"></i> 선생님께 학습지 제출하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 오류 알림창 -->
+    <div id="customAlertModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3">💬</div>
+            <p id="customAlertMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-xl transition">확인</button>
+        </div>
+    </div>
+
+    <!-- 삭제 확인 알림창 -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 z-[110] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+            <div class="text-4xl mb-3 text-rose-500">⚠️</div>
+            <p id="customConfirmMessage" class="text-gray-800 font-bold mb-6 break-keep"></p>
+            <div class="flex gap-3">
+                <button onclick="window.closeConfirmModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl transition">취소</button>
+                <button id="customConfirmOkBtn" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-4 rounded-xl transition">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결과 안내 팝업 -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 z-[90] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl modal-animate border-t-8 border-amber-500">
+            <div class="text-6xl mb-2 mt-4">🎉</div>
+            <h3 class="text-3xl font-jua text-amber-700 mb-2">제출 완료!</h3>
+            <p class="text-gray-600 mb-6 font-bold leading-relaxed">
+                사회 학습지 작성을 모두 마쳤습니다.<br>수고했어요!
+            </p>
+            <button onclick="location.reload()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md">
+                확인 (새로고침)
+            </button>
+        </div>
+    </div>
+
+    <!-- 선생님 모드 입장 버튼 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <button onclick="window.openPasswordModal()" class="bg-stone-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-stone-900 transition flex items-center gap-2 font-bold text-sm opacity-50 hover:opacity-100">
+            <i class="fa-solid fa-chalkboard-user"></i> 선생님 모드
+        </button>
+    </div>
+
+    <!-- 선생님 인증 팝업 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 z-[70] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+            <button onclick="window.closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-xl font-jua text-stone-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+            <input type="password" id="teacherPasswordInput" class="w-full border-2 border-stone-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-stone-500" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') window.checkPassword()">
+            <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+            <button onclick="window.checkPassword()" class="w-full bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-xl transition mt-2">확인</button>
+        </div>
+    </div>
+
+    <!-- 선생님 대시보드 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 z-[60] hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-7xl w-full h-[90vh] flex flex-col shadow-2xl relative modal-animate">
+            <button onclick="window.closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+            
+            <h2 class="text-2xl font-jua text-amber-800 mb-2"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황 (사회 - 합리적 선택)</h2>
+            <p class="text-sm text-gray-600 mb-4 ml-1">💡 한 학생이 여러 번 낸 경우, 가장 '최근 제출본'이 표시됩니다.</p>
+
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 bg-stone-100 p-4 rounded-xl border border-stone-200">
+                <div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-stone-800"><i class="fa-solid fa-filter"></i> 반 선택:</span>
+                        <select id="classFilter" onchange="window.renderTable()" class="border-2 border-stone-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-amber-600 font-bold text-gray-700 bg-white shadow-sm">
+                            <option value="all">모든 반 전체 보기</option>
+                        </select>
+                    </div>
+                    <div class="hidden md:block w-px h-6 bg-stone-300"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-stone-700">총 인원:</span>
+                        <input type="number" id="totalStudentCount" value="30" class="w-16 border-2 border-stone-300 rounded text-center font-bold bg-white" onchange="window.renderTable()"> <span class="font-bold text-stone-700">명</span>
+                    </div>
+                    <div id="missingStudents" class="text-rose-600 font-bold bg-white px-3 py-1 rounded-lg border border-rose-200 shadow-sm text-sm">
+                        미제출: 특정 반을 선택하세요.
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="window.downloadCSV()" class="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 bg-white rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse min-w-[1200px]">
+                    <thead class="bg-amber-50 sticky top-0 shadow-sm z-10 border-b-2 border-amber-200">
+                        <tr>
+                            <th class="p-3 font-bold text-amber-900 w-16 text-center">반/번호</th>
+                            <th class="p-3 font-bold text-amber-900 w-24">이름</th>
+                            <th class="p-3 font-bold text-amber-900 w-[20%]">경험 (후회 / 만족)</th>
+                            <th class="p-3 font-bold text-amber-900 w-24 text-center">음식선택</th>
+                            <th class="p-3 font-bold text-amber-900 w-[25%]">선택 기준</th>
+                            <th class="p-3 font-bold text-amber-900 w-20 text-center">퀴즈점수</th>
+                            <th class="p-3 font-bold text-amber-900 w-32 text-center">상태 및 일시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.customAlert = function(msg) {
+            document.getElementById('customAlertMessage').innerHTML = msg;
+            document.getElementById('customAlertModal').classList.remove('hidden');
+        };
+
+        window.customConfirm = function(msg, onConfirm) {
+            document.getElementById('customConfirmMessage').innerText = msg;
+            document.getElementById('customConfirmModal').classList.remove('hidden');
+            const okBtn = document.getElementById('customConfirmOkBtn');
+            okBtn.onclick = function() {
+                window.closeConfirmModal();
+                onConfirm();
+            };
+        };
+        window.closeConfirmModal = function() { document.getElementById('customConfirmModal').classList.add('hidden'); };
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+            authDomain: "bora-worksheet.firebaseapp.com",
+            projectId: "bora-worksheet",
+            storageBucket: "bora-worksheet.firebasestorage.app",
+            messagingSenderId: "1091782933629",
+            appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const initAuth = async () => {
+            try { 
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth); 
+                }
+            } catch(e) { console.error("인증 에러:", e); }
+        };
+        initAuth();
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'social-rational-choice-v1'; 
+        const COLLECTION_NAME = 'social_rational_choice_results'; 
+        let allResults = [];
+
+        window.appData = {
+            quizScore: 0,
+            isGraded: false,
+            food_choice: '',
+            modes: { exp_regret: 'text', exp_satisfy: 'text', reason: 'text' }
+        };
+
+        /* --- 그리기(캔버스) 로직 --- */
+        window.pads = {};
+        function initDrawing(canvasId, fieldId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let currentTool = 'pen'; 
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function start(e) {
+                e.preventDefault(); 
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4; 
+                ctx.arc(pos.x, pos.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+                if(currentTool === 'pen') ctx.fillStyle = '#1f2937'; else ctx.fillStyle = 'rgba(0,0,0,1)';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+            
+            function move(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+                ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(0,0,0,1)' : '#1f2937';
+                ctx.lineWidth = currentTool === 'eraser' ? 30 : 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function stop(e) {
+                if(!isDrawing) return;
+                e.preventDefault();
+                isDrawing = false;
+                window.saveLocal();
+            }
+
+            canvas.addEventListener('mousedown', start);
+            canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('mouseout', stop);
+            canvas.addEventListener('touchstart', start, {passive: false});
+            canvas.addEventListener('touchmove', move, {passive: false});
+            canvas.addEventListener('touchend', stop, {passive: false});
+            canvas.addEventListener('touchcancel', stop, {passive: false});
+            
+            return {
+                clear: () => { ctx.clearRect(0,0,canvas.width,canvas.height); window.saveLocal(); },
+                toDataURL: () => canvas.toDataURL('image/png'),
+                loadFromDataURL: (dataUrl) => {
+                    if(!dataUrl) return;
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = dataUrl;
+                },
+                setTool: (tool) => {
+                    currentTool = tool;
+                    const btnPen = document.getElementById(`btn_tool_pen_${fieldId}`);
+                    const btnEraser = document.getElementById(`btn_tool_eraser_${fieldId}`);
+                    if (btnPen && btnEraser) {
+                        if (tool === 'pen') {
+                            btnPen.classList.replace('text-gray-500', 'text-amber-700');
+                            btnPen.classList.replace('hover:text-gray-800', 'bg-white');
+                            btnPen.classList.add('shadow-sm');
+                            btnEraser.classList.replace('text-amber-700', 'text-gray-500');
+                            btnEraser.classList.replace('bg-white', 'hover:text-gray-800');
+                            btnEraser.classList.remove('shadow-sm');
+                        } else {
+                            btnEraser.classList.replace('text-gray-500', 'text-amber-700');
+                            btnEraser.classList.replace('hover:text-gray-800', 'bg-white');
+                            btnEraser.classList.add('shadow-sm');
+                            btnPen.classList.replace('text-amber-700', 'text-gray-500');
+                            btnPen.classList.replace('bg-white', 'hover:text-gray-800');
+                            btnPen.classList.remove('shadow-sm');
+                        }
+                    }
+                }
+            };
+        }
+
+        window.addEventListener('load', () => {
+            window.pads['exp_regret'] = initDrawing('canvas_exp_regret', 'exp_regret');
+            window.pads['exp_satisfy'] = initDrawing('canvas_exp_satisfy', 'exp_satisfy');
+            window.pads['reason'] = initDrawing('canvas_reason', 'reason');
+            window.loadLocal();
+        });
+
+        window.setMode = function(field, mode) {
+            window.appData.modes[field] = mode;
+            const txt = document.getElementById(field);
+            const cvs = document.getElementById('canvas_' + field);
+            const btnText = document.getElementById('btn_text_' + field);
+            const btnDraw = document.getElementById('btn_draw_' + field);
+            const toolbar = document.getElementById('toolbar_' + field);
+
+            if(mode === 'text') {
+                txt.classList.remove('hidden'); cvs.classList.add('hidden');
+                btnText.classList.replace('text-gray-500', 'text-blue-600');
+                btnText.classList.replace('hover:text-gray-800', 'bg-white'); btnText.classList.add('shadow-sm');
+                btnDraw.classList.replace('text-blue-600', 'text-gray-500');
+                btnDraw.classList.replace('bg-white', 'hover:text-gray-800'); btnDraw.classList.remove('shadow-sm');
+                if (toolbar) { toolbar.classList.add('hidden'); toolbar.classList.remove('flex'); }
+            } else {
+                txt.classList.add('hidden'); cvs.classList.remove('hidden');
+                btnDraw.classList.replace('text-gray-500', 'text-blue-600');
+                btnDraw.classList.replace('hover:text-gray-800', 'bg-white'); btnDraw.classList.add('shadow-sm');
+                btnText.classList.replace('text-blue-600', 'text-gray-500');
+                btnText.classList.replace('bg-white', 'hover:text-gray-800'); btnText.classList.remove('shadow-sm');
+                if (toolbar) { toolbar.classList.remove('hidden'); toolbar.classList.add('flex'); }
+                window.pads[field].setTool('pen');
+                window.dispatchEvent(new Event('resize')); 
+            }
+            window.saveLocal();
+        };
+
+        window.selectFood = function(foodName) {
+            window.appData.food_choice = foodName;
+            const cards = document.querySelectorAll('.food-card');
+            cards.forEach(c => {
+                if(c.innerText.includes(foodName)) {
+                    c.classList.add('selected');
+                } else {
+                    c.classList.remove('selected');
+                }
+            });
+            window.saveLocal();
+        };
+
+        window.gradeQuiz = function() {
+            const check = (id, val, corrects) => {
+                const inputEl = document.getElementById(id);
+                const markEl = document.getElementById('mark' + id.replace('q', ''));
+                if (corrects.includes(val)) {
+                    inputEl.classList.remove('wrong'); inputEl.classList.add('correct');
+                    markEl.innerHTML = '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>';
+                    return 1;
+                } else {
+                    inputEl.classList.remove('correct'); inputEl.classList.add('wrong');
+                    markEl.innerHTML = '<i class="fa-solid fa-xmark text-red-500 text-xl"></i>';
+                    return 0;
+                }
+            };
+            
+            let score = 0;
+            score += check('q1', document.getElementById('q1').value.replace(/\s+/g, ''), ['가격']);
+            score += check('q2', document.getElementById('q2').value.replace(/\s+/g, ''), ['품질']);
+            score += check('q3', document.getElementById('q3').value.replace(/\s+/g, ''), ['디자인']);
+            score += check('q4', document.getElementById('q4').value.replace(/\s+/g, ''), ['합리적']);
+            
+            score += check('q5', document.getElementById('q5').value.trim().toUpperCase(), ['O', 'ㅇ']);
+            score += check('q6', document.getElementById('q6').value.trim().toUpperCase(), ['X', 'x']);
+            score += check('q7', document.getElementById('q7').value.trim().toUpperCase(), ['O', 'ㅇ']);
+
+            window.appData.quizScore = score;
+            window.appData.isGraded = true;
+            document.getElementById('quizScoreDisplay').innerText = `${score} / 7점`;
+            document.getElementById('quizScoreDisplay').classList.remove('hidden');
+            window.saveLocal();
+        };
+
+        window.saveLocal = function() {
+            const dataToSave = {
+                grade: document.getElementById('grade').value,
+                classNum: document.getElementById('classNum').value,
+                studentNum: document.getElementById('studentNum').value,
+                studentName: document.getElementById('studentName').value,
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                q3: document.getElementById('q3').value,
+                q4: document.getElementById('q4').value,
+                q5: document.getElementById('q5').value,
+                q6: document.getElementById('q6').value,
+                q7: document.getElementById('q7').value,
+                exp_regret: document.getElementById('exp_regret').value,
+                canvas_exp_regret: window.pads['exp_regret']?.toDataURL(),
+                exp_satisfy: document.getElementById('exp_satisfy').value,
+                canvas_exp_satisfy: window.pads['exp_satisfy']?.toDataURL(),
+                reason: document.getElementById('reason').value,
+                canvas_reason: window.pads['reason']?.toDataURL(),
+                appData: window.appData
+            };
+            localStorage.setItem('socialChoiceData', JSON.stringify(dataToSave));
+            
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.opacity = 1;
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => { indicator.style.opacity = 0; }, 2000);
+        };
+
+        window.loadLocal = function() {
+            const saved = localStorage.getItem('socialChoiceData');
+            if(saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    ['grade', 'classNum', 'studentNum', 'studentName', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'exp_regret', 'exp_satisfy', 'reason'].forEach(f => { 
+                        if(data[f] !== undefined) document.getElementById(f).value = data[f]; 
+                    });
+                    
+                    if(data.appData) {
+                        window.appData.quizScore = data.appData.quizScore;
+                        window.appData.isGraded = data.appData.isGraded;
+                        window.appData.food_choice = data.appData.food_choice;
+                        if(data.appData.modes) window.appData.modes = data.appData.modes;
+                        
+                        if(window.appData.food_choice) {
+                            window.selectFood(window.appData.food_choice);
+                        }
+                        if(window.appData.isGraded) window.gradeQuiz(); 
+                    }
+                    
+                    if(data.canvas_exp_regret) window.pads['exp_regret'].loadFromDataURL(data.canvas_exp_regret);
+                    if(data.canvas_exp_satisfy) window.pads['exp_satisfy'].loadFromDataURL(data.canvas_exp_satisfy);
+                    if(data.canvas_reason) window.pads['reason'].loadFromDataURL(data.canvas_reason);
+
+                    ['exp_regret', 'exp_satisfy', 'reason'].forEach(f => window.setMode(f, window.appData.modes[f]));
+                } catch(e) {}
+            } else {
+                ['exp_regret', 'exp_satisfy', 'reason'].forEach(f => window.setMode(f, 'text'));
+            }
+        };
+
+        window.submitAll = async function() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const classNum = document.getElementById('classNum').value;
+            const studentNum = document.getElementById('studentNum').value;
+
+            if(!studentName || !classNum || !studentNum) return window.customAlert("반, 번호, 이름을 정확히 적어주세요!");
+            if(!window.appData.food_choice) return window.customAlert("2번 활동에서 자신이 먹고 싶은 음식을 선택해주세요!");
+            if(!window.appData.isGraded) return window.customAlert("3번 활동의 '정답 확인하기' 버튼을 눌러주세요!");
+            if (!auth.currentUser) return window.customAlert("서버 연결 대기중입니다. 잠시 후 시도해주세요.");
+
+            try {
+                const getFinalData = (field) => window.appData.modes[field] === 'text' ? document.getElementById(field).value : window.pads[field].toDataURL();
+
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                await addDoc(resultsRef, {
+                    grade: document.getElementById('grade').value,
+                    classNum: classNum,
+                    studentNum: studentNum,
+                    studentName: studentName,
+                    exp_regret_mode: window.appData.modes['exp_regret'],
+                    exp_regret: getFinalData('exp_regret'),
+                    exp_satisfy_mode: window.appData.modes['exp_satisfy'],
+                    exp_satisfy: getFinalData('exp_satisfy'),
+                    food_choice: window.appData.food_choice,
+                    reason_mode: window.appData.modes['reason'],
+                    reason: getFinalData('reason'),
+                    quizScore: window.appData.quizScore,
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.removeItem('socialChoiceData');
+                document.getElementById('resultModal').classList.remove('hidden');
+            } catch (e) { 
+                window.customAlert("저장 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.");
+            }
+        };
+
+        window.deleteSubmission = function(docId) {
+            window.customConfirm("이 학생의 결과물을 정말 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)", async () => {
+                if (!auth.currentUser) return;
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docId);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    console.error("삭제 중 오류:", e);
+                    window.customAlert("삭제 중 오류가 발생했습니다.");
+                }
+            });
+        };
+
+        const TEACHER_PASSWORD = "0402"; 
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('teacherPasswordInput').value = '';
+            setTimeout(() => document.getElementById('teacherPasswordInput').focus(), 100);
+        };
+        window.closePasswordModal = function() { document.getElementById('passwordModal').classList.add('hidden'); };
+        window.checkPassword = function() {
+            if (document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD) {
+                window.closePasswordModal(); window.openDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('teacherPasswordInput').focus();
+            }
+        };
+
+        let unsubscribe = null;
+        window.openDashboard = function() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            if (auth.currentUser) {
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+                unsubscribe = onSnapshot(resultsRef, (snapshot) => {
+                    allResults = [];
+                    snapshot.forEach(doc => { allResults.push({ id: doc.id, ...doc.data() }); });
+                    window.updateFilterOptions();
+                    window.renderTable();
+                }, (error) => {
+                    console.error("대시보드 데이터 로드 에러:", error);
+                });
+            } else {
+                window.customAlert("로그인 정보가 없습니다.");
+            }
+        };
+        window.closeDashboard = function() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+            if(unsubscribe) { unsubscribe(); unsubscribe = null; }
+        };
+
+        window.updateFilterOptions = function() {
+            const filter = document.getElementById('classFilter');
+            const current = filter.value;
+            const unique = [...new Set(allResults.map(i => `${i.grade}-${i.classNum}`))].sort();
+            let html = `<option value="all">모든 반 전체 보기</option>`;
+            unique.forEach(c => html += `<option value="${c}">${c}반</option>`);
+            filter.innerHTML = html;
+            if(unique.includes(current)) filter.value = current;
+        };
+
+        window.toggleHistory = function(histClass) {
+            const rows = document.querySelectorAll('.' + histClass);
+            rows.forEach(r => r.classList.toggle('hidden'));
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('dashboardTableBody');
+            const filter = document.getElementById('classFilter').value;
+            const totalCount = parseInt(document.getElementById('totalStudentCount').value) || 30;
+            
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            
+            if(data.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">제출된 기록이 없습니다.</td></tr>`; 
+                document.getElementById('missingStudents').innerHTML = `제출 내역이 없습니다.`;
+                return; 
+            }
+
+            const studentMap = {};
+            data.forEach(item => {
+                const sNum = parseInt(item.studentNum) || item.studentNum;
+                const groupKey = `${item.grade}-${item.classNum}-${sNum}`;
+                if(!studentMap[groupKey]) studentMap[groupKey] = [];
+                studentMap[groupKey].push(item);
+            });
+
+            Object.keys(studentMap).forEach(key => {
+                studentMap[key].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            });
+
+            const missingDiv = document.getElementById('missingStudents');
+            if (filter !== 'all') {
+                const submittedNums = Object.values(studentMap).map(arr => parseInt(arr[0].studentNum)).filter(n => !isNaN(n));
+                const missing = [];
+                for(let i=1; i<=totalCount; i++) {
+                    if(!submittedNums.includes(i)) missing.push(i);
+                }
+                if(missing.length === 0) {
+                    missingDiv.innerHTML = `<span class="text-green-600"><i class="fa-solid fa-check-circle"></i> 전원 제출 완료!</span>`;
+                    missingDiv.className = "text-green-600 font-bold bg-green-50 px-3 py-1 rounded-lg border border-green-200 shadow-sm text-sm";
+                } else {
+                    missingDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 미제출 번호: ${missing.join(', ')}`;
+                    missingDiv.className = "text-rose-600 font-bold bg-rose-50 px-3 py-1 rounded-lg border border-rose-200 shadow-sm text-sm";
+                }
+            } else {
+                missingDiv.innerHTML = `<span class="text-gray-500">특정 반을 선택하면 미제출자를 확인할 수 있습니다.</span>`;
+                missingDiv.className = "text-gray-600 font-bold bg-gray-50 px-3 py-1 rounded-lg border border-gray-200 shadow-sm text-sm";
+            }
+
+            const sortedGroups = Object.values(studentMap).sort((groupA, groupB) => {
+                const aNum = parseInt(groupA[0].studentNum) || 999;
+                const bNum = parseInt(groupB[0].studentNum) || 999;
+                return aNum - bNum;
+            });
+
+            const renderCell = (mode, cellData) => {
+                if(mode === 'draw' && cellData && cellData.startsWith('data:image')) {
+                    return `<img src="${cellData}" class="h-20 w-auto object-contain border border-gray-300 bg-white rounded cursor-zoom-in hover:scale-[3] origin-left transition-transform shadow-sm" alt="손글씨" />`;
+                } else {
+                    const text = cellData || '-';
+                    const trunc = text.length > 50 ? text.substring(0,50)+'...' : text;
+                    return `<div class="text-sm text-gray-700 whitespace-pre-wrap" title="${text}">${trunc}</div>`;
+                }
+            };
+
+            const formatTime = (isoString) => {
+                const d = new Date(isoString);
+                return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            };
+
+            tbody.innerHTML = '';
+            
+            sortedGroups.forEach(group => {
+                const latest = group[0]; 
+                const hasHistory = group.length > 1;
+                const histClass = `hist-${latest.id}`;
+                
+                let scoreColor = latest.quizScore === 7 ? "text-blue-600" : "text-amber-600";
+                const refHtml = `
+                    <div class="text-xs text-rose-700 mb-1"><b>[후회]</b><br>${renderCell(latest.exp_regret_mode, latest.exp_regret)}</div>
+                    <div class="text-xs text-blue-700"><b>[만족]</b><br>${renderCell(latest.exp_satisfy_mode, latest.exp_satisfy)}</div>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-amber-50 transition border-b-2 border-stone-200">
+                        <td class="p-3 text-center font-bold text-lg text-stone-700">${latest.classNum}-${latest.studentNum}</td>
+                        <td class="p-3 font-bold text-stone-900 text-lg">${latest.studentName}</td>
+                        <td class="p-3">${refHtml}</td>
+                        <td class="p-3 text-center font-bold text-amber-800 bg-amber-50 rounded-lg m-1">${latest.food_choice || '-'}</td>
+                        <td class="p-3">${renderCell(latest.reason_mode, latest.reason)}</td>
+                        <td class="p-3 text-center font-bold ${scoreColor} text-lg">${latest.quizScore} / 7</td>
+                        <td class="p-3 text-center">
+                            <div class="text-xs font-bold text-blue-600 bg-blue-50 py-1 rounded-md mb-1 border border-blue-200">최종본</div>
+                            <div class="text-xs text-gray-500 flex justify-center items-center gap-2">
+                                ${formatTime(latest.timestamp)}
+                                <button onclick="window.deleteSubmission('${latest.id}')" class="text-rose-400 hover:text-rose-600 transition p-1" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            ${hasHistory ? `<button onclick="window.toggleHistory('${histClass}')" class="mt-2 text-xs bg-stone-200 hover:bg-stone-300 text-stone-700 py-1 px-2 rounded font-bold w-full transition">과거 기록 (${group.length-1}건) ▼</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+
+                if (hasHistory) {
+                    for(let i = 1; i < group.length; i++) {
+                        const past = group[i];
+                        let pScoreColor = past.quizScore === 7 ? "text-blue-500" : "text-amber-500";
+                        const pRefHtml = `
+                            <div class="text-xs text-rose-600 mb-1"><b>[후회]</b><br>${renderCell(past.exp_regret_mode, past.exp_regret)}</div>
+                            <div class="text-xs text-blue-600"><b>[만족]</b><br>${renderCell(past.exp_satisfy_mode, past.exp_satisfy)}</div>
+                        `;
+                        
+                        tbody.innerHTML += `
+                            <tr class="${histClass} hidden history-row border-b border-gray-200 text-sm">
+                                <td class="p-3 text-center text-gray-400">↪</td>
+                                <td class="p-3 text-gray-500">${past.studentName}</td>
+                                <td class="p-3">${pRefHtml}</td>
+                                <td class="p-3 text-center text-gray-500">${past.food_choice || '-'}</td>
+                                <td class="p-3">${renderCell(past.reason_mode, past.reason)}</td>
+                                <td class="p-3 text-center ${pScoreColor}">${past.quizScore} / 7</td>
+                                <td class="p-3 text-center text-xs text-gray-400">
+                                    과거 제출본<br>
+                                    <div class="flex justify-center items-center gap-2 mt-1">
+                                        ${formatTime(past.timestamp)}
+                                        <button onclick="window.deleteSubmission('${past.id}')" class="text-rose-300 hover:text-rose-500 transition p-1" title="삭제"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+            });
+        };
+
+        window.downloadCSV = function() {
+            const filter = document.getElementById('classFilter').value;
+            let data = filter === 'all' ? allResults : allResults.filter(i => `${i.grade}-${i.classNum}` === filter);
+            if(data.length===0) { window.customAlert("다운로드할 데이터가 없습니다."); return; }
+
+            data.sort((a, b) => {
+                const numA = parseInt(a.studentNum) || 999;
+                const numB = parseInt(b.studentNum) || 999;
+                if(numA !== numB) return numA - numB;
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+            let csv = "\uFEFF제출일시,학년,반,번호,이름,후회한경험,만족한경험,음식선택,선택기준,퀴즈점수\n";
+            data.forEach(i => {
+                const d = new Date(i.timestamp);
+                const t = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                
+                const getContent = (mode, val) => mode === 'draw' ? "[손글씨 그림]" : (val || "");
+                const regretVal = getContent(i.exp_regret_mode, i.exp_regret);
+                const satisfyVal = getContent(i.exp_satisfy_mode, i.exp_satisfy);
+                const reasonVal = getContent(i.reason_mode, i.reason);
+
+                const escapeCsv = (str) => `"${String(str).replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+                
+                csv += `${escapeCsv(t)},${escapeCsv(i.grade)},${escapeCsv(i.classNum)},${escapeCsv(i.studentNum)},${escapeCsv(i.studentName)},${escapeCsv(regretVal)},${escapeCsv(satisfyVal)},${escapeCsv(i.food_choice)},${escapeCsv(reasonVal)},${i.quizScore}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `사회_합리적선택_${filter==='all'?'전체':filter+'반'}_결과.csv`;
+            link.click();
+        };
+    </script>
+</body>
+</html>
