@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사회 서술형·논술형 평가 - 시장의 경제활동</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { font-family:'Noto Sans KR', sans-serif; background:#fff7d6; }
+    .font-jua { font-family:'Jua', sans-serif; }
+    .paper-shadow { box-shadow:0 18px 35px -12px rgba(120,80,20,.25); }
+    #drawCanvas {
+      touch-action:none; cursor:crosshair; background-color:white;
+      background-image:repeating-linear-gradient(transparent, transparent 37px, #e5e7eb 37px, #e5e7eb 39px);
+      background-size:100% 39px;
+    }
+    .chip { transition:.18s; }
+    .chip.selected-production { background:#22c55e; color:white; border-color:#16a34a; transform:scale(1.04); }
+    .chip.selected-consumption { background:#3b82f6; color:white; border-color:#2563eb; transform:scale(1.04); }
+    .ox-btn { transition:.18s; }
+    .ox-btn.selected-o { background:#3b82f6; color:white; border-color:#2563eb; transform:scale(1.1); }
+    .ox-btn.selected-x { background:#ef4444; color:white; border-color:#dc2626; transform:scale(1.1); }
+    .word-btn.selected { background:#f59e0b; color:white; border-color:#d97706; transform:scale(1.04); }
+    .loader { border:4px solid #f3f3f3; border-top:4px solid #f59e0b; border-radius:50%; width:42px; height:42px; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .modal-animate { animation:fadeIn .25s ease-out forwards; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex justify-center items-start text-gray-800">
+  <div class="max-w-5xl w-full bg-white rounded-[2rem] p-5 md:p-10 paper-shadow border-t-[10px] border-amber-400 relative overflow-hidden">
+    <header class="text-center mb-8 relative z-10">
+      <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full text-sm font-extrabold mb-3">
+        <i class="fa-solid fa-store"></i> 사회 서술형·논술형 평가
+      </div>
+      <h1 class="font-jua text-3xl md:text-5xl text-amber-800 mb-3">시장에서는 어떤 경제활동이 이루어질까요?</h1>
+      <p class="text-gray-600 font-bold">3. 경제활동과 지역 간 교류 · 생산과 소비 · 시장</p>
+      <div class="mt-5 flex flex-wrap justify-center gap-4 bg-amber-50 p-4 rounded-2xl border border-amber-200">
+        <label class="flex items-center gap-2"><span class="font-extrabold text-amber-900">학년</span><input id="grade" type="number" value="4" readonly class="w-14 text-center border-b-2 border-amber-300 bg-transparent font-bold focus:outline-none"></label>
+        <label class="flex items-center gap-2"><span class="font-extrabold text-amber-900">반</span><input id="classNum" type="number" placeholder="반" class="w-16 text-center border-b-2 border-amber-300 bg-transparent font-bold focus:outline-none"></label>
+        <label class="flex items-center gap-2"><span class="font-extrabold text-amber-900">번호</span><input id="studentNum" type="number" placeholder="번" class="w-16 text-center border-b-2 border-amber-300 bg-transparent font-bold focus:outline-none"></label>
+        <label class="flex items-center gap-2"><span class="font-extrabold text-amber-900">이름</span><input id="studentName" type="text" placeholder="이름" class="w-24 text-center border-b-2 border-amber-300 bg-transparent font-bold focus:outline-none"></label>
+      </div>
+    </header>
+
+    <main class="space-y-8">
+      <section class="bg-white rounded-3xl border-2 border-amber-100 p-5 md:p-7 shadow-sm">
+        <h2 class="font-jua text-2xl flex items-center gap-2 mb-4"><span class="bg-amber-400 text-white rounded-full w-9 h-9 flex items-center justify-center">1</span> 빈칸에 알맞은 단어를 골라 넣으세요.</h2>
+        <p class="text-sm text-gray-500 mb-4 ml-1">단어를 먼저 선택한 뒤 빈칸을 누르면 들어갑니다.</p>
+        <div id="wordBank" class="flex flex-wrap gap-2 mb-5"></div>
+        <div class="space-y-4 text-lg leading-9 bg-amber-50/60 border border-amber-100 rounded-2xl p-5">
+          <p>생활에 필요한 물건이나 서비스를 만들어 내는 활동은 <button data-blank="a" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">가</button> 이라고 합니다.</p>
+          <p>생활에 필요한 물건이나 서비스를 대가를 지불하고 사용하는 활동은 <button data-blank="b" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">나</button> 라고 합니다.</p>
+          <p>시장에서는 <button data-blank="c1" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">가</button> 과 <button data-blank="c2" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">나</button> 와 같은 <button data-blank="c3" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">다</button> 활동이 이루어집니다.</p>
+          <p>물건이나 서비스를 사려는 사람과 팔려는 사람이 만나 거래하는 곳은 모두 <button data-blank="d" class="blank-btn min-w-24 px-3 py-1 rounded-xl bg-white border-2 border-amber-300 font-extrabold text-amber-800">라</button> 입니다.</p>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-3xl border-2 border-amber-100 p-5 md:p-7 shadow-sm relative">
+        <h2 class="font-jua text-2xl flex items-center gap-2 mb-2"><span class="bg-amber-400 text-white rounded-full w-9 h-9 flex items-center justify-center">2</span> 생산과 소비 활동 경험 이야기하기</h2>
+        <p class="text-sm text-gray-500 mb-4 ml-1"><i class="fa-solid fa-pen-nib text-amber-500"></i> 내가 경험한 생산과 소비 활동을 각각 1가지 이상 쓰고, 왜 생산/소비인지 설명하세요.</p>
+        <div class="relative w-full aspect-[2.3/1] border-2 border-gray-300 rounded-2xl overflow-hidden mb-3">
+          <canvas id="drawCanvas" class="w-full h-full block"></canvas>
+          <div id="loadingOverlay" class="absolute inset-0 bg-white/90 hidden flex-col justify-center items-center z-10 backdrop-blur-sm">
+            <div class="loader mb-3"></div>
+            <p class="font-jua text-2xl text-amber-700 animate-pulse">AI 선생님이 서술형 답안을 읽고 채점하고 있어요...</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap justify-end gap-2">
+          <button onclick="window.clearCanvas()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl"><i class="fa-solid fa-eraser"></i> 지우고 다시 쓰기</button>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-3xl border-2 border-amber-100 p-5 md:p-7 shadow-sm">
+        <h2 class="font-jua text-2xl flex items-center gap-2 mb-4"><span class="bg-amber-400 text-white rounded-full w-9 h-9 flex items-center justify-center">3</span> 생산과 소비를 구분하세요.</h2>
+        <div id="classifyContainer" class="grid md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <section class="bg-white rounded-3xl border-2 border-amber-100 p-5 md:p-7 shadow-sm">
+        <h2 class="font-jua text-2xl flex items-center gap-2 mb-4"><span class="bg-amber-400 text-white rounded-full w-9 h-9 flex items-center justify-center">4</span> 배운 내용 O/X 퀴즈</h2>
+        <div id="oxContainer" class="space-y-3"></div>
+      </section>
+    </main>
+
+    <div class="text-center mt-10 border-t pt-8">
+      <button onclick="window.submitAll()" class="bg-gradient-to-r from-amber-400 to-orange-500 text-white font-jua text-2xl py-4 px-12 rounded-full shadow-lg hover:scale-105 active:scale-95 transition">
+        <i class="fa-solid fa-paper-plane mr-2"></i> 과제 제출 및 자동 채점
+      </button>
+    </div>
+  </div>
+
+  <div id="customAlertModal" class="fixed inset-0 bg-black/50 z-[100] hidden justify-center items-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate">
+      <div class="text-4xl mb-3">💬</div><p id="customAlertMessage" class="font-bold mb-6 break-keep"></p>
+      <button onclick="document.getElementById('customAlertModal').classList.add('hidden')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl">확인</button>
+    </div>
+  </div>
+
+  <div id="resultModal" class="fixed inset-0 bg-black/50 z-[90] hidden justify-center items-center p-4">
+    <div class="bg-white rounded-3xl p-7 max-w-2xl w-full shadow-2xl modal-animate max-h-[90vh] overflow-y-auto relative">
+      <button onclick="window.closeModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+      <div class="text-center text-6xl mb-2">🎉</div>
+      <h3 class="text-center font-jua text-3xl text-amber-700 mb-5">채점 결과</h3>
+      <div class="space-y-3 bg-gray-50 rounded-2xl p-4 border">
+        <div><strong class="text-amber-900 block mb-1">1번 빈칸</strong><span id="q1Msg" class="font-bold"></span></div>
+        <div><strong class="text-amber-900 block mb-1">2번 서술형 AI 분석</strong><div id="q2Msg" class="bg-white rounded-xl border p-3 text-sm leading-7"></div></div>
+        <div><strong class="text-amber-900 block mb-1">3번 생산/소비 구분</strong><span id="q3Msg" class="font-bold"></span></div>
+        <div><strong class="text-amber-900 block mb-1">4번 O/X</strong><span id="q4Msg" class="font-bold"></span></div>
+      </div>
+      <p class="text-center mt-5 text-gray-600 font-bold">제출이 저장되었습니다. 선생님 모드에서 결과를 확인할 수 있습니다.</p>
+      <button onclick="window.closeModal()" class="mt-5 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl">확인</button>
+    </div>
+  </div>
+
+  <div class="fixed bottom-4 right-4 z-40">
+    <button onclick="window.openPasswordModal()" class="bg-amber-800 text-white px-4 py-3 rounded-full shadow-lg hover:bg-amber-900 transition flex items-center gap-2 font-bold text-sm opacity-60 hover:opacity-100"><i class="fa-solid fa-chalkboard-user"></i> 선생님 모드</button>
+  </div>
+
+  <div id="passwordModal" class="fixed inset-0 bg-black/50 z-[70] hidden justify-center items-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl modal-animate relative">
+      <button onclick="window.closePasswordModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"><i class="fa-solid fa-times"></i></button>
+      <h3 class="text-xl font-jua text-amber-900 mb-4"><i class="fa-solid fa-lock mr-2"></i>선생님 인증</h3>
+      <input type="password" id="teacherPasswordInput" class="w-full border-2 border-amber-200 rounded-lg px-4 py-2 mb-2 text-center focus:outline-none focus:border-amber-500" placeholder="비밀번호 입력" onkeypress="if(event.key==='Enter') window.checkPassword()">
+      <p id="passwordError" class="text-red-500 text-sm hidden mb-4">비밀번호가 틀렸습니다.</p>
+      <button onclick="window.checkPassword()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-xl mt-2">확인</button>
+    </div>
+  </div>
+
+  <div id="dashboardModal" class="fixed inset-0 bg-black/80 z-[60] hidden justify-center items-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-7xl w-full h-[90vh] flex flex-col shadow-2xl relative modal-animate">
+      <button onclick="window.closeDashboard()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-2xl"><i class="fa-solid fa-times"></i></button>
+      <h2 class="text-2xl font-jua text-amber-900 mb-3"><i class="fa-solid fa-chart-bar mr-2"></i>학생 제출 현황</h2>
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3 bg-amber-50 p-3 rounded-xl border border-amber-100">
+        <select id="classFilter" onchange="window.renderTable()" class="border-2 border-amber-300 rounded-lg px-3 py-2 font-bold bg-white"><option value="all">모든 반 전체 보기</option></select>
+        <div class="flex gap-2">
+          <button onclick="window.downloadCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+          <button onclick="window.clearData()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl"><i class="fa-solid fa-trash-can"></i> 목록 비우기</button>
+        </div>
+      </div>
+      <div class="overflow-auto flex-1 bg-gray-50 rounded-xl border">
+        <table class="w-full text-left border-collapse min-w-[1100px]">
+          <thead class="bg-amber-100 sticky top-0 z-10 shadow-sm">
+            <tr>
+              <th class="p-3 border-b font-bold text-amber-900">학년-반</th><th class="p-3 border-b font-bold text-amber-900 text-center">번호</th><th class="p-3 border-b font-bold text-amber-900">이름</th>
+              <th class="p-3 border-b font-bold text-amber-900">서술형 인식 텍스트</th><th class="p-3 border-b font-bold text-amber-900 text-center">빈칸</th><th class="p-3 border-b font-bold text-amber-900 text-center">서술형</th><th class="p-3 border-b font-bold text-amber-900 text-center">구분</th><th class="p-3 border-b font-bold text-amber-900 text-center">O/X</th><th class="p-3 border-b font-bold text-amber-900 text-center">제출일시</th>
+            </tr>
+          </thead>
+          <tbody id="dashboardTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    window.customAlert = (msg) => { document.getElementById('customAlertMessage').innerHTML = msg; document.getElementById('customAlertModal').classList.remove('hidden'); document.getElementById('customAlertModal').classList.add('flex'); };
+    window.customConfirm = (msg, onConfirm) => { if (confirm(msg.replaceAll('<br>','\n'))) onConfirm(); };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCeNSsaTytFGJMkrBA1j0zeuQxDOwDCIBk",
+      authDomain: "bora-worksheet.firebaseapp.com",
+      projectId: "bora-worksheet",
+      storageBucket: "bora-worksheet.firebasestorage.app",
+      messagingSenderId: "1091782933629",
+      appId: "1:1091782933629:web:342b5a6c6cf49c55c90514"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          try { await signInWithCustomToken(auth, __initial_auth_token); }
+          catch (_) { await signInAnonymously(auth); }
+        } else { await signInAnonymously(auth); }
+      } catch(e) { console.error('인증 실패', e); }
+    };
+    initAuth();
+
+    // 🔒 절대 수정 금지: Firebase 저장 경로 / appId와 COLLECTION_NAME을 바꾸면 기존 학생 제출 결과가 선생님 모드에서 보이지 않을 수 있음
+    const appId = 'social_market_economy_4_1_u3_l7';
+    const COLLECTION_NAME = 'social_market_economy_results';
+
+    const wordAnswers = { a:'생산', b:'소비', c1:'생산', c2:'소비', c3:'경제', d:'시장' };
+    const selectedWords = ['생산','소비','경제','시장'];
+    let currentWord = null;
+    const wordBank = document.getElementById('wordBank');
+    selectedWords.forEach(w => {
+      const b = document.createElement('button');
+      b.className = 'word-btn px-4 py-2 rounded-full bg-white border-2 border-amber-300 font-extrabold text-amber-800 transition';
+      b.textContent = w;
+      b.onclick = () => { currentWord = w; document.querySelectorAll('.word-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); };
+      wordBank.appendChild(b);
+    });
+    document.querySelectorAll('.blank-btn').forEach(btn => {
+      btn.onclick = () => {
+        if(!currentWord) { window.customAlert('먼저 위의 단어를 선택해 주세요.'); return; }
+        btn.textContent = currentWord;
+        btn.dataset.value = currentWord;
+      };
+    });
+
+    const classifyItems = [
+      { key:'g', text:'빵집에서 빵을 사 먹은 것', ans:'소비' },
+      { key:'n', text:'꽃집에서 꽃을 파는 것', ans:'생산' },
+      { key:'d', text:'수영 학원에서 수영 강습을 받은 것', ans:'소비' },
+      { key:'r', text:'채소 가게에서 상추를 파는 것', ans:'생산' },
+      { key:'m', text:'옷 가게에서 옷을 사 입은 것', ans:'소비' },
+      { key:'b', text:'세탁소에서 다림질을 하는 것', ans:'생산' }
+    ];
+    const classifyAnswers = {};
+    const cc = document.getElementById('classifyContainer');
+    classifyItems.forEach((it, idx) => {
+      classifyAnswers[it.key] = null;
+      const div = document.createElement('div');
+      div.className = 'bg-gray-50 border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+      div.innerHTML = `<p class="font-bold">${idx+1}. ${it.text}</p><div class="flex gap-2"><button id="class_${it.key}_생산" class="chip px-4 py-2 rounded-xl bg-white border-2 font-extrabold">생산</button><button id="class_${it.key}_소비" class="chip px-4 py-2 rounded-xl bg-white border-2 font-extrabold">소비</button></div>`;
+      cc.appendChild(div);
+      ['생산','소비'].forEach(v => document.getElementById(`class_${it.key}_${v}`).onclick = () => {
+        classifyAnswers[it.key] = v;
+        document.getElementById(`class_${it.key}_생산`).classList.remove('selected-production');
+        document.getElementById(`class_${it.key}_소비`).classList.remove('selected-consumption');
+        document.getElementById(`class_${it.key}_${v}`).classList.add(v==='생산'?'selected-production':'selected-consumption');
+      });
+    });
+
+    const oxItems = [
+      { text:'생활에 필요한 물건이나 서비스를 만들어 내는 활동을 소비라고 한다.', ans:'X' },
+      { text:'생활에 필요한 물건이나 서비스를 대가를 지불하고 사용하는 활동을 생산이라고 한다.', ans:'X' },
+      { text:'집에서 가족끼리 음식을 만드는 활동도 시장에서 이루어지는 생산이다.', ans:'X' }
+    ];
+    const oxAnswers = {};
+    const oc = document.getElementById('oxContainer');
+    oxItems.forEach((it, idx) => {
+      const n = idx+1; oxAnswers[n] = null;
+      const div = document.createElement('div');
+      div.className = 'bg-gray-50 border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+      div.innerHTML = `<p class="font-bold">${n}. ${it.text}</p><div class="flex gap-2"><button id="ox_${n}_O" class="ox-btn w-12 h-12 rounded-full border-2 bg-white text-xl font-jua text-gray-400">O</button><button id="ox_${n}_X" class="ox-btn w-12 h-12 rounded-full border-2 bg-white text-xl font-jua text-gray-400">X</button></div>`;
+      oc.appendChild(div);
+      ['O','X'].forEach(v => document.getElementById(`ox_${n}_${v}`).onclick = () => {
+        oxAnswers[n] = v;
+        document.getElementById(`ox_${n}_O`).classList.remove('selected-o');
+        document.getElementById(`ox_${n}_X`).classList.remove('selected-x');
+        document.getElementById(`ox_${n}_${v}`).classList.add(v==='O'?'selected-o':'selected-x');
+      });
+    });
+
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently:true });
+    let isDrawing=false, activePointerId=null, lastX=0, lastY=0, hasDrawing=false;
+    let inkBounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+    const resetInkBounds = () => inkBounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+    const updateInkBounds = (x,y) => { const m=Math.max(12,Math.round((window.devicePixelRatio||1)*10)); inkBounds.minX=Math.min(inkBounds.minX,x-m); inkBounds.minY=Math.min(inkBounds.minY,y-m); inkBounds.maxX=Math.max(inkBounds.maxX,x+m); inkBounds.maxY=Math.max(inkBounds.maxY,y+m); };
+    function paintCanvasWhite(){ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='white'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.restore(); }
+    function setCanvasSize(preserve=true){
+      const rect = canvas.parentElement.getBoundingClientRect(); const dpr=Math.max(window.devicePixelRatio||1,1); const old = preserve && hasDrawing ? canvas.toDataURL('image/png') : null;
+      canvas.style.width=rect.width+'px'; canvas.style.height=rect.height+'px'; canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr));
+      ctx.setTransform(1,0,0,1,0,0); paintCanvasWhite();
+      if(old){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,canvas.width,canvas.height); img.src=old; } else resetInkBounds();
+    }
+    window.clearCanvas = () => { paintCanvasWhite(); hasDrawing=false; resetInkBounds(); };
+    const getPos = e => { const r=canvas.getBoundingClientRect(); return {x:(e.clientX-r.left)*(canvas.width/r.width), y:(e.clientY-r.top)*(canvas.height/r.height)}; };
+    const lineWidth = e => { const dpr=Math.max(window.devicePixelRatio||1,1); const p=e.pressure&&e.pressure>0?e.pressure:.5; return Math.max(2.4*dpr, Math.min(4.2*dpr, (2.8+p*1.5)*dpr)); };
+    function drawDot(x,y,w){ ctx.fillStyle='#111827'; ctx.beginPath(); ctx.arc(x,y,Math.max(1.2,w/2.2),0,Math.PI*2); ctx.fill(); hasDrawing=true; updateInkBounds(x,y); }
+    function drawPath(p,w){ ctx.strokeStyle='#111827'; ctx.lineWidth=w; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke(); hasDrawing=true; updateInkBounds(lastX,lastY); updateInkBounds(p.x,p.y); lastX=p.x; lastY=p.y; }
+    canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); isDrawing=true; activePointerId=e.pointerId; try{canvas.setPointerCapture(e.pointerId)}catch(_){}; const p=getPos(e); lastX=p.x; lastY=p.y; drawDot(p.x,p.y,lineWidth(e)); }, {passive:false});
+    canvas.addEventListener('pointermove', e=>{ if(!isDrawing||e.pointerId!==activePointerId) return; e.preventDefault(); if(e.pointerType==='mouse'&&e.buttons!==1)return; drawPath(getPos(e), lineWidth(e)); }, {passive:false});
+    const stop=e=>{ if(!isDrawing||e.pointerId!==activePointerId)return; e.preventDefault(); isDrawing=false; activePointerId=null; try{canvas.releasePointerCapture(e.pointerId)}catch(_){} };
+    canvas.addEventListener('pointerup', stop, {passive:false}); canvas.addEventListener('pointercancel', stop, {passive:false}); canvas.addEventListener('lostpointercapture',()=>{isDrawing=false;activePointerId=null;});
+    window.addEventListener('load',()=>setCanvasSize(false)); window.addEventListener('resize',()=>setTimeout(()=>setCanvasSize(true),250));
+    function getHandwritingImageForAI(){
+      if(!hasDrawing) return null;
+      const padding=Math.round(Math.max(canvas.width,canvas.height)*.04); const cropX=Math.max(0,Math.floor(inkBounds.minX-padding)); const cropY=Math.max(0,Math.floor(inkBounds.minY-padding)); const cropR=Math.min(canvas.width,Math.ceil(inkBounds.maxX+padding)); const cropB=Math.min(canvas.height,Math.ceil(inkBounds.maxY+padding)); const cropW=Math.max(1,cropR-cropX); const cropH=Math.max(1,cropB-cropY);
+      const scale=Math.max(2, Math.min(4, 1400/cropW)); const out=document.createElement('canvas'); out.width=Math.max(1100,Math.round(cropW*scale)); out.height=Math.max(480,Math.round(cropH*scale)); const o=out.getContext('2d'); o.fillStyle='white'; o.fillRect(0,0,out.width,out.height); o.imageSmoothingEnabled=true; o.imageSmoothingQuality='high'; const tp=40; o.drawImage(canvas,cropX,cropY,cropW,cropH,tp,tp,out.width-tp*2,out.height-tp*2); return out;
+    }
+    async function checkSocialAnswerWithServer(imageBase64){
+      const response = await fetch('/api/check-social-answer', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ imageBase64 }) });
+      let data = {}; try { data = await response.json(); } catch(_) {}
+      if(!response.ok) throw new Error(data.error || '서버 함수 호출 실패');
+      return data;
+    }
+    function localRubric(text){
+      const t=(text||'').replace(/\s+/g,'').toLowerCase();
+      const hasProductionWord = /생산|만들|팔다|판매|팔았|서비스제공|일했|만드는|파는/.test(t);
+      const hasConsumptionWord = /소비|사먹|샀|사서|구입|돈을내|대가|이용|받았|사용/.test(t);
+      const productionExamples = /꽃|빵|채소|상추|음식|물건|서비스|만들|팔|판매|다림질|수리|배달|가게/.test(t);
+      const consumptionExamples = /먹|사|구입|돈|학원|강습|수업|옷|사용|이용|받/.test(t);
+      const score = Math.min(100, (hasProductionWord?25:0)+(hasConsumptionWord?25:0)+(productionExamples?25:0)+(consumptionExamples?25:0));
+      return { score, is_correct: score>=70 };
+    }
+
+    window.submitAll = async function(){
+      const grade=document.getElementById('grade').value; const classNum=document.getElementById('classNum').value.trim(); const studentNum=document.getElementById('studentNum').value.trim()||'-'; const studentName=document.getElementById('studentName').value.trim();
+      if(!classNum || !studentName){ window.customAlert('반과 이름을 입력해 주세요.'); return; }
+      const blankValues = {}; document.querySelectorAll('.blank-btn').forEach(b=> blankValues[b.dataset.blank]=b.dataset.value||'');
+      const missingBlank = Object.keys(wordAnswers).some(k=>!blankValues[k]); if(missingBlank){ window.customAlert('1번 빈칸을 모두 채워 주세요.'); return; }
+      for(const it of classifyItems){ if(!classifyAnswers[it.key]){ window.customAlert('3번 생산/소비 구분을 모두 선택해 주세요.'); return; } }
+      for(let i=1;i<=oxItems.length;i++){ if(!oxAnswers[i]){ window.customAlert(`4번 O/X ${i}번 답을 선택해 주세요.`); return; } }
+      const handwritingCanvas = getHandwritingImageForAI(); if(!handwritingCanvas){ window.customAlert('2번 서술형 답안을 먼저 써 주세요.'); return; }
+      document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex');
+
+      let q2Text='(인식된 내용 없음)', q2Feedback='AI 채점 결과를 불러오지 못했습니다.', q2Score=0;
+      try {
+        const base64Image = handwritingCanvas.toDataURL('image/png').split(',')[1];
+        const ai = await checkSocialAnswerWithServer(base64Image);
+        q2Text = ai.extracted_text || '(인식된 내용 없음)';
+        const local = localRubric(q2Text);
+        q2Score = Math.max(Number(ai.score)||0, local.score);
+        q2Feedback = ai.feedback || (q2Score>=70 ? '생산과 소비 경험을 잘 구분했어요.' : '생산 예시와 소비 예시를 각각 쓰고, 왜 그런지 설명하면 더 좋아요.');
+      } catch(e) {
+        console.error(e); q2Text='(AI 통신 오류 발생)'; q2Feedback='AI 연결에 실패했습니다. 상세: '+e.message; q2Score=0;
+      }
+      document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('loadingOverlay').classList.remove('flex');
+
+      const blankCorrect = Object.keys(wordAnswers).filter(k => blankValues[k] === wordAnswers[k]).length;
+      const q1Score = Math.round(blankCorrect / Object.keys(wordAnswers).length * 100);
+      const classCorrect = classifyItems.filter(it => classifyAnswers[it.key] === it.ans).length;
+      const q3Score = Math.round(classCorrect / classifyItems.length * 100);
+      const oxCorrect = oxItems.filter((it,idx)=> oxAnswers[idx+1] === it.ans).length;
+      const q4Score = Math.round(oxCorrect / oxItems.length * 100);
+
+      try {
+        const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+        await addDoc(resultsRef, { grade, classNum, studentNum, studentName, blankValues, q1_score:q1Score, q2_text:q2Text, q2_score:q2Score, q2_feedback:q2Feedback, classifyAnswers, q3_score:q3Score, oxAnswers, q4_score:q4Score, timestamp:new Date().toISOString() });
+      } catch(e) { console.error('데이터 저장 오류', e); }
+
+      document.getElementById('q1Msg').innerHTML = `${q1Score}점 (${blankCorrect}/${Object.keys(wordAnswers).length}개 정답)`;
+      document.getElementById('q2Msg').innerHTML = `<span class="text-gray-500 text-xs block border-b pb-1 mb-2">인식된 글씨: ${q2Text}</span><b class="${q2Score>=70?'text-green-600':'text-red-500'}">${q2Score}점</b><br>${q2Feedback}`;
+      document.getElementById('q3Msg').innerHTML = `${q3Score}점 (${classCorrect}/${classifyItems.length}개 정답)`;
+      document.getElementById('q4Msg').innerHTML = `${q4Score}점 (${oxCorrect}/${oxItems.length}개 정답)`;
+      document.getElementById('resultModal').classList.remove('hidden'); document.getElementById('resultModal').classList.add('flex');
+    };
+    window.closeModal = () => { document.getElementById('resultModal').classList.add('hidden'); document.getElementById('resultModal').classList.remove('flex'); };
+
+    const TEACHER_PASSWORD = '0402';
+    let allResults = []; let unsubscribe = null;
+    window.openPasswordModal = () => { document.getElementById('passwordModal').classList.remove('hidden'); document.getElementById('passwordModal').classList.add('flex'); document.getElementById('passwordError').classList.add('hidden'); document.getElementById('teacherPasswordInput').value=''; setTimeout(()=>document.getElementById('teacherPasswordInput').focus(),100); };
+    window.closePasswordModal = () => { document.getElementById('passwordModal').classList.add('hidden'); document.getElementById('passwordModal').classList.remove('flex'); };
+    window.checkPassword = () => { if(document.getElementById('teacherPasswordInput').value === TEACHER_PASSWORD){ window.closePasswordModal(); window.openDashboard(); } else document.getElementById('passwordError').classList.remove('hidden'); };
+    window.openDashboard = () => {
+      document.getElementById('dashboardModal').classList.remove('hidden'); document.getElementById('dashboardModal').classList.add('flex');
+      const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+      unsubscribe = onSnapshot(resultsRef, snap => { allResults=[]; snap.forEach(d=>allResults.push({id:d.id,...d.data()})); allResults.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)); window.updateFilterOptions(); window.renderTable(); }, err=>{ console.error(err); });
+    };
+    window.closeDashboard = () => { document.getElementById('dashboardModal').classList.add('hidden'); document.getElementById('dashboardModal').classList.remove('flex'); if(unsubscribe){unsubscribe(); unsubscribe=null;} };
+    window.updateFilterOptions = () => { const f=document.getElementById('classFilter'); const cur=f.value; const unique=[...new Set(allResults.map(i=>`${i.grade}-${i.classNum}`))].sort(); f.innerHTML='<option value="all">모든 반 전체 보기</option>'+unique.map(c=>`<option value="${c}">${c}반</option>`).join(''); if(unique.includes(cur)) f.value=cur; };
+    window.renderTable = () => {
+      const body=document.getElementById('dashboardTableBody'); const fv=document.getElementById('classFilter').value; const data=fv==='all'?allResults:allResults.filter(i=>`${i.grade}-${i.classNum}`===fv); body.innerHTML='';
+      if(!data.length){ body.innerHTML='<tr><td colspan="9" class="p-6 text-center text-gray-500">데이터가 없습니다.</td></tr>'; return; }
+      data.forEach(i=>{ const d=new Date(i.timestamp); const t=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; body.innerHTML += `<tr class="border-b hover:bg-amber-50"><td class="p-3 text-center">${i.grade}-${i.classNum}</td><td class="p-3 text-center">${i.studentNum}</td><td class="p-3 font-bold text-amber-900">${i.studentName}</td><td class="p-3 text-sm bg-gray-50">${i.q2_text||'-'}</td><td class="p-3 text-center font-bold">${i.q1_score}점</td><td class="p-3 text-center font-bold ${i.q2_score>=70?'text-green-600':'text-red-500'}">${i.q2_score}점</td><td class="p-3 text-center font-bold">${i.q3_score}점</td><td class="p-3 text-center font-bold">${i.q4_score}점</td><td class="p-3 text-xs text-gray-500 text-center">${t}</td></tr>`; });
+    };
+    window.downloadCSV = () => {
+      const fv=document.getElementById('classFilter').value; const data=fv==='all'?allResults:allResults.filter(i=>`${i.grade}-${i.classNum}`===fv); if(!data.length){ window.customAlert('다운로드할 데이터가 없습니다.'); return; }
+      let csv='\uFEFF제출일시,학년,반,번호,이름,서술형 인식 텍스트,서술형 피드백,빈칸 점수,서술형 점수,생산소비 구분 점수,OX 점수\n';
+      data.forEach(i=>{ const d=new Date(i.timestamp); const t=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; const safe=s=>(s||'').replace(/"/g,'""').replace(/\n/g,' '); csv+=`"${t}","${i.grade}","${i.classNum}","${i.studentNum}","${safe(i.studentName)}","${safe(i.q2_text)}","${safe(i.q2_feedback)}","${i.q1_score}","${i.q2_score}","${i.q3_score}","${i.q4_score}"\n`; });
+      const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download=`사회_시장경제활동_${fv==='all'?'전체':fv+'반'}_결과.csv`; a.click();
+    };
+    window.clearData = async () => { const fv=document.getElementById('classFilter').value; const data=fv==='all'?allResults:allResults.filter(i=>`${i.grade}-${i.classNum}`===fv); if(!data.length){ window.customAlert('삭제할 데이터가 없습니다.'); return; } window.customConfirm('선택한 데이터를 삭제합니다.<br>계속하시겠습니까?', async()=>{ for(const i of data) await deleteDoc(doc(db, `artifacts/${appId}/public/data/${COLLECTION_NAME}/${i.id}`)); window.customAlert('삭제되었습니다.'); }); };
+  </script>
+</body>
+</html>
