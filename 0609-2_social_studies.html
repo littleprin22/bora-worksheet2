@@ -278,7 +278,7 @@
       const scale=Math.max(2, Math.min(4, 1400/cropW)); const out=document.createElement('canvas'); out.width=Math.max(1100,Math.round(cropW*scale)); out.height=Math.max(480,Math.round(cropH*scale)); const o=out.getContext('2d'); o.fillStyle='white'; o.fillRect(0,0,out.width,out.height); o.imageSmoothingEnabled=true; o.imageSmoothingQuality='high'; const tp=40; o.drawImage(canvas,cropX,cropY,cropW,cropH,tp,tp,out.width-tp*2,out.height-tp*2); return out;
     }
     async function checkSocialAnswerWithServer(imageBase64){
-      const response = await fetch('/api/check-social-answer', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ imageBase64 }) });
+      const response = await fetch('/api/check-social-answer-2', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ imageBase64 }) });
       let data = {}; try { data = await response.json(); } catch(_) {}
       if(!response.ok) throw new Error(data.error || '서버 함수 호출 실패');
       return data;
