@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>과학 4-1 다양한 생물과 우리 생활 자동채점 전자학습지</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;--card:#ffffff;--ink:#1f2937;--muted:#6b7280;--line:#dbe3ef;
+      --primary:#2563eb;--primary2:#1d4ed8;--good:#15803d;--bad:#dc2626;--warn:#d97706;
+      --soft:#eff6ff;--goodbg:#ecfdf5;--badbg:#fef2f2;--warnbg:#fffbeb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:linear-gradient(180deg,#eef5ff 0%,#f8fafc 35%,#f5f7fb 100%);color:var(--ink);line-height:1.65}
+    .wrap{max-width:1050px;margin:0 auto;padding:28px 16px 60px}
+    header{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 12px 28px rgba(15,23,42,.08);position:relative;overflow:hidden}
+    header::after{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;background:radial-gradient(circle,#bfdbfe 0,#dbeafe 45%,transparent 70%);opacity:.9}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--primary2);font-weight:700;font-size:14px}
+    h1{margin:14px 0 8px;font-size:clamp(26px,4vw,42px);line-height:1.15;letter-spacing:-.04em}
+    .subtitle{font-size:17px;color:var(--muted);margin:0;max-width:720px}
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px;position:relative;z-index:1}
+    .info-grid label{font-weight:700;font-size:14px;color:#334155}
+    input[type="text"], textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 13px;font-size:16px;background:#fff;outline:none;transition:.15s}
+    input[type="text"]:focus, textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    textarea{min-height:100px;resize:vertical}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 14px}
+    .tab{border:1px solid var(--line);background:#fff;color:#334155;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;box-shadow:0 5px 14px rgba(15,23,42,.05)}
+    .tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    section.page{display:none}.page.active{display:block}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;margin:16px 0;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+    .lesson-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px dashed var(--line);padding-bottom:14px;margin-bottom:18px}
+    .lesson-title h2{margin:0;font-size:24px;letter-spacing:-.03em}.lesson-title small{color:var(--muted);font-weight:700}
+    .q{margin:18px 0;padding:18px;border:1px solid #e5edf7;border-radius:18px;background:#fbfdff}
+    .q h3{margin:0 0 12px;font-size:18px;letter-spacing:-.02em}.qnum{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;background:var(--primary);color:#fff;margin-right:8px;font-size:15px}
+    .box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;padding:14px;margin:10px 0}.box strong{color:#0f172a}
+    .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:10px}
+    .choice{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer}
+    .choice:hover{border-color:#93c5fd;background:#eff6ff}.choice input{margin-top:6px;transform:scale(1.1)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.drop-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+    .hint{font-size:14px;color:var(--muted);margin-top:8px}.small{font-size:14px;color:var(--muted)}
+    .ox-grid{display:grid;gap:12px}.ox-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px}
+    .ox-buttons{display:flex;gap:8px}.pill{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:40px;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-weight:900;cursor:pointer}.pill input{display:none}.pill:has(input:checked){background:var(--primary);border-color:var(--primary);color:#fff}
+    .food-bank{display:flex;gap:8px;flex-wrap:wrap}.food{padding:8px 12px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;font-weight:800;color:#3730a3}
+    .actions{position:sticky;bottom:0;background:rgba(245,247,251,.9);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:20px;padding:14px;margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;box-shadow:0 -8px 24px rgba(15,23,42,.08)}
+    button{border:0;border-radius:14px;padding:12px 16px;font-size:16px;font-weight:900;cursor:pointer}.primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary2)}.ghost{background:#fff;border:1px solid var(--line);color:#334155}.danger{background:#fee2e2;color:#991b1b}
+    .result{display:none;margin-top:16px;border-radius:20px;border:1px solid var(--line);overflow:hidden;background:#fff}.result.show{display:block}.result-head{padding:18px 20px;background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff}.result-head h2{margin:0;font-size:24px}.score-big{font-size:42px;font-weight:1000;letter-spacing:-.04em}.feedback{padding:18px 20px}.item{border-radius:14px;padding:12px 14px;margin:10px 0;border:1px solid var(--line)}.ok{background:var(--goodbg);border-color:#bbf7d0}.no{background:var(--badbg);border-color:#fecaca}.partial{background:var(--warnbg);border-color:#fed7aa}.tag{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:900;margin-right:6px}.tag.ok{color:var(--good);background:#dcfce7}.tag.no{color:var(--bad);background:#fee2e2}.tag.partial{color:var(--warn);background:#fef3c7}
+    .teacher{margin-top:18px;background:#0f172a;color:#e5e7eb;border-radius:22px;padding:20px}.teacher summary{cursor:pointer;font-weight:900}.teacher code{color:#bfdbfe}.teacher .answer{background:#111827;border:1px solid #334155;border-radius:14px;padding:12px;margin-top:10px;white-space:pre-wrap}
+    @media(max-width:760px){.info-grid,.two-col{grid-template-columns:1fr}.lesson-title{display:block}.ox-row{grid-template-columns:1fr}.actions{position:static}}
+    @media print{body{background:#fff}.tabs,.actions,.teacher,button{display:none}.page{display:block!important}.card,header{box-shadow:none}.result{display:none!important}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">🔬 과학 4-1 · 다양한 생물과 우리 생활</span>
+    <h1>다양한 생물이 우리 생활에 주는 영향<br>자동채점 전자학습지</h1>
+    <p class="subtitle">6차시와 7차시 활동지를 한 번에 풀고, <b>제출하기</b>를 누르면 바로 점수와 피드백을 확인할 수 있습니다.</p>
+    <div class="info-grid">
+      <div><label>반</label><input id="className" type="text" placeholder="예: 4-2"></div>
+      <div><label>번호</label><input id="studentNo" type="text" placeholder="예: 12"></div>
+      <div><label>이름</label><input id="studentName" type="text" placeholder="이름을 쓰세요"></div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-target="p1">1쪽 · 6차시</button>
+    <button class="tab" data-target="p2">2쪽 · 7차시</button>
+    <button class="tab" data-target="resultPage">채점 결과</button>
+  </div>
+
+  <section id="p1" class="page active">
+    <div class="card">
+      <div class="lesson-title">
+        <div><h2>1쪽. 다양한 생물이 우리 생활에 미치는 영향</h2><small>과학 100~101쪽</small></div>
+        <small>단답형 자동 채점 + 서술형 핵심어 채점</small>
+      </div>
+
+      <div class="q">
+        <h3><span class="qnum">1</span>다음 &lt;보기&gt;를 이로운 영향과 해로운 영향으로 구분해 봅시다.</h3>
+        <div class="box">
+          <p><strong>㉠</strong> 버섯은 음식의 재료로 이용된다.</p>
+          <p><strong>㉡</strong> 세균, 균류는 죽은 생물을 분해한다.</p>
+          <p><strong>㉢</strong> 세균, 곰팡이는 음식을 상하게 한다.</p>
+          <p><strong>㉣</strong> 세균, 곰팡이를 이용해 음식을 만든다.</p>
+          <p><strong>㉤</strong> 세균, 곰팡이는 생물에 질병을 일으킨다.</p>
+          <p><strong>㉥</strong> 일부 균류는 먹으면 생명이 위험할 수 있다.</p>
+        </div>
+        <div class="two-col">
+          <div class="drop-card">
+            <strong>이로운 영향</strong>
+            <div class="choices" id="benefitChoices"></div>
+          </div>
+          <div class="drop-card">
+            <strong>해로운 영향</strong>
+            <div class="choices" id="harmChoices"></div>
+          </div>
+        </div>
+        <p class="hint">같은 기호를 양쪽에 모두 고르지 않도록 생각해 보세요.</p>
+      </div>
+
+      <div class="q">
+        <h3><span class="qnum">2</span>세균과 균류를 이용해 만들 수 있는 음식을 모두 골라 봅시다.</h3>
+        <div class="food-bank">
+          <span class="food">김치</span><span class="food">치즈</span><span class="food">된장</span><span class="food">라면</span><span class="food">자장면</span><span class="food">요구르트</span><span class="food">메주</span>
+        </div>
+        <div class="choices" id="foodChoices"></div>
+      </div>
+
+      <div class="q">
+        <h3><span class="qnum">3</span>다양한 생물은 우리 생활에 어떤 영향을 주는지 써 봅시다.</h3>
+        <textarea id="q3" placeholder="예: 다양한 생물은 우리 생활에 이로운 영향을 주기도 하고 해로운 영향을 주기도 한다."></textarea>
+        <p class="hint">핵심어 예시: 이로운 영향, 해로운 영향, 생활</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="p2" class="page">
+    <div class="card">
+      <div class="lesson-title">
+        <div><h2>2쪽. 다양한 생물이 우리 생활에 주는 영향</h2><small>과학 102~103쪽</small></div>
+        <small>O/X 자동 채점 + 서술형 핵심어 채점</small>
+      </div>
+
+      <div class="q">
+        <h3><span class="qnum">1</span>설명으로 알맞은 것에 O표, 알맞지 않은 것에 X표를 해 봅시다.</h3>
+        <div class="ox-grid">
+          <div class="ox-row"><div>(1) 산소를 만드는 원생생물이 있다.</div><div class="ox-buttons"><label class="pill"><input name="ox1" type="radio" value="O">O</label><label class="pill"><input name="ox1" type="radio" value="X">X</label></div></div>
+          <div class="ox-row"><div>(2) 세균은 김치를 익히는 데 이용된다.</div><div class="ox-buttons"><label class="pill"><input name="ox2" type="radio" value="O">O</label><label class="pill"><input name="ox2" type="radio" value="X">X</label></div></div>
+          <div class="ox-row"><div>(3) 모든 곰팡이는 먹으면 병을 일으킨다.</div><div class="ox-buttons"><label class="pill"><input name="ox3" type="radio" value="O">O</label><label class="pill"><input name="ox3" type="radio" value="X">X</label></div></div>
+          <div class="ox-row"><div>(4) 균류를 이용해 식물에 생기는 병충해를 막을 수 있다.</div><div class="ox-buttons"><label class="pill"><input name="ox4" type="radio" value="O">O</label><label class="pill"><input name="ox4" type="radio" value="X">X</label></div></div>
+        </div>
+      </div>
+
+      <div class="q">
+        <h3><span class="qnum">2</span>다음의 생물들이 사라진다면 일어날 수 있는 일을 한 가지 써 봅시다.</h3>
+        <div class="two-col">
+          <div>
+            <label><strong>균류가 사라진다면?</strong></label>
+            <textarea id="fungiText" placeholder="예: 죽은 생물이나 쓰레기 등이 잘 분해되지 않을 것이다."></textarea>
+          </div>
+          <div>
+            <label><strong>세균이 사라진다면?</strong></label>
+            <textarea id="bacteriaText" placeholder="예: 김치가 익지 않거나 죽은 생물이 잘 분해되지 않을 것이다."></textarea>
+          </div>
+        </div>
+        <p class="hint">핵심어 예시: 썩지 않음, 분해되지 않음, 죽은 생물, 배설물, 쓰레기, 김치, 요구르트, 된장, 문제</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultPage" class="page">
+    <div id="result" class="result">
+      <div class="result-head">
+        <h2>채점 결과</h2>
+        <div class="score-big"><span id="score">0</span> / 100점</div>
+        <div id="studentInfo"></div>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div id="emptyResult" class="card">
+      <h2>아직 채점 전입니다.</h2>
+      <p>문제를 푼 뒤 아래의 <b>제출하고 자동채점</b> 버튼을 눌러 주세요.</p>
+    </div>
+  </section>
+
+  <div class="actions">
+    <div class="small">💡 선생님 확인용: 단답형은 정확히 채점되고, 서술형은 핵심어가 들어가면 부분 점수를 줍니다.</div>
+    <div>
+      <button class="ghost" onclick="window.print()">인쇄/PDF 저장</button>
+      <button class="danger" onclick="resetAll()">다시 풀기</button>
+      <button class="primary" onclick="gradeAll()">제출하고 자동채점</button>
+    </div>
+  </div>
+
+  <details class="teacher">
+    <summary>교사용 정답 및 채점 기준 보기</summary>
+    <div class="answer">1쪽 1번: 이로운 영향 ㉠, ㉡, ㉣ / 해로운 영향 ㉢, ㉤, ㉥
+1쪽 2번: 치즈, 된장, 요구르트, 메주
+1쪽 3번 예시: 다양한 생물은 우리 생활에 이로운 영향을 주기도 하고 해로운 영향을 주기도 한다.
+2쪽 1번: O, O, X, O
+2쪽 2번 예시: 음식이 썩지 않아 계속 먹을 수 있다. / 죽은 생물이나 배설물, 쓰레기 등이 썩지 않고 계속 쌓여 문제가 될 것이다.</div>
+  </details>
+</div>
+
+<script>
+const symbols = ['㉠','㉡','㉢','㉣','㉤','㉥'];
+const symbolTexts = {
+  '㉠':'버섯은 음식의 재료로 이용된다.',
+  '㉡':'세균, 균류는 죽은 생물을 분해한다.',
+  '㉢':'세균, 곰팡이는 음식을 상하게 한다.',
+  '㉣':'세균, 곰팡이를 이용해 음식을 만든다.',
+  '㉤':'세균, 곰팡이는 생물에 질병을 일으킨다.',
+  '㉥':'일부 균류는 먹으면 생명이 위험할 수 있다.'
+};
+const foods = ['김치','치즈','된장','라면','자장면','요구르트','메주'];
+function makeChecks(containerId, name, arr){
+  const el = document.getElementById(containerId);
+  el.innerHTML = arr.map(v=>`<label class="choice"><input type="checkbox" name="${name}" value="${v}"><span><b>${v}</b>${symbolTexts[v] ? ' '+symbolTexts[v] : ''}</span></label>`).join('');
+}
+makeChecks('benefitChoices','benefit',symbols);
+makeChecks('harmChoices','harm',symbols);
+makeChecks('foodChoices','food',foods);
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.target)));
+function showPage(id){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.target===id));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function vals(name){return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value).sort();}
+function radio(name){const x=document.querySelector(`input[name="${name}"]:checked`);return x?x.value:'';}
+function same(a,b){return JSON.stringify([...a].sort())===JSON.stringify([...b].sort());}
+function normalize(t){return (t||'').replace(/\s/g,'').toLowerCase();}
+function hasAny(t, arr){return arr.some(k=>normalize(t).includes(normalize(k)));}
+function hasAllGroups(t, groups){return groups.every(g=>hasAny(t,g));}
+function addFeedback(list, status, title, msg, score, max){
+  const label = status==='ok'?'정답':status==='partial'?'부분 정답':'확인 필요';
+  list.push(`<div class="item ${status}"><span class="tag ${status}">${label}</span><b>${title}</b><br>${msg}<br><span class="small">점수: ${score}/${max}</span></div>`);
+}
+function gradeAll(){
+  let total=0; const fb=[];
+  const benefit=vals('benefit'), harm=vals('harm');
+  let q1=0;
+  if(same(benefit,['㉠','㉡','㉣'])) q1+=10;
+  if(same(harm,['㉢','㉤','㉥'])) q1+=10;
+  if(q1===20) addFeedback(fb,'ok','1쪽 1번','이로운 영향과 해로운 영향을 정확히 구분했습니다.',q1,20);
+  else addFeedback(fb,q1>0?'partial':'no','1쪽 1번','정답은 이로운 영향 ㉠, ㉡, ㉣ / 해로운 영향 ㉢, ㉤, ㉥입니다.',q1,20);
+  total+=q1;
+
+  const food=vals('food');
+  const q2=same(food,['치즈','된장','요구르트','메주'])?20:0;
+  addFeedback(fb,q2?'ok':'no','1쪽 2번',q2?'세균과 균류를 이용해 만들 수 있는 음식을 잘 골랐습니다.':'정답은 치즈, 된장, 요구르트, 메주입니다.',q2,20);
+  total+=q2;
+
+  const q3txt=document.getElementById('q3').value;
+  let q3=0;
+  if(hasAny(q3txt,['이로운','좋은','도움'])) q3+=5;
+  if(hasAny(q3txt,['해로운','나쁜','질병','상하게','위험'])) q3+=5;
+  if(hasAny(q3txt,['영향','생활','우리 생활'])) q3+=5;
+  addFeedback(fb,q3>=13?'ok':q3>=5?'partial':'no','1쪽 3번',q3>=13?'다양한 생물의 이로운 영향과 해로운 영향을 잘 설명했습니다.':'이로운 영향과 해로운 영향을 모두 넣어 한 문장으로 정리해 보세요.',q3,15);
+  total+=q3;
+
+  const oxAns=['O','O','X','O']; let oxScore=0;
+  for(let i=1;i<=4;i++){ if(radio('ox'+i)===oxAns[i-1]) oxScore+=5; }
+  addFeedback(fb,oxScore===20?'ok':oxScore>0?'partial':'no','2쪽 1번',oxScore===20?'O/X 문제를 모두 맞혔습니다.':'정답은 O, O, X, O입니다.',oxScore,20);
+  total+=oxScore;
+
+  const ftxt=document.getElementById('fungiText').value;
+  const btxt=document.getElementById('bacteriaText').value;
+  let q5=0;
+  if(hasAllGroups(ftxt,[['썩','분해','쌓','죽은','배설','쓰레기','음식'],['문제','계속','않','못','없']])) q5+=12.5;
+  else if(hasAny(ftxt,['썩','분해','죽은','배설','쓰레기','음식','쌓'])) q5+=7;
+  if(hasAllGroups(btxt,[['썩','분해','김치','요구르트','된장','메주','음식'],['문제','익','않','못','없','쌓']])) q5+=12.5;
+  else if(hasAny(btxt,['썩','분해','김치','요구르트','된장','메주','음식','쌓'])) q5+=7;
+  q5=Math.round(q5);
+  addFeedback(fb,q5>=22?'ok':q5>=7?'partial':'no','2쪽 2번',q5>=22?'균류와 세균이 사라졌을 때 일어날 일을 타당하게 썼습니다.':'죽은 생물·배설물·쓰레기가 분해되지 않거나, 발효 음식 만들기에 문제가 생긴다는 내용을 넣어 보세요.',q5,25);
+  total+=q5;
+
+  document.getElementById('score').textContent=total;
+  const cn=document.getElementById('className').value||'-';
+  const no=document.getElementById('studentNo').value||'-';
+  const nm=document.getElementById('studentName').value||'-';
+  document.getElementById('studentInfo').textContent=`${cn}반 ${no}번 ${nm}`;
+  document.getElementById('feedback').innerHTML=fb.join('');
+  document.getElementById('result').classList.add('show');
+  document.getElementById('emptyResult').style.display='none';
+  showPage('resultPage');
+}
+function resetAll(){
+  if(!confirm('입력한 내용을 모두 지우고 다시 풀까요?')) return;
+  document.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(x=>x.checked=false);
+  document.querySelectorAll('textarea,input[type="text"]').forEach(x=>x.value='');
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('emptyResult').style.display='block';
+  showPage('p1');
+}
+</script>
+</body>
+</html>
