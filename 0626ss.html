@@ -6,18 +6,28 @@
 <title>사회 전자학습지 | 경제활동과 지역 간 교류</title>
 <style>
   :root{
-    --bg1:#e6f7ff; --bg2:#fff7d6; --ink:#203040; --card:#fffdf7; --green:#2f8f57;
-    --blue:#3d7cff; --yellow:#ffd84d; --pink:#ff7aa8; --orange:#ff9f1c; --purple:#8b5cf6;
-    --ok:#15803d; --bad:#dc2626; --mid:#b45309; --line:#263238;
+    --bg1:#eef9ff; --bg2:#fff8dc; --bg3:#f3ffe8; --ink:#24323f; --card:#fffef8;
+    --green:#30a46c; --blue:#3d7cff; --yellow:#ffd84d; --pink:#ff7aa8; --orange:#ff9f1c;
+    --ok:#15803d; --bad:#dc2626; --mid:#b45309; --line:#263238; --soft:#f8fafc;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;font-family:"Pretendard", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;color:var(--ink);background:radial-gradient(circle at 12% 10%, #fff 0 4%, transparent 4.5%), radial-gradient(circle at 85% 18%, #fff 0 3%, transparent 3.5%), linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh;}
-  body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(45deg,rgba(255,255,255,.35) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.35) 25%,transparent 25%);background-size:52px 52px;opacity:.28}
-  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:4px solid #26323822;box-shadow:0 8px 24px #00000010}
+  body{
+    margin:0;font-family:"Pretendard","Noto Sans KR",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink);min-height:100vh;
+    background:radial-gradient(circle at 8% 8%, #fff 0 4%, transparent 4.5%),
+               radial-gradient(circle at 85% 14%, #fff 0 3.5%, transparent 4%),
+               linear-gradient(135deg,var(--bg1),var(--bg2) 52%,var(--bg3));
+  }
+  body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(45deg,rgba(255,255,255,.4) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.35) 25%,transparent 25%);background-size:56px 56px;opacity:.3}
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:4px solid #26323822;box-shadow:0 8px 24px #00000010}
   .top{max-width:1180px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .brand{display:flex;align-items:center;gap:12px}.mascot{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ffe36e,#ffb703);border:4px solid #2b2b2b;box-shadow:5px 5px 0 #0002;font-size:34px;animation:bounce 1.8s infinite ease-in-out}.title h1{font-size:1.45rem;margin:0;font-weight:1000;letter-spacing:-.04em}.title p{margin:3px 0 0;color:#52616f;font-weight:800}.student{display:flex;gap:8px;flex-wrap:wrap}.student input{border:3px solid #2b2b2b;border-radius:16px;background:#fff;padding:10px 12px;font-size:1rem;box-shadow:3px 3px 0 #0001;min-width:130px}.wrap{max-width:1180px;margin:18px auto 100px;padding:0 16px}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#2f8f57,#29b6f6);color:#fff;border:4px solid #273238;border-radius:28px;padding:22px;box-shadow:8px 8px 0 #00000018;margin-bottom:14px}.hero:after{content:"🚚  🧺  🏺  🥕  🗺️";position:absolute;right:18px;bottom:8px;font-size:34px;opacity:.35}.hero h2{margin:0 0 6px;font-size:1.7rem}.hero p{margin:0;line-height:1.55;font-weight:700}.progress{height:14px;background:#ffffff66;border:2px solid #203040;border-radius:999px;overflow:hidden;margin-top:16px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#ffd84d,#ff7aa8);transition:.3s}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.tabs button,.btn{border:0;border-radius:999px;padding:12px 18px;font-weight:1000;cursor:pointer;color:#203040;background:#fff;border:3px solid #263238;box-shadow:4px 4px 0 #00000018;transition:.15s}.tabs button:hover,.btn:hover{transform:translateY(-2px)}.tabs button.active{background:var(--yellow)}.btn.primary{background:var(--green);color:#fff}.btn.pink{background:var(--pink);color:#fff}.btn.blue{background:var(--blue);color:#fff}.btn.warn{background:#7c3f18;color:#fff}.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}@media(max-width:860px){.grid{grid-template-columns:1fr}.hero:after{display:none}}
-  .card{background:var(--card);border:4px solid #263238;border-radius:26px;padding:18px;box-shadow:7px 7px 0 #00000016;position:relative;overflow:hidden}.card:before{content:"";position:absolute;right:-35px;top:-35px;width:90px;height:90px;border-radius:50%;background:#ffd84d55}.card h3{margin:0 0 12px;display:flex;align-items:center;gap:8px;font-size:1.32rem}.badge{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#ffd84d;border:3px solid #263238}.speech{background:#fff;border:3px solid #263238;border-radius:22px;padding:12px 14px;font-weight:900;text-align:center;box-shadow:3px 3px 0 #0001;margin:10px 0}.wordbank{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 14px}.word{background:#fff1a8;border:3px solid #263238;border-radius:999px;padding:8px 12px;font-weight:1000;box-shadow:3px 3px 0 #0001}.q{padding:12px 0;border-top:2px dashed #cbd5e1;line-height:1.65}.q:first-of-type{border-top:0}.q-title{font-weight:1000;margin-bottom:6px}.mini{font-size:.9rem;color:#607080}.inline-input,input[type="text"],textarea{border:3px solid #cbd5e1;border-radius:14px;padding:10px 12px;font-size:1rem;background:#fff;outline:none}.inline-input{width:132px;text-align:center;margin:0 4px}.inline-input:focus,input[type="text"]:focus,textarea:focus{border-color:#3d7cff;box-shadow:0 0 0 4px #3d7cff22}textarea{width:100%;min-height:92px;resize:vertical;margin-top:8px}.hint{background:#ecfeff;border:3px dashed #29b6f6;border-radius:20px;padding:12px;margin:10px 0;font-weight:800}.region-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:3px solid #263238;border-radius:18px;background:#fff;margin:10px 0}.region-table th{background:#ffd84d}.region-table td,.region-table th{padding:8px;border-bottom:1px solid #d7c46b;text-align:center}.region-table tr:last-child td{border-bottom:0}.ox{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.ox label{display:inline-flex;align-items:center;gap:6px;background:#fff;border:3px solid #263238;border-radius:999px;padding:8px 15px;font-weight:1000;cursor:pointer;box-shadow:3px 3px 0 #0001}.ox input{accent-color:#2f8f57}.canvasbox{min-height:185px;border:4px dashed #94a3b8;border-radius:22px;background:linear-gradient(135deg,#fff,#f8fafc);display:grid;place-items:center;text-align:center;font-weight:900;color:#64748b;padding:18px}.feedback{margin-top:8px;font-weight:1000}.right{color:var(--ok)}.wrong{color:var(--bad)}.partial{color:var(--mid)}.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.88rem;font-weight:1000;background:#e8f7ee;color:#13723b}.scorebox{display:none;background:#fff;border:4px solid #263238;border-radius:28px;padding:20px;margin-top:18px;box-shadow:8px 8px 0 #0002}.scorebig{font-size:2.4rem;font-weight:1000;color:#2f8f57}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}@media(max-width:760px){.result-grid{grid-template-columns:1fr}}.result-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:18px;padding:12px}.admin{display:none;background:#fff;border:4px solid #263238;border-radius:28px;padding:20px;margin-top:18px;box-shadow:8px 8px 0 #0002}.submission{background:#f8fafc;border:2px solid #cbd5e1;border-radius:16px;padding:12px;margin:10px 0;white-space:pre-wrap}.footerbar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:4px solid #26323822;padding:10px 16px;z-index:30}.footerbar .inner{max-width:1180px;margin:auto;display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}.confetti{position:fixed;top:-20px;z-index:999;font-size:22px;animation:fall 1.8s linear forwards}.source{font-size:.82rem;color:#64748b;margin-top:12px}.keyword-chip{display:inline-block;margin:3px 4px 0 0;padding:4px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #cbd5e1;font-size:.85rem}.rubric{background:#fff7ed;border:2px solid #fed7aa;border-radius:16px;padding:10px;margin-top:8px}
+  .brand{display:flex;align-items:center;gap:12px}.mascot{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ffe36e,#ffb703);border:4px solid #2b2b2b;box-shadow:5px 5px 0 #0002;font-size:35px;animation:bounce 1.8s infinite ease-in-out}.title h1{font-size:1.48rem;margin:0;font-weight:1000;letter-spacing:-.04em}.title p{margin:3px 0 0;color:#52616f;font-weight:800}.student{display:flex;gap:8px;flex-wrap:wrap}.student input{border:3px solid #2b2b2b;border-radius:16px;background:#fff;padding:10px 12px;font-size:1rem;box-shadow:3px 3px 0 #0001;min-width:130px}
+  .wrap{max-width:1180px;margin:18px auto 104px;padding:0 16px}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#2f8f57,#29b6f6);color:#fff;border:4px solid #273238;border-radius:30px;padding:22px;box-shadow:8px 8px 0 #00000018;margin-bottom:14px}.hero:after{content:"🚚  🧺  🏺  🥕  🗺️";position:absolute;right:18px;bottom:8px;font-size:34px;opacity:.38}.hero h2{margin:0 0 6px;font-size:1.75rem}.hero p{margin:0;line-height:1.58;font-weight:750}.progress{height:14px;background:#ffffff66;border:2px solid #203040;border-radius:999px;overflow:hidden;margin-top:16px}.bar{height:100%;width:0%;background:linear-gradient(90deg,#ffd84d,#ff7aa8);transition:.3s}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.tabs button,.btn{border:0;border-radius:999px;padding:12px 18px;font-weight:1000;cursor:pointer;color:#203040;background:#fff;border:3px solid #263238;box-shadow:4px 4px 0 #00000018;transition:.15s}.tabs button:hover,.btn:hover{transform:translateY(-2px)}.tabs button.active{background:var(--yellow)}.btn.primary{background:var(--green);color:#fff}.btn.pink{background:var(--pink);color:#fff}.btn.blue{background:var(--blue);color:#fff}.btn.warn{background:#7c3f18;color:#fff}.btn.small{padding:8px 12px;font-size:.92rem}
+  .page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}@media(max-width:860px){.grid{grid-template-columns:1fr}.hero:after{display:none}}
+  .card{background:var(--card);border:4px solid #263238;border-radius:28px;padding:18px;box-shadow:7px 7px 0 #00000016;position:relative;overflow:hidden}.card:before{content:"";position:absolute;right:-35px;top:-35px;width:92px;height:92px;border-radius:50%;background:#ffd84d55}.card h3{margin:0 0 12px;display:flex;align-items:center;gap:8px;font-size:1.32rem}.badge{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#ffd84d;border:3px solid #263238}.speech{background:#fff;border:3px solid #263238;border-radius:22px;padding:12px 14px;font-weight:900;text-align:center;box-shadow:3px 3px 0 #0001;margin:10px 0}.wordbank{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 14px}.word{background:#fff1a8;border:3px solid #263238;border-radius:999px;padding:8px 12px;font-weight:1000;box-shadow:3px 3px 0 #0001}.q{padding:12px 0;border-top:2px dashed #cbd5e1;line-height:1.65}.q:first-of-type{border-top:0}.q-title{font-weight:1000;margin-bottom:6px}.mini{font-size:.9rem;color:#607080}.inline-input,input[type="text"],textarea{border:3px solid #cbd5e1;border-radius:14px;padding:10px 12px;font-size:1rem;background:#fff;outline:none}.inline-input{width:132px;text-align:center;margin:0 4px}.inline-input:focus,input[type="text"]:focus,textarea:focus{border-color:#3d7cff;box-shadow:0 0 0 4px #3d7cff22}textarea{width:100%;min-height:92px;resize:vertical;margin-top:8px}.hint{background:#ecfeff;border:3px dashed #29b6f6;border-radius:20px;padding:12px;margin:10px 0;font-weight:800}.region-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:3px solid #263238;border-radius:18px;background:#fff;margin:10px 0}.region-table th{background:#ffd84d}.region-table td,.region-table th{padding:8px;border-bottom:1px solid #d7c46b;text-align:center}.region-table tr:last-child td{border-bottom:0}.ox{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.ox label{display:inline-flex;align-items:center;gap:6px;background:#fff;border:3px solid #263238;border-radius:999px;padding:8px 15px;font-weight:1000;cursor:pointer;box-shadow:3px 3px 0 #0001}.ox input{accent-color:#2f8f57}.feedback{margin-top:8px;font-weight:1000}.right{color:var(--ok)}.wrong{color:var(--bad)}.partial{color:var(--mid)}.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.88rem;font-weight:1000;background:#e8f7ee;color:#13723b}.scorebox{display:none;background:#fff;border:4px solid #263238;border-radius:28px;padding:20px;margin-top:18px;box-shadow:8px 8px 0 #0002}.scorebig{font-size:2.4rem;font-weight:1000;color:#2f8f57}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}@media(max-width:760px){.result-grid{grid-template-columns:1fr}}.result-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:18px;padding:12px}.admin{display:none;background:#fff;border:4px solid #263238;border-radius:28px;padding:20px;margin-top:18px;box-shadow:8px 8px 0 #0002}.submission{background:#f8fafc;border:2px solid #cbd5e1;border-radius:16px;padding:12px;margin:10px 0;white-space:pre-wrap}.footerbar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:4px solid #26323822;padding:10px 16px;z-index:30}.footerbar .inner{max-width:1180px;margin:auto;display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}.confetti{position:fixed;top:-20px;z-index:999;font-size:22px;animation:fall 1.8s linear forwards}.source{font-size:.82rem;color:#64748b;margin-top:12px}.rubric{background:#fff7ed;border:2px solid #fed7aa;border-radius:16px;padding:10px;margin-top:8px}.keyword-chip{display:inline-block;margin:3px 4px 0 0;padding:4px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #cbd5e1;font-size:.85rem}
+  .draw-wrap{margin-top:12px;border:3px dashed #94a3b8;border-radius:22px;background:#fbfdff;padding:12px}.draw-title{font-weight:1000;color:#52616f;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.draw-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.draw-tools input[type="color"]{width:42px;height:38px;border:2px solid #263238;border-radius:10px;background:#fff}.draw-tools input[type="range"]{width:120px}.draw-canvas{width:100%;height:210px;background:#fff;border:3px solid #cbd5e1;border-radius:18px;display:block;touch-action:none}.draw-canvas.large{height:310px}.mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.mode-tabs .mode{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 12px;font-weight:900;cursor:pointer}.mode-tabs .mode.active{background:#dbeafe;border-color:#3d7cff}.answer-mode{display:none}.answer-mode.active{display:block}.pen-note{font-size:.86rem;color:#64748b;margin-top:6px}.preview-img{max-width:230px;border:2px solid #cbd5e1;border-radius:12px;background:#fff;margin-top:8px}
   @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes fall{to{transform:translateY(110vh) rotate(400deg);opacity:0}}
 </style>
 </head>
@@ -31,12 +41,12 @@
 <div class="wrap">
   <section class="hero">
     <h2>🚚 물건은 어떻게 우리 지역까지 올까?</h2>
-    <p>빈칸, O/X, 서술형을 해결하며 지역 간 경제 교류의 까닭과 사례를 알아봅니다. 서술형은 <b>핵심 키워드가 들어가면 자동채점</b>됩니다.</p>
+    <p>빈칸, O/X, 서술형, 캐릭터 그리기로 지역 간 경제 교류의 까닭과 사례를 알아봅니다. 서술형은 <b>키보드 입력</b> 또는 <b>스마트펜 필기</b>를 선택할 수 있습니다.</p>
     <div class="progress"><div id="bar" class="bar"></div></div>
   </section>
   <div class="tabs">
     <button id="tab1" class="active" onclick="showPage(1)">🐣 10차시</button>
-    <button id="tab2" onclick="showPage(2)">🚀 11~12차시</button>
+    <button id="tab2" onclick="showPage(2)">🎨 11~12차시</button>
     <button onclick="openAdmin()">🔐 교사용 관리</button>
   </div>
 
@@ -50,18 +60,18 @@
       <div class="card"><h3><span class="badge">2</span> 유통 탐정</h3>
         <div class="speech">생산된 물건이 소비자에게 오는 과정 = 유통</div>
         <div class="hint">예: 강원도 감자 → 트럭 이동 → 전국 시장과 마트 → 우리 식탁</div>
-        <div class="q"><div class="q-title">유통이 없다면 어떤 불편함이 생길까요?</div><textarea id="p1_dist" placeholder="예: 감자를 사려면 직접 강원도까지 가야 해서 불편합니다."></textarea><div class="rubric">자동채점 키워드 예: 직접, 멀리, 불편, 구하기 어렵다</div></div>
+        <div class="q"><div class="q-title">유통이 없다면 어떤 불편함이 생길까요?</div><div class="essay" data-id="p1_dist"></div><div class="rubric">자동채점 키워드 예: 직접, 멀리, 불편, 구하기 어렵다</div></div>
       </div>
       <div class="card"><h3><span class="badge">3</span> 비빔밥 재료 출신 찾기</h3>
         <div class="speech">전주 비빔밥 재료는 여러 지역에서 옵니다.</div>
         <table class="region-table"><tr><th>재료</th><th>생산지 예</th><th>재료</th><th>생산지 예</th></tr><tr><td>쌀</td><td>전북 김제</td><td>시금치</td><td>전남 신안</td></tr><tr><td>당근</td><td>제주 제주</td><td>양파</td><td>경남 창녕</td></tr><tr><td>계란</td><td>충북 충주</td><td>버섯</td><td>경기 양평</td></tr><tr><td>고추장</td><td>전북 순창</td><td>소고기</td><td>강원 횡성</td></tr></table>
-        <div class="q"><div class="q-title">1. 다른 지역 재료를 사용하는 까닭은?</div><textarea id="p1_reason"></textarea><div class="rubric">키워드 예: 우리 지역, 생산되지 않음, 부족, 다른 지역, 재료</div></div>
-        <div class="q"><div class="q-title">2. 다른 지역 재료를 구할 수 없다면?</div><textarea id="p1_noTrade"></textarea><div class="rubric">키워드 예: 우리 지역 생산 재료만, 어렵다, 불편하다, 다양하지 않다</div></div>
+        <div class="q"><div class="q-title">1. 다른 지역에서 생산한 재료를 사용하는 까닭은 무엇일까요?</div><div class="essay" data-id="p1_reason"></div><div class="rubric">키워드 예: 우리 지역, 생산되지 않다, 부족하다, 다른 지역, 재료</div></div>
+        <div class="q"><div class="q-title">2. 다른 지역 재료를 구할 수 없다면 어떻게 될까요?</div><div class="essay" data-id="p1_noTrade"></div><div class="rubric">키워드 예: 우리 지역, 생산한 재료, 부족, 불편, 다양하지 않다</div></div>
       </div>
-      <div class="card"><h3><span class="badge">4</span> O/X 번개 퀴즈</h3>
+      <div class="card"><h3><span class="badge">4</span> 마무리 O/X</h3>
         <div class="q">1. 경제 교류란 한 지역에서만 물건을 만들고 사용하는 것을 의미한다.<div class="ox"><label><input type="radio" name="p1_ox1" value="O">O</label><label><input type="radio" name="p1_ox1" value="X">X</label></div></div>
         <div class="q">2. 경제 교류가 없으면 우리 지역에서 생산되지 않는 물건을 구하기 어렵다.<div class="ox"><label><input type="radio" name="p1_ox2" value="O">O</label><label><input type="radio" name="p1_ox2" value="X">X</label></div></div>
-        <div class="q">3. 경제 교류로 물건뿐만 아니라 기술이나 정보도 주고받을 수 있다.<div class="ox"><label><input type="radio" name="p1_ox3" value="O">O</label><label><input type="radio" name="p1_ox3" value="X">X</label></div></div>
+        <div class="q">3. 경제 교류로 물건뿐 아니라 기술이나 정보도 주고받을 수 있다.<div class="ox"><label><input type="radio" name="p1_ox3" value="O">O</label><label><input type="radio" name="p1_ox3" value="X">X</label></div></div>
       </div>
     </div>
   </section>
@@ -72,33 +82,42 @@
         <div class="wordbank"><span class="word">대표 상품</span><span class="word">교류</span></div>
         <div class="q">자연환경, 생산 기술, 자원 등에 따라 지역의 <input class="inline-input" id="p2_blank1" placeholder="가">이 달라집니다.</div>
         <div class="q">이천의 <input class="inline-input" id="p2_blank2" placeholder="가">은 도자기, 횡성의 <input class="inline-input" id="p2_blank3" placeholder="가">은 한우입니다.</div>
-        <div class="q">지역 간에는 생산물뿐만 아니라 문화나 관광, 기술 <input class="inline-input" id="p2_blank4" placeholder="나">도 이루어지고 있습니다.</div>
+        <div class="q">지역 간에는 생산물뿐만 아니라 문화나 관광, 기술 <input class="inline-input" id="p2_blank4" placeholder="나">도 이루어집니다.</div>
       </div>
       <div class="card"><h3><span class="badge">2</span> 우리 지역 캐릭터 기획서</h3>
         <div class="speech">우리 지역 대표 상품을 캐릭터로 만들면?</div>
-        <div class="q">지역 <input id="char_region" type="text" placeholder="예: 의왕"></div>
-        <div class="q">대표 상품 <input id="char_product" type="text" placeholder="예: 철도 관광, 백운호수, 지역 농산물 등"></div>
-        <div class="q">캐릭터 설명 <textarea id="char_desc" placeholder="이름, 생김새, 대표 상품을 나타낸 부분을 써 보세요."></textarea></div>
-        <div class="canvasbox">여기에는 종이에 그린 캐릭터를 붙이거나, 설명을 보고 친구가 상상해 볼 수 있어요 🎨</div>
+        <div class="q">지역 <input type="text" id="char_region" placeholder="예: 의왕"> &nbsp; 대표 상품 <input type="text" id="char_product" placeholder="예: 철도 관광, 백운호수, 지역 상품"></div>
+        <div class="q"><div class="q-title">캐릭터 설명</div><div class="essay" data-id="char_desc"></div><div class="rubric">키워드 예: 이름, 대표 상품, 생김새, 특징, 지역, 캐릭터</div></div>
+        <div class="draw-wrap">
+          <div class="draw-title"><span>🎨 여기에 스마트펜/마우스로 캐릭터를 직접 그려요</span><span class="mini">손가락도 가능</span></div>
+          <div class="draw-tools" data-for="char_canvas">
+            <input type="color" value="#1f2937" aria-label="펜 색">
+            <label class="mini">굵기 <input type="range" min="2" max="18" value="5"></label>
+            <button class="btn small" type="button" onclick="clearCanvas('char_canvas')">지우기</button>
+          </div>
+          <canvas id="char_canvas" class="draw-canvas large"></canvas>
+        </div>
       </div>
       <div class="card"><h3><span class="badge">3</span> 경제 교류 까닭 정리</h3>
         <div class="q">1. 지역 간 경제 교류를 하는 까닭은 무엇일까요?<br>두 지역의 <input class="inline-input" id="p2_reason1" placeholder="자연환경">과 생산 <input class="inline-input" id="p2_reason2" placeholder="기술">, 자원 등이 달라 생산하는 물건이 다르기 때문입니다.</div>
-        <div class="q"><div class="q-title">2. 두 지역 간 경제 교류로 얻을 수 있는 이익은?</div><textarea id="p2_profit" placeholder="예: 생산물을 판매하여 경제적 이익을 얻고 함께 발전할 수 있습니다."></textarea><div class="rubric">키워드 예: 판매, 경제적 이익, 소득, 발전, 편리</div></div>
+        <div class="q"><div class="q-title">2. 두 지역 간 경제 교류로 얻을 수 있는 이익은?</div><div class="essay" data-id="p2_profit"></div><div class="rubric">키워드 예: 판매, 경제적 이익, 소득, 발전, 편리</div></div>
       </div>
       <div class="card"><h3><span class="badge">4</span> 마무리 O/X</h3>
         <div class="q">1. 지역 간 경제 교류는 지역의 대표 상품을 중심으로 이루어진다.<div class="ox"><label><input type="radio" name="p2_ox1" value="O">O</label><label><input type="radio" name="p2_ox1" value="X">X</label></div></div>
         <div class="q">2. 지역 간에는 생산물 교류만 가능하다.<div class="ox"><label><input type="radio" name="p2_ox2" value="O">O</label><label><input type="radio" name="p2_ox2" value="X">X</label></div></div>
-        <div class="q">3. 지역 신문, 인터넷 신문, 공공 기관 누리집 등에서 경제 교류 모습을 살펴볼 수 있다.<div class="ox"><label><input type="radio" name="p2_ox3" value="O">O</label><label><input type="radio" name="p2_ox3" value="X">X</label></div></div>
+        <div class="q">3. 지역 신문이나 인터넷 신문, 공공 기관 누리집 등에서 여러 지역이 경제 교류하는 모습을 살펴볼 수 있다.<div class="ox"><label><input type="radio" name="p2_ox3" value="O">O</label><label><input type="radio" name="p2_ox3" value="X">X</label></div></div>
       </div>
     </div>
   </section>
   <div id="scorebox" class="scorebox"></div>
-  <section id="admin" class="admin"><h2>🔐 교사용 관리 모드</h2><p class="mini">비밀번호 0402로 입장합니다. 제출 기록은 현재 기기/브라우저에 저장됩니다.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="btn blue" onclick="downloadCSV()">CSV 내려받기</button><button class="btn warn" onclick="clearSubmissions()">기록 삭제</button></div><div id="adminList"></div></section>
+  <section id="admin" class="admin"><h2>🔐 교사용 관리 모드</h2><p class="mini">비밀번호 0402로 입장합니다. 제출 기록은 현재 기기/브라우저에 저장됩니다. 펜으로 쓴 답과 캐릭터 그림도 함께 저장됩니다.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="btn blue" onclick="downloadCSV()">CSV 내려받기</button><button class="btn warn" onclick="clearSubmissions()">기록 삭제</button></div><div id="adminList"></div></section>
   <p class="source">※ 업로드된 사회네컷 10차시, 11~12차시 자료의 핵심 활동을 전자학습지 형식으로 재구성했습니다.</p>
 </div>
 <div class="footerbar"><div class="inner"><button class="btn" onclick="saveDraft()">💾 임시저장</button><button class="btn primary" onclick="gradeAll()">✅ 자동채점 및 제출</button><button class="btn pink" onclick="resetForm()">🔄 처음부터</button></div></div>
 <script>
 const today=new Date().toISOString().slice(0,10);document.getElementById('studentDate').value=today;
+const ESSAY_IDS=['p1_dist','p1_reason','p1_noTrade','char_desc','p2_profit'];
+const CANVAS_IDS=['char_canvas',...ESSAY_IDS.map(id=>id+'_pen')];
 const ANSWERS={
  p1_blank1:['경제적이익','경제적 이익'],p1_blank2:['교류'],p1_blank3:['자연환경'],p1_blank4:['자원'],
  p2_blank1:['대표상품','대표 상품'],p2_blank2:['대표상품','대표 상품'],p2_blank3:['대표상품','대표 상품'],p2_blank4:['교류'],
@@ -112,37 +131,88 @@ const DESCRIPTIVE={
  p2_profit:{label:'경제 교류의 이익',need:2,keywords:['경제적이익','경제적 이익','판매','발전','소득','이익','편리','함께']},
  char_desc:{label:'캐릭터 설명',need:2,keywords:['이름','상품','대표','생김새','특징','지역','캐릭터']}
 };
+function buildEssayBlocks(){
+  document.querySelectorAll('.essay').forEach(host=>{
+    const id=host.dataset.id;
+    host.innerHTML=`
+      <div class="mode-tabs">
+        <button type="button" class="mode active" onclick="setAnswerMode('${id}','keyboard')">⌨️ 키보드로 쓰기</button>
+        <button type="button" class="mode" onclick="setAnswerMode('${id}','pen')">✏️ 스마트펜으로 쓰기</button>
+      </div>
+      <div id="${id}_keyboard" class="answer-mode active"><textarea id="${id}" placeholder="키보드로 답을 쓰세요. 스마트펜 입력 키보드가 있는 기기는 이 칸에 손글씨 입력도 가능합니다."></textarea></div>
+      <div id="${id}_penbox" class="answer-mode">
+        <div class="draw-wrap">
+          <div class="draw-title"><span>스마트펜/손가락으로 답을 써요</span><span class="mini">필기 답안은 제출 기록에 이미지로 저장됩니다.</span></div>
+          <div class="draw-tools" data-for="${id}_pen">
+            <input type="color" value="#1f2937" aria-label="펜 색">
+            <label class="mini">굵기 <input type="range" min="2" max="18" value="5"></label>
+            <button class="btn small" type="button" onclick="clearCanvas('${id}_pen')">지우기</button>
+          </div>
+          <canvas id="${id}_pen" class="draw-canvas"></canvas>
+          <div class="pen-note">키워드 자동채점은 키보드 글자 기준입니다. 펜으로만 쓴 답은 제출 후 선생님 확인용으로 저장됩니다.</div>
+        </div>
+      </div>`;
+  });
+}
+function setAnswerMode(id,mode){
+  const host=document.querySelector(`.essay[data-id="${id}"]`); if(!host)return;
+  host.querySelectorAll('.mode').forEach(b=>b.classList.remove('active'));
+  host.querySelectorAll('.answer-mode').forEach(b=>b.classList.remove('active'));
+  if(mode==='pen'){host.querySelectorAll('.mode')[1].classList.add('active');document.getElementById(id+'_penbox').classList.add('active');resizeCanvas(document.getElementById(id+'_pen'));}
+  else{host.querySelectorAll('.mode')[0].classList.add('active');document.getElementById(id+'_keyboard').classList.add('active');}
+}
 function norm(s){return (s||'').replace(/\s+/g,'').trim().toLowerCase()}
 function val(id){const el=document.getElementById(id);return el?el.value.trim():''}
 function radio(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:''}
-function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page'+n).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));document.getElementById('tab'+n).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
-function addFb(el,msg,cls){let f=el.parentElement.querySelector('.feedback');if(!f){f=document.createElement('div');f.className='feedback';el.parentElement.appendChild(f)}f.className='feedback '+cls;f.textContent=msg}
+function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page'+n).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));document.getElementById('tab'+n).classList.add('active');setTimeout(initAllCanvas,60);window.scrollTo({top:0,behavior:'smooth'});}
+function addFb(el,msg,cls){let target=el.closest('.q')||el.parentElement;let f=target.querySelector('.feedback');if(!f){f=document.createElement('div');f.className='feedback';target.appendChild(f)}f.className='feedback '+cls;f.textContent=msg}
 function gradeText(id){const user=norm(val(id));const ok=(ANSWERS[id]||[]).some(a=>norm(a)===user);addFb(document.getElementById(id),ok?'정답! 참 잘했어요 🌟':'다시 생각해 볼까요?',ok?'right':'wrong');return ok?1:0}
 function gradeOX(name){const chosen=radio(name);const ok=chosen===OX[name];const box=document.querySelector(`input[name="${name}"]`)?.closest('.q');let f=box.querySelector('.feedback');if(!f){f=document.createElement('div');f.className='feedback';box.appendChild(f)}f.className='feedback '+(ok?'right':'wrong');f.textContent=chosen? (ok?'정답! ⚡':'아쉬워요. 다시 확인해요.') : '아직 선택하지 않았어요.';return ok?1:0}
-function gradeDesc(id){const text=val(id);const compact=norm(text);const rule=DESCRIPTIVE[id];let matched=[];(rule.keywords||[]).forEach(k=>{if(compact.includes(norm(k))||text.includes(k)) matched.push(k)});matched=[...new Set(matched)];let point=0,msg='',cls='wrong';if(text.length<5){msg='조금 더 자세히 써 주세요.'}else if(matched.length>=rule.need){point=1;msg='핵심 키워드가 잘 들어갔어요! '+matched.slice(0,4).map(x=>'#'+x).join(' ');cls='right'}else if(matched.length>=1){point=.5;msg='좋아요. 핵심 키워드를 하나 더 넣으면 더 정확해요. '+matched.map(x=>'#'+x).join(' ');cls='partial'}else{msg='핵심 키워드를 넣어 다시 써 보세요.'}
- addFb(document.getElementById(id),msg,cls);return point}
+function canvasHasDrawing(id){const c=document.getElementById(id);return c && c.dataset.dirty==='1'}
+function gradeDesc(id){
+ const text=val(id);const compact=norm(text);const rule=DESCRIPTIVE[id];let matched=[];(rule.keywords||[]).forEach(k=>{if(compact.includes(norm(k))||text.includes(k)) matched.push(k)});matched=[...new Set(matched)];
+ let point=0,msg='',cls='wrong';
+ if(text.length>=5 && matched.length>=rule.need){point=1;msg='핵심 키워드가 잘 들어갔어요! '+matched.slice(0,4).map(x=>'#'+x).join(' ');cls='right'}
+ else if(text.length>=5 && matched.length>=1){point=.5;msg='좋아요. 핵심 키워드를 하나 더 넣으면 더 정확해요. '+matched.map(x=>'#'+x).join(' ');cls='partial'}
+ else if(canvasHasDrawing(id+'_pen')){point=.5;msg='펜 답안이 저장되었어요. 키워드 자동채점은 글자 입력 때 더 정확합니다. 선생님 확인 필요 ✏️';cls='partial'}
+ else if(text.length<5){msg='조금 더 자세히 쓰거나 스마트펜으로 답을 써 주세요.'}
+ else{msg='핵심 키워드를 넣어 다시 써 보세요.'}
+ addFb(document.getElementById(id),msg,cls);return point
+}
+function resizeCanvas(c){if(!c)return;const rect=c.getBoundingClientRect();if(rect.width<50)return;const data=c.dataset.dirty==='1'?c.toDataURL():null;const ratio=window.devicePixelRatio||1;const cssW=Math.round(rect.width);const cssH=Math.round(c.classList.contains('large')?310:210);c.width=cssW*ratio;c.height=cssH*ratio;c.style.height=cssH+'px';const ctx=c.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);ctx.lineCap='round';ctx.lineJoin='round';ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cssW,cssH);if(data){const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,cssW,cssH)};img.src=data;}}
+function setupCanvas(id){const c=document.getElementById(id);if(!c||c.dataset.ready==='1')return;c.dataset.ready='1';resizeCanvas(c);let drawing=false,last=null;const tools=document.querySelector(`.draw-tools[data-for="${id}"]`);const color=tools?.querySelector('input[type="color"]');const size=tools?.querySelector('input[type="range"]');function pos(e){const r=c.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}function start(e){drawing=true;last=pos(e);c.setPointerCapture?.(e.pointerId);e.preventDefault()}function move(e){if(!drawing)return;const p=pos(e),ctx=c.getContext('2d');ctx.strokeStyle=color?.value||'#1f2937';ctx.lineWidth=+(size?.value||5);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;c.dataset.dirty='1';e.preventDefault()}function end(e){drawing=false;last=null;e.preventDefault()}c.addEventListener('pointerdown',start);c.addEventListener('pointermove',move);c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('pointerleave',()=>{drawing=false;});}
+function initAllCanvas(){CANVAS_IDS.forEach(setupCanvas)}
+function clearCanvas(id){const c=document.getElementById(id);if(!c)return;const rect=c.getBoundingClientRect();const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,rect.width,rect.height);c.dataset.dirty='0'}
+function canvasData(id){const c=document.getElementById(id);if(!c||c.dataset.dirty!=='1')return '';return c.toDataURL('image/png')}
+function restoreCanvas(id,data){const c=document.getElementById(id);if(!c||!data)return;resizeCanvas(c);const img=new Image();img.onload=()=>{const r=c.getBoundingClientRect();c.getContext('2d').drawImage(img,0,0,r.width,r.height);c.dataset.dirty='1'};img.src=data}
 function gradeAll(){
  const items=['p1_blank1','p1_blank2','p1_blank3','p1_blank4','p2_blank1','p2_blank2','p2_blank3','p2_blank4','p2_reason1','p2_reason2'];
  const oxs=Object.keys(OX); const descs=Object.keys(DESCRIPTIVE);
  let score=0,total=items.length+oxs.length+descs.length;items.forEach(id=>score+=gradeText(id));oxs.forEach(n=>score+=gradeOX(n));descs.forEach(id=>score+=gradeDesc(id));
  const percent=Math.round(score/total*100);document.getElementById('bar').style.width=percent+'%';
  const level=percent>=90?'경제 교류 박사 🏆':percent>=75?'지역 교류 탐험가 🚚':percent>=60?'열심히 배우는 사회 탐정 🔎':'다시 도전하면 좋아요 🌱';
- const box=document.getElementById('scorebox');box.style.display='block';box.innerHTML=`<h2>채점 결과</h2><div class="scorebig">${score.toFixed(1)} / ${total}점 · ${percent}%</div><p><span class="pill">${level}</span></p><div class="result-grid"><div class="result-card"><b>빈칸·O/X</b><br>정확한 개념을 확인했어요.</div><div class="result-card"><b>서술형</b><br>키워드 포함 여부로 자동채점했어요.</div><div class="result-card"><b>다음 활동</b><br>틀린 문항을 고치고 다시 제출해도 됩니다.</div></div>`;
+ const box=document.getElementById('scorebox');box.style.display='block';box.innerHTML=`<h2>채점 결과</h2><div class="scorebig">${score.toFixed(1)} / ${total}점 · ${percent}%</div><p><span class="pill">${level}</span></p><div class="result-grid"><div class="result-card"><b>빈칸·O/X</b><br>정확한 개념을 확인했어요.</div><div class="result-card"><b>서술형</b><br>키보드 글자는 키워드로 자동채점, 펜 답안은 선생님 확인용으로 저장했어요.</div><div class="result-card"><b>캐릭터</b><br>스마트펜 그림도 제출 기록에 저장됩니다.</div></div>`;
  saveSubmission(score,total,percent,level); if(percent>=75) confetti(); box.scrollIntoView({behavior:'smooth'});
 }
-function collect(){const ids=['studentName','studentDate','p1_blank1','p1_blank2','p1_blank3','p1_blank4','p1_dist','p1_reason','p1_noTrade','p2_blank1','p2_blank2','p2_blank3','p2_blank4','char_region','char_product','char_desc','p2_reason1','p2_reason2','p2_profit'];let data={};ids.forEach(id=>data[id]=val(id));Object.keys(OX).forEach(n=>data[n]=radio(n));return data}
-function fill(data){Object.entries(data||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v; const r=document.querySelector(`input[name="${k}"][value="${v}"]`); if(r)r.checked=true;});}
-function saveDraft(){localStorage.setItem('socialWorksheetDraftFun',JSON.stringify(collect()));alert('임시저장 완료! 이 기기에서 다시 열면 불러올 수 있어요.');}
-function loadDraft(){const d=localStorage.getItem('socialWorksheetDraftFun');if(d)fill(JSON.parse(d));}
-function saveSubmission(score,total,percent,level){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsFun')||'[]');list.push({time:new Date().toLocaleString(),score,total,percent,level,data:collect()});localStorage.setItem('socialWorksheetSubmissionsFun',JSON.stringify(list));}
+function collect(){
+ const ids=['studentName','studentDate','p1_blank1','p1_blank2','p1_blank3','p1_blank4','p2_blank1','p2_blank2','p2_blank3','p2_blank4','char_region','char_product','p2_reason1','p2_reason2',...ESSAY_IDS];
+ let data={};ids.forEach(id=>data[id]=val(id));Object.keys(OX).forEach(n=>data[n]=radio(n));
+ data.canvases={};CANVAS_IDS.forEach(id=>data.canvases[id]=canvasData(id));return data
+}
+function fill(data){Object.entries(data||{}).forEach(([k,v])=>{if(k==='canvases')return;const el=document.getElementById(k);if(el)el.value=v; const r=document.querySelector(`input[name="${k}"][value="${v}"]`); if(r)r.checked=true;});setTimeout(()=>{Object.entries(data.canvases||{}).forEach(([id,url])=>restoreCanvas(id,url));},120)}
+function saveDraft(){localStorage.setItem('socialWorksheetDraftPen',JSON.stringify(collect()));alert('임시저장 완료! 펜 그림과 필기 답안도 함께 저장했어요.');}
+function loadDraft(){const d=localStorage.getItem('socialWorksheetDraftPen');if(d)fill(JSON.parse(d));}
+function saveSubmission(score,total,percent,level){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsPen')||'[]');list.push({time:new Date().toLocaleString(),score,total,percent,level,data:collect()});localStorage.setItem('socialWorksheetSubmissionsPen',JSON.stringify(list));}
 function openAdmin(){const pw=prompt('교사용 관리 비밀번호를 입력하세요.');if(pw!=='0402'){alert('비밀번호가 맞지 않습니다.');return}document.getElementById('admin').style.display='block';renderAdmin();document.getElementById('admin').scrollIntoView({behavior:'smooth'});}
-function renderAdmin(){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsFun')||'[]');const admin=document.getElementById('adminList');if(!list.length){admin.innerHTML='<p>아직 제출 기록이 없습니다.</p>';return}admin.innerHTML=list.map((s,i)=>`<div class="submission"><b>${i+1}. ${s.data.studentName||'이름 없음'}</b> · ${s.time} · ${s.score}/${s.total}점(${s.percent}%)\n지역:${s.data.char_region||''} / 상품:${s.data.char_product||''}\n서술형1:${s.data.p1_reason||''}\n서술형2:${s.data.p2_profit||''}</div>`).join('')}
-function downloadCSV(){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsFun')||'[]');if(!list.length){alert('내려받을 기록이 없습니다.');return}const headers=['시간','이름','날짜','점수','총점','퍼센트','지역','대표상품','캐릭터설명','유통불편','교류까닭','교류없을때','교류이익'];const rows=list.map(s=>[s.time,s.data.studentName,s.data.studentDate,s.score,s.total,s.percent,s.data.char_region,s.data.char_product,s.data.char_desc,s.data.p1_dist,s.data.p1_reason,s.data.p1_noTrade,s.data.p2_profit]);const csv=[headers,...rows].map(r=>r.map(x=>'"'+String(x||'').replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='사회_전자학습지_제출기록.csv';a.click();URL.revokeObjectURL(a.href)}
-function clearSubmissions(){if(confirm('현재 기기의 제출 기록을 삭제할까요?')){localStorage.removeItem('socialWorksheetSubmissionsFun');renderAdmin();}}
-function resetForm(){if(!confirm('입력 내용을 모두 지울까요?'))return;document.querySelectorAll('input[type="text"], textarea').forEach(e=>e.value='');document.querySelectorAll('input[type="radio"]').forEach(e=>e.checked=false);document.querySelectorAll('.feedback').forEach(e=>e.remove());document.getElementById('studentDate').value=today;document.getElementById('scorebox').style.display='none';document.getElementById('bar').style.width='0%';}
+function imgTag(url){return url?`\n<img class="preview-img" src="${url}" alt="펜 답안 미리보기">`:''}
+function renderAdmin(){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsPen')||'[]');const admin=document.getElementById('adminList');if(!list.length){admin.innerHTML='<p>아직 제출 기록이 없습니다.</p>';return}admin.innerHTML=list.map((s,i)=>`<div class="submission"><b>${i+1}. ${s.data.studentName||'이름 없음'}</b> · ${s.time} · ${s.score}/${s.total}점(${s.percent}%)\n지역:${s.data.char_region||''} / 상품:${s.data.char_product||''}\n캐릭터 설명:${s.data.char_desc||''}\n유통불편:${s.data.p1_dist||''}\n교류까닭:${s.data.p1_reason||''}\n교류없을때:${s.data.p1_noTrade||''}\n교류이익:${s.data.p2_profit||''}\n캐릭터 그림:${imgTag(s.data.canvases?.char_canvas)}\n유통 필기:${imgTag(s.data.canvases?.p1_dist_pen)}\n교류까닭 필기:${imgTag(s.data.canvases?.p1_reason_pen)}\n교류없을때 필기:${imgTag(s.data.canvases?.p1_noTrade_pen)}\n캐릭터설명 필기:${imgTag(s.data.canvases?.char_desc_pen)}\n교류이익 필기:${imgTag(s.data.canvases?.p2_profit_pen)}</div>`).join('')}
+function downloadCSV(){const list=JSON.parse(localStorage.getItem('socialWorksheetSubmissionsPen')||'[]');if(!list.length){alert('내려받을 기록이 없습니다.');return}const headers=['시간','이름','날짜','점수','총점','퍼센트','지역','대표상품','캐릭터설명','유통불편','교류까닭','교류없을때','교류이익','펜답안여부','캐릭터그림여부'];const rows=list.map(s=>[s.time,s.data.studentName,s.data.studentDate,s.score,s.total,s.percent,s.data.char_region,s.data.char_product,s.data.char_desc,s.data.p1_dist,s.data.p1_reason,s.data.p1_noTrade,s.data.p2_profit,ESSAY_IDS.some(id=>!!s.data.canvases?.[id+'_pen'])?'있음':'없음',s.data.canvases?.char_canvas?'있음':'없음']);const csv=[headers,...rows].map(r=>r.map(x=>'"'+String(x||'').replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='사회_전자학습지_제출기록.csv';a.click();URL.revokeObjectURL(a.href)}
+function clearSubmissions(){if(confirm('현재 기기의 제출 기록을 삭제할까요?')){localStorage.removeItem('socialWorksheetSubmissionsPen');renderAdmin();}}
+function resetForm(){if(!confirm('입력 내용과 펜 그림을 모두 지울까요?'))return;document.querySelectorAll('input[type="text"], textarea').forEach(e=>e.value='');document.querySelectorAll('input[type="radio"]').forEach(e=>e.checked=false);document.querySelectorAll('.feedback').forEach(e=>e.remove());document.getElementById('studentDate').value=today;document.getElementById('scorebox').style.display='none';document.getElementById('bar').style.width='0%';CANVAS_IDS.forEach(clearCanvas);}
 function confetti(){['🎉','⭐','🚚','🏺','🥕','👏'].forEach((c,i)=>{for(let j=0;j<4;j++){const s=document.createElement('span');s.className='confetti';s.textContent=c;s.style.left=Math.random()*100+'vw';s.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),2300)}})}
-window.addEventListener('input',()=>{const data=collect();const keys=Object.values(data).filter(v=>String(v||'').trim()).length;document.getElementById('bar').style.width=Math.min(100,Math.round(keys/25*100))+'%'});
-loadDraft();
+window.addEventListener('input',()=>{const data=collect();const keys=Object.values(data).filter(v=>typeof v==='string'&&String(v||'').trim()).length;document.getElementById('bar').style.width=Math.min(100,Math.round(keys/25*100))+'%'});
+window.addEventListener('resize',()=>setTimeout(initAllCanvas,100));
+buildEssayBlocks();setTimeout(()=>{initAllCanvas();loadDraft();},80);
 </script>
 </body>
 </html>
