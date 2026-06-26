@@ -158,8 +158,14 @@ function setAnswerMode(id,mode){
   const host=document.querySelector(`.essay[data-id="${id}"]`); if(!host)return;
   host.querySelectorAll('.mode').forEach(b=>b.classList.remove('active'));
   host.querySelectorAll('.answer-mode').forEach(b=>b.classList.remove('active'));
-  if(mode==='pen'){host.querySelectorAll('.mode')[1].classList.add('active');document.getElementById(id+'_penbox').classList.add('active');resizeCanvas(document.getElementById(id+'_pen'));}
-  else{host.querySelectorAll('.mode')[0].classList.add('active');document.getElementById(id+'_keyboard').classList.add('active');}
+  if(mode==='pen'){
+    host.querySelectorAll('.mode')[1].classList.add('active');
+    document.getElementById(id+'_penbox').classList.add('active');
+    setTimeout(()=>setupCanvas(id+'_pen'),30);
+  } else {
+    host.querySelectorAll('.mode')[0].classList.add('active');
+    document.getElementById(id+'_keyboard').classList.add('active');
+  }
 }
 function norm(s){return (s||'').replace(/\s+/g,'').trim().toLowerCase()}
 function val(id){const el=document.getElementById(id);return el?el.value.trim():''}
@@ -179,12 +185,130 @@ function gradeDesc(id){
  else{msg='핵심 키워드를 넣어 다시 써 보세요.'}
  addFb(document.getElementById(id),msg,cls);return point
 }
-function resizeCanvas(c){if(!c)return;const rect=c.getBoundingClientRect();if(rect.width<50)return;const data=c.dataset.dirty==='1'?c.toDataURL():null;const ratio=window.devicePixelRatio||1;const cssW=Math.round(rect.width);const cssH=Math.round(c.classList.contains('large')?310:210);c.width=cssW*ratio;c.height=cssH*ratio;c.style.height=cssH+'px';const ctx=c.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);ctx.lineCap='round';ctx.lineJoin='round';ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cssW,cssH);if(data){const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,cssW,cssH)};img.src=data;}}
-function setupCanvas(id){const c=document.getElementById(id);if(!c||c.dataset.ready==='1')return;c.dataset.ready='1';resizeCanvas(c);let drawing=false,last=null;const tools=document.querySelector(`.draw-tools[data-for="${id}"]`);const color=tools?.querySelector('input[type="color"]');const size=tools?.querySelector('input[type="range"]');function pos(e){const r=c.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}function start(e){drawing=true;last=pos(e);c.setPointerCapture?.(e.pointerId);e.preventDefault()}function move(e){if(!drawing)return;const p=pos(e),ctx=c.getContext('2d');ctx.strokeStyle=color?.value||'#1f2937';ctx.lineWidth=+(size?.value||5);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;c.dataset.dirty='1';e.preventDefault()}function end(e){drawing=false;last=null;e.preventDefault()}c.addEventListener('pointerdown',start);c.addEventListener('pointermove',move);c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);c.addEventListener('pointerleave',()=>{drawing=false;});}
-function initAllCanvas(){CANVAS_IDS.forEach(setupCanvas)}
-function clearCanvas(id){const c=document.getElementById(id);if(!c)return;const rect=c.getBoundingClientRect();const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,rect.width,rect.height);c.dataset.dirty='0'}
+function getCanvasCssSize(c){
+  const rect=c.getBoundingClientRect();
+  const cssW=Math.round(rect.width);
+  const cssH=Math.round(c.classList.contains('large')?310:210);
+  return {cssW,cssH};
+}
+function resizeCanvas(c,force=false){
+  if(!c)return false;
+  const {cssW,cssH}=getCanvasCssSize(c);
+  if(cssW<50)return false; // display:none 상태에서는 아직 초기화하지 않음
+  const ratio=window.devicePixelRatio||1;
+  const targetW=Math.round(cssW*ratio), targetH=Math.round(cssH*ratio);
+  if(!force && c.width===targetW && c.height===targetH){
+    const ctx=c.getContext('2d');
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    c.style.height=cssH+'px';
+    return true;
+  }
+  const data=c.dataset.dirty==='1'?c.toDataURL('image/png'):null;
+  c.width=targetW; c.height=targetH; c.style.height=cssH+'px';
+  const ctx=c.getContext('2d');
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,cssW,cssH);
+  if(data){
+    const img=new Image();
+    img.onload=()=>{ctx.drawImage(img,0,0,cssW,cssH);};
+    img.src=data;
+  }
+  return true;
+}
+function setupCanvas(id){
+  const c=document.getElementById(id);
+  if(!c)return;
+  // 숨겨진 화면에서 초기화되어 좌표가 어긋나는 문제를 막기 위해 보이는 상태에서만 준비
+  if(!resizeCanvas(c))return;
+  if(c.dataset.ready==='1')return;
+  c.dataset.ready='1';
+  let drawing=false,last=null;
+  const tools=document.querySelector(`.draw-tools[data-for="${id}"]`);
+  const color=tools?.querySelector('input[type="color"]');
+  const size=tools?.querySelector('input[type="range"]');
+  function pos(e){
+    const r=c.getBoundingClientRect();
+    const x=Math.max(0,Math.min(r.width,e.clientX-r.left));
+    const y=Math.max(0,Math.min(r.height,e.clientY-r.top));
+    return {x,y};
+  }
+  function drawDot(p){
+    const ctx=c.getContext('2d');
+    ctx.strokeStyle=color?.value||'#1f2937';
+    ctx.fillStyle=color?.value||'#1f2937';
+    ctx.lineWidth=+(size?.value||5);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,Math.max(1,ctx.lineWidth/2),0,Math.PI*2);
+    ctx.fill();
+    c.dataset.dirty='1';
+  }
+  function start(e){
+    if(e.pointerType==='mouse' && e.button!==0)return;
+    if(!resizeCanvas(c))return;
+    drawing=true;
+    last=pos(e);
+    c.setPointerCapture?.(e.pointerId);
+    drawDot(last);
+    e.preventDefault();
+  }
+  function move(e){
+    if(!drawing)return;
+    const p=pos(e),ctx=c.getContext('2d');
+    ctx.strokeStyle=color?.value||'#1f2937';
+    ctx.lineWidth=+(size?.value||5);
+    ctx.beginPath();
+    ctx.moveTo(last.x,last.y);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    last=p;
+    c.dataset.dirty='1';
+    e.preventDefault();
+  }
+  function end(e){
+    if(!drawing)return;
+    drawing=false;last=null;
+    try{c.releasePointerCapture?.(e.pointerId)}catch(err){}
+    e.preventDefault();
+  }
+  c.addEventListener('pointerdown',start,{passive:false});
+  c.addEventListener('pointermove',move,{passive:false});
+  c.addEventListener('pointerup',end,{passive:false});
+  c.addEventListener('pointercancel',end,{passive:false});
+  c.addEventListener('lostpointercapture',()=>{drawing=false;last=null;});
+}
+function initAllCanvas(){
+  CANVAS_IDS.forEach(id=>{
+    const c=document.getElementById(id);
+    if(!c)return;
+    resizeCanvas(c);
+    setupCanvas(id);
+  });
+}
+function clearCanvas(id){
+  const c=document.getElementById(id);if(!c)return;
+  resizeCanvas(c,true);
+  const {cssW,cssH}=getCanvasCssSize(c);
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,cssW,cssH);
+  c.dataset.dirty='0';
+}
 function canvasData(id){const c=document.getElementById(id);if(!c||c.dataset.dirty!=='1')return '';return c.toDataURL('image/png')}
-function restoreCanvas(id,data){const c=document.getElementById(id);if(!c||!data)return;resizeCanvas(c);const img=new Image();img.onload=()=>{const r=c.getBoundingClientRect();c.getContext('2d').drawImage(img,0,0,r.width,r.height);c.dataset.dirty='1'};img.src=data}
+function restoreCanvas(id,data){
+  const c=document.getElementById(id);if(!c||!data)return;
+  if(!resizeCanvas(c))return;
+  const img=new Image();
+  img.onload=()=>{
+    const {cssW,cssH}=getCanvasCssSize(c);
+    const ctx=c.getContext('2d');
+    ctx.drawImage(img,0,0,cssW,cssH);
+    c.dataset.dirty='1';
+  };
+  img.src=data
+}
 function gradeAll(){
  const items=['p1_blank1','p1_blank2','p1_blank3','p1_blank4','p2_blank1','p2_blank2','p2_blank3','p2_blank4','p2_reason1','p2_reason2'];
  const oxs=Object.keys(OX); const descs=Object.keys(DESCRIPTIVE);
