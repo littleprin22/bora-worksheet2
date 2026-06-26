@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>다양한 생물이 우리 생활에 주는 영향 전자학습지</title>
+  <style>
+    :root {
+      --bg1: #fff8fb;
+      --bg2: #eef8ff;
+      --card: rgba(255,255,255,0.95);
+      --line: #d9c6f2;
+      --purple: #8b5cf6;
+      --pink: #ff7eb6;
+      --sky: #67c5ff;
+      --mint: #69d3b0;
+      --yellow: #ffd76a;
+      --text: #3c2f46;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --soft: #6b5b78;
+      --shadow: 0 14px 30px rgba(137, 92, 246, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, #ffe4f1 0, transparent 18%),
+        radial-gradient(circle at 90% 15%, #e2f5ff 0, transparent 18%),
+        radial-gradient(circle at 20% 90%, #fff2bf 0, transparent 16%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .wrap { max-width: 1200px; margin: 0 auto; }
+
+    .hero, .section, .dashboard, .modal-card {
+      background: var(--card);
+      border: 3px solid #ead9ff;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before, .hero::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      filter: blur(8px);
+      opacity: 0.18;
+    }
+    .hero::before { background: var(--pink); top: -30px; left: -10px; }
+    .hero::after { background: var(--sky); right: -30px; bottom: -30px; }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(30px, 4vw, 48px);
+      color: #7c3aed;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 12px auto 0;
+      max-width: 900px;
+      text-align: center;
+      line-height: 1.7;
+      font-size: 18px;
+    }
+
+    .chips {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 2px solid #ead9ff;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .section, .dashboard {
+      margin-top: 22px;
+      padding: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 26px;
+      color: #6d28d9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mini {
+      margin: 0 0 16px;
+      font-size: 15px;
+      color: var(--soft);
+      line-height: 1.7;
+    }
+
+    .key-box {
+      background: linear-gradient(180deg, #fffaf1, #f7fbff);
+      border: 2px dashed #d9c6f2;
+      border-radius: 20px;
+      padding: 16px;
+      line-height: 1.8;
+      font-size: 17px;
+    }
+
+    .key-box strong { color: #7c3aed; }
+
+    .image-wrap {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .image-card {
+      background: #fff;
+      border: 2px solid #e8ddfb;
+      border-radius: 24px;
+      padding: 14px;
+    }
+
+    .image-card img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .caption-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .caption-item {
+      background: #faf7ff;
+      border: 2px solid #ead9ff;
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 760px;
+      border: 3px solid #d9c6f2;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 15px 12px;
+      border-right: 2px solid #d9c6f2;
+      border-bottom: 2px solid #d9c6f2;
+      text-align: center;
+      background: #fff;
+      font-size: 17px;
+      line-height: 1.6;
+      vertical-align: middle;
+    }
+    th:last-child, td:last-child { border-right: none; }
+    tr:last-child td { border-bottom: none; }
+    th {
+      background: linear-gradient(180deg, #f8ebff, #eef7ff);
+      color: #5b2a86;
+      font-size: 18px;
+    }
+    .kind {
+      font-size: 23px;
+      font-weight: 900;
+    }
+    .emoji { display: block; font-size: 34px; margin-bottom: 6px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .q-card {
+      background: #fff;
+      border: 2px dashed #d8c5fa;
+      border-radius: 22px;
+      padding: 18px;
+    }
+    .q-card h3 {
+      margin: 0 0 10px;
+      font-size: 21px;
+      color: #7c3aed;
+    }
+    .q {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .choices { display: grid; gap: 10px; }
+    .choices label {
+      display: block;
+      background: #faf7ff;
+      border: 2px solid #eadcfb;
+      border-radius: 16px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 17px;
+      transition: 0.18s ease;
+    }
+    .choices label:hover { transform: translateY(-1px); border-color: #b794f8; }
+
+    input[type="radio"], input[type="checkbox"] { transform: scale(1.15); margin-right: 8px; }
+    input[type="text"], textarea, select, input[type="password"] {
+      width: 100%;
+      border: 2px solid #d9c6f2;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 17px;
+      color: var(--text);
+      background: #fff;
+      font-family: inherit;
+    }
+    textarea { min-height: 120px; resize: vertical; line-height: 1.7; }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 18px;
+    }
+    .match-row {
+      display: grid;
+      grid-template-columns: 1fr 150px;
+      gap: 10px;
+      align-items: center;
+    }
+    .tag {
+      background: linear-gradient(180deg, #fff8fd, #f6f9ff);
+      border: 2px solid #ead9ff;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease;
+      font-family: inherit;
+    }
+    button:hover { transform: translateY(-2px); }
+    .check-btn { background: linear-gradient(90deg, #8b5cf6, #ff7eb6); color: #fff; }
+    .reset-btn { background: #fff; color: #6d28d9; border: 2px solid #d9c6f2; }
+    .dash-btn { background: linear-gradient(90deg, #0ea5e9, #8b5cf6); color: #fff; }
+    .mini-btn { padding: 10px 16px; font-size: 15px; }
+
+    .result, .teacher-result {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    .result { background: #fffdf4; border: 2px solid #fde68a; }
+    .teacher-result { background: #f3fbff; border: 2px solid #93c5fd; }
+    .feedback { margin-top: 10px; display: grid; gap: 8px; font-size: 16px; }
+    .ok { color: var(--good); font-weight: 800; }
+    .no { color: var(--bad); font-weight: 800; }
+
+    .student-bar {
+      display: grid;
+      grid-template-columns: 1fr 160px 220px;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .dashboard {
+      display: none;
+      border-color: #b8ddff;
+      background: linear-gradient(180deg, #fafdff, #f5f1ff);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 2px solid #d8e8ff;
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-num { font-size: 30px; font-weight: 900; color: #2563eb; }
+    .stat-label { font-size: 14px; color: var(--soft); margin-top: 4px; }
+
+    .table-admin {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+      margin-top: 16px;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .table-admin th, .table-admin td {
+      border: 1px solid #d8e6ff;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .table-admin th {
+      background: #eef6ff;
+      color: #1d4ed8;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .pill.done { background: #16a34a; }
+    .pill.wait { background: #f59e0b; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 18, 31, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      width: min(420px, 100%);
+      padding: 24px;
+    }
+    .modal-title { margin: 0 0 8px; font-size: 24px; color: #6d28d9; }
+    .modal-text { margin: 0 0 16px; color: var(--soft); line-height: 1.7; }
+
+    .note {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: #f8fbff;
+      border-left: 6px solid var(--sky);
+      border-radius: 14px;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      text-align: center;
+      margin: 20px 0 6px;
+      color: #7b6b88;
+      font-size: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .image-wrap, .grid, .match-grid, .student-bar, .stats { grid-template-columns: 1fr; }
+      .match-row { grid-template-columns: 1fr; }
+      body { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>🔬 다양한 생물이 우리 생활에 주는 영향</h1>
+      <p class="subtitle">교과서 내용을 바탕으로 <strong>균류</strong>, <strong>세균</strong>, <strong>원생생물</strong>이 우리 생활에 주는 <strong>이로운 영향</strong>과 <strong>해로운 영향</strong>을 알아보고, 문제를 풀며 정리해 봅시다.</p>
+      <div class="chips">
+        <span class="chip">🍄 균류</span>
+        <span class="chip">🦠 세균</span>
+        <span class="chip">🫧 원생생물</span>
+        <span class="chip">📝 자동 채점</span>
+        <span class="chip">👩‍🏫 교사 대시보드</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">📚 교과서 핵심 내용 확인</h2>
+      <div class="key-box">
+        <strong>균류와 세균</strong>은 된장, 김치, 요구르트 등의 음식을 만드는 데 이용되거나 죽은 생물을 분해합니다.<br/>
+        <strong>원생생물</strong>은 다른 생물의 먹이가 되거나 산소를 만들기도 합니다.<br/><br/>
+        하지만 <strong>균류와 세균</strong>은 음식이나 물건을 상하게 하고 다른 생물에게 질병을 일으키기도 합니다.<br/>
+        <strong>원생생물 중 일부</strong>는 강이나 바다에 오염 물질 등이 많아지면 수가 빠르게 늘어나면서 <strong>적조 현상</strong>을 일으킵니다.<br/><br/>
+        즉, 다양한 생물은 우리 생활에 <strong>이로운 영향</strong>도 주고 <strong>해로운 영향</strong>도 줍니다.
+      </div>
+      <div class="note">💡 적조: 일부 원생생물이 갑자기 많이 늘어나 강이나 바다가 붉게 보이는 현상으로, 여러 생물에게 피해를 줄 수 있어요.</div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">🖼️ 그림으로 이해하기</h2>
+      <p class="mini">교과서 그림의 중요한 내용을 함께 살펴보세요.</p>
+      <div class="image-wrap">
+        <div class="image-card">
+          <a href="https://ibb.co/GvjkDcg7" target="_blank" rel="noreferrer"><img src="https://i.ibb.co/wN1CqMDy/image.png" alt="다양한 생물이 우리 생활에 주는 영향 교과서 그림" border="0" referrerpolicy="no-referrer" /></a>
+        </div>
+        <div class="caption-grid">
+          <div class="caption-item"><strong>세균</strong>은 김치를 익히는 데 이용됩니다.</div>
+          <div class="caption-item"><strong>균류</strong>는 죽은 나무를 분해하기도 합니다.</div>
+          <div class="caption-item"><strong>균류</strong>는 음식물을 상하게 하여 곰팡이가 생기게 할 수 있습니다.</div>
+          <div class="caption-item"><strong>세균</strong>은 질병이나 충치를 일으키기도 합니다.</div>
+          <div class="caption-item"><strong>원생생물 중 일부</strong>는 물이 오염되면 빠르게 늘어나 적조 현상을 일으킵니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">📘 학습 표 정리</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>생물 종류</th>
+              <th>이로운 영향</th>
+              <th>해로운 영향</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="emoji">🍄</span><div class="kind">균류</div><div>(곰팡이, 버섯)</div></td>
+              <td>된장, 치즈 만들기<br/>죽은 생물 분해</td>
+              <td>음식 및 물건 부패</td>
+            </tr>
+            <tr>
+              <td><span class="emoji">🦠</span><div class="kind">세균</div></td>
+              <td>김치, 요구르트 만들기</td>
+              <td>질병 유발, 충치 발생</td>
+            </tr>
+            <tr>
+              <td><span class="emoji">🫧</span><div class="kind">원생생물</div></td>
+              <td>산소 발생, 다른 생물의 먹이</td>
+              <td>적조 현상 발생</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">🙋 학생 정보 입력</h2>
+      <p class="mini">이름을 입력하고 학습을 시작하세요. 채점 결과는 교사 대시보드에 기록되도록 구성했습니다.</p>
+      <div class="student-bar">
+        <input id="studentName" type="text" placeholder="이름을 입력하세요" />
+        <input id="studentClass" type="text" placeholder="예: 4-2" value="4-2" />
+        <button class="dash-btn" onclick="openTeacherLogin()">👩‍🏫 교사 관리화면 열기</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">✏️ 활동 1. 선택형 문제</h2>
+      <div class="grid">
+        <div class="q-card">
+          <h3>1번</h3>
+          <div class="q">김치를 익히는 데 이용되는 작은 생물은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q1" value="균류">균류</label>
+            <label><input type="radio" name="q1" value="세균">세균</label>
+            <label><input type="radio" name="q1" value="원생생물">원생생물</label>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <h3>2번</h3>
+          <div class="q">죽은 나무나 죽은 생물을 분해하는 데 관계있는 것은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q2" value="균류">균류</label>
+            <label><input type="radio" name="q2" value="세균">세균</label>
+            <label><input type="radio" name="q2" value="원생생물">원생생물</label>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <h3>3번</h3>
+          <div class="q">다른 생물의 먹이가 되거나 산소를 만드는 생물은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q3" value="균류">균류</label>
+            <label><input type="radio" name="q3" value="세균">세균</label>
+            <label><input type="radio" name="q3" value="원생생물">원생생물</label>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <h3>4번</h3>
+          <div class="q">물이 오염되었을 때 수가 빠르게 늘어나 적조 현상을 일으키는 것은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q4" value="균류">균류</label>
+            <label><input type="radio" name="q4" value="세균">세균</label>
+            <label><input type="radio" name="q4" value="원생생물">원생생물</label>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <h3>5번</h3>
+          <div class="q">다음 중 해로운 영향으로만 묶인 것은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q5" value="1">된장 만들기, 산소 발생</label>
+            <label><input type="radio" name="q5" value="2">질병 유발, 음식 부패</label>
+            <label><input type="radio" name="q5" value="3">요구르트 만들기, 죽은 생물 분해</label>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <h3>6번</h3>
+          <div class="q">다음 중 교과서 내용과 알맞지 않은 것은 무엇일까요?</div>
+          <div class="choices">
+            <label><input type="radio" name="q6" value="1">세균은 김치를 만드는 데 이용되기도 한다.</label>
+            <label><input type="radio" name="q6" value="2">균류는 죽은 생물을 분해하기도 한다.</label>
+            <label><input type="radio" name="q6" value="3">원생생물은 언제나 우리 생활에 해만 준다.</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">🔗 활동 2. 알맞게 연결하기</h2>
+      <div class="match-grid">
+        <div class="match-row">
+          <div class="tag">① 김치, 요구르트 만들기</div>
+          <select id="m1"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+        <div class="match-row">
+          <div class="tag">② 된장 만들기, 죽은 생물 분해</div>
+          <select id="m2"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+        <div class="match-row">
+          <div class="tag">③ 산소 발생, 다른 생물의 먹이</div>
+          <select id="m3"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+        <div class="match-row">
+          <div class="tag">④ 음식 상함, 물건 부패</div>
+          <select id="m4"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+        <div class="match-row">
+          <div class="tag">⑤ 질병 유발, 충치 발생</div>
+          <select id="m5"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+        <div class="match-row">
+          <div class="tag">⑥ 적조 현상 발생</div>
+          <select id="m6"><option value="">선택</option><option value="균류">균류</option><option value="세균">세균</option><option value="원생생물">원생생물</option></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">💬 활동 3. 서술형</h2>
+      <div class="grid">
+        <div class="q-card">
+          <h3>3-1</h3>
+          <div class="q">작은 생물이 우리 생활에 주는 이로운 영향을 한 가지 쓰세요.</div>
+          <input id="short1" type="text" placeholder="예: 세균은 김치를 만드는 데 이용된다." />
+        </div>
+        <div class="q-card">
+          <h3>3-2</h3>
+          <div class="q">작은 생물이 우리 생활에 주는 해로운 영향을 한 가지 쓰세요.</div>
+          <input id="short2" type="text" placeholder="예: 균류는 음식을 상하게 한다." />
+        </div>
+      </div>
+      <div class="q-card" style="margin-top:18px;">
+        <h3>3-3</h3>
+        <div class="q">다양한 생물을 잘 이용하고 조심해야 하는 이유를 2문장 정도로 써 보세요.</div>
+        <textarea id="long1" placeholder="예: 다양한 생물은 김치나 된장 같은 음식을 만드는 데 도움을 준다. 하지만 질병을 일으키거나 적조 현상을 일으킬 수도 있어서 잘 알고 이용하고 조심해야 한다."></textarea>
+      </div>
+
+      <div class="buttons">
+        <button class="check-btn" onclick="checkAnswers()">✅ 채점하기</button>
+        <button class="reset-btn" onclick="resetAll()">🔄 다시하기</button>
+      </div>
+
+      <div id="result" class="result" style="display:none;"></div>
+    </section>
+
+    <section id="dashboard" class="dashboard">
+      <h2 class="section-title">👩‍🏫 교사 관리화면</h2>
+      <p class="mini">비밀번호 0402로 열리는 교사 대시보드입니다. 학생 제출 현황과 점수를 확인할 수 있도록 구성했습니다.</p>
+      <div class="buttons" style="justify-content:flex-start; margin-top:0;">
+        <button class="mini-btn reset-btn" onclick="clearDashboardData()">전체 기록 삭제</button>
+        <button class="mini-btn dash-btn" onclick="downloadRecords()">기록 JSON 저장</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">총 제출 수</div></div>
+        <div class="stat-card"><div class="stat-num" id="statAvg">0</div><div class="stat-label">평균 점수</div></div>
+        <div class="stat-card"><div class="stat-num" id="statBest">0</div><div class="stat-label">최고 점수</div></div>
+        <div class="stat-card"><div class="stat-num" id="statDone">0</div><div class="stat-label">제출 완료 학생</div></div>
+      </div>
+
+      <div style="overflow-x:auto; margin-top:16px;">
+        <table class="table-admin">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>이름</th>
+              <th>반</th>
+              <th>제출 상태</th>
+              <th>점수</th>
+              <th>백분율</th>
+              <th>제출 시각</th>
+              <th>서술형 1</th>
+              <th>서술형 2</th>
+              <th>서술형 3</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+      <div id="teacherResult" class="teacher-result">아직 제출된 기록이 없습니다.</div>
+    </section>
+
+    <div class="footer">초등 과학 수업용 전자학습지 · 다양한 생물이 우리 생활에 주는 영향</div>
+  </div>
+
+  <div class="overlay" id="teacherModal">
+    <div class="modal-card">
+      <h3 class="modal-title">🔐 교사 관리화면 로그인</h3>
+      <p class="modal-text">교사 대시보드를 열려면 비밀번호를 입력하세요.</p>
+      <input id="teacherPassword" type="password" placeholder="비밀번호 입력" />
+      <div class="buttons" style="justify-content:flex-end; margin-bottom:0;">
+        <button class="reset-btn mini-btn" onclick="closeTeacherLogin()">닫기</button>
+        <button class="dash-btn mini-btn" onclick="checkTeacherPassword()">확인</button>
+      </div>
+      <div id="teacherMsg" style="margin-top:10px; font-size:14px; color:#dc2626;"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'micro_life_worksheet_records_v2';
+    const TEACHER_PASSWORD = '0402';
+
+    function hasAny(text, keywords) {
+      const t = (text || '').replace(/\s+/g, '').toLowerCase();
+      return keywords.some(k => t.includes(String(k).replace(/\s+/g, '').toLowerCase()));
+    }
+
+    function getRadio(name) {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : '';
+    }
+
+    function readRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function upsertRecord(record) {
+      const records = readRecords();
+      const idx = records.findIndex(r => r.name === record.name && r.className === record.className);
+      if (idx >= 0) records[idx] = record;
+      else records.push(record);
+      saveRecords(records);
+      renderDashboard();
+    }
+
+    function checkAnswers() {
+      const studentName = document.getElementById('studentName').value.trim();
+      const studentClass = document.getElementById('studentClass').value.trim() || '미입력';
+      if (!studentName) {
+        alert('이름을 먼저 입력해 주세요.');
+        document.getElementById('studentName').focus();
+        return;
+      }
+
+      let score = 0;
+      const total = 15;
+      const feedback = [];
+
+      const answers = {
+        q1: '세균', q2: '균류', q3: '원생생물', q4: '원생생물', q5: '2', q6: '3',
+        m1: '세균', m2: '균류', m3: '원생생물', m4: '균류', m5: '세균', m6: '원생생물'
+      };
+
+      ['q1','q2','q3','q4','q5','q6'].forEach((q, index) => {
+        const user = getRadio(q);
+        if (user === answers[q]) {
+          score++;
+          feedback.push(`<div class="ok">선택형 ${index+1}번: 정답입니다!</div>`);
+        } else {
+          feedback.push(`<div class="no">선택형 ${index+1}번: 다시 생각해 보세요.</div>`);
+        }
+      });
+
+      ['m1','m2','m3','m4','m5','m6'].forEach((m, index) => {
+        const user = document.getElementById(m).value;
+        if (user === answers[m]) {
+          score++;
+          feedback.push(`<div class="ok">연결하기 ${index+1}번: 맞았습니다!</div>`);
+        } else {
+          feedback.push(`<div class="no">연결하기 ${index+1}번: 표를 다시 살펴보세요.</div>`);
+        }
+      });
+
+      const short1 = document.getElementById('short1').value;
+      const short2 = document.getElementById('short2').value;
+      const long1 = document.getElementById('long1').value;
+
+      if (hasAny(short1, ['김치','요구르트','된장','치즈','분해','산소','먹이'])) {
+        score++;
+        feedback.push('<div class="ok">서술형 3-1: 이로운 영향을 잘 썼어요.</div>');
+      } else {
+        feedback.push('<div class="no">서술형 3-1: 도움이 되는 예를 다시 떠올려 보세요.</div>');
+      }
+
+      if (hasAny(short2, ['질병','충치','부패','상하','상하게','적조','썩'])) {
+        score++;
+        feedback.push('<div class="ok">서술형 3-2: 해로운 영향을 잘 썼어요.</div>');
+      } else {
+        feedback.push('<div class="no">서술형 3-2: 해로운 예를 다시 떠올려 보세요.</div>');
+      }
+
+      if ((hasAny(long1, ['도움','만들','이로운','산소','먹이','분해']) && hasAny(long1, ['조심','질병','부패','적조','해로운','충치'])) || long1.trim().length >= 28) {
+        score++;
+        feedback.push('<div class="ok">서술형 3-3: 자신의 생각을 잘 정리했어요.</div>');
+      } else {
+        feedback.push('<div class="no">서술형 3-3: 이로운 점과 조심할 점을 함께 써 보세요.</div>');
+      }
+
+      const percent = Math.round((score / total) * 100);
+      let praise = '';
+      if (percent === 100) praise = '완벽해요! 교과서 내용을 아주 잘 이해했어요. 🌟';
+      else if (percent >= 80) praise = '아주 잘했어요! 핵심 내용을 잘 알고 있네요. 😊';
+      else if (percent >= 60) praise = '좋아요! 표와 그림을 다시 보면 더 잘할 수 있어요. 💪';
+      else praise = '괜찮아요! 교과서 내용을 다시 천천히 읽고 한 번 더 도전해 봅시다. 🍀';
+
+      const result = document.getElementById('result');
+      result.style.display = 'block';
+      result.innerHTML = `<strong>📊 ${studentClass} ${studentName} 점수: ${score} / ${total} (${percent}점)</strong><br>${praise}<div class="feedback">${feedback.join('')}</div>`;
+
+      upsertRecord({
+        name: studentName,
+        className: studentClass,
+        status: '제출 완료',
+        score,
+        total,
+        percent,
+        submittedAt: new Date().toLocaleString('ko-KR'),
+        short1,
+        short2,
+        long1
+      });
+
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetAll() {
+      document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+      document.querySelectorAll('select').forEach(el => el.value = '');
+      document.getElementById('short1').value = '';
+      document.getElementById('short2').value = '';
+      document.getElementById('long1').value = '';
+      const result = document.getElementById('result');
+      result.style.display = 'none';
+      result.innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openTeacherLogin() {
+      document.getElementById('teacherModal').style.display = 'flex';
+      document.getElementById('teacherPassword').value = '';
+      document.getElementById('teacherMsg').textContent = '';
+      setTimeout(() => document.getElementById('teacherPassword').focus(), 50);
+    }
+
+    function closeTeacherLogin() {
+      document.getElementById('teacherModal').style.display = 'none';
+    }
+
+    function checkTeacherPassword() {
+      const value = document.getElementById('teacherPassword').value;
+      if (value === TEACHER_PASSWORD) {
+        closeTeacherLogin();
+        document.getElementById('dashboard').style.display = 'block';
+        renderDashboard();
+        document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.getElementById('teacherMsg').textContent = '비밀번호가 올바르지 않습니다.';
+      }
+    }
+
+    function renderDashboard() {
+      const records = readRecords();
+      const tbody = document.getElementById('adminTableBody');
+      const teacherResult = document.getElementById('teacherResult');
+
+      if (!records.length) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">아직 제출된 기록이 없습니다.</td></tr>';
+        document.getElementById('statTotal').textContent = '0';
+        document.getElementById('statAvg').textContent = '0';
+        document.getElementById('statBest').textContent = '0';
+        document.getElementById('statDone').textContent = '0';
+        teacherResult.textContent = '아직 제출된 기록이 없습니다.';
+        return;
+      }
+
+      const total = records.length;
+      const avg = Math.round(records.reduce((a, b) => a + (b.percent || 0), 0) / total);
+      const best = Math.max(...records.map(r => r.percent || 0));
+      const done = records.filter(r => r.status === '제출 완료').length;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statAvg').textContent = avg;
+      document.getElementById('statBest').textContent = best;
+      document.getElementById('statDone').textContent = done;
+
+      tbody.innerHTML = records.map((r, i) => `
+        <tr>
+          <td style="text-align:center;">${i + 1}</td>
+          <td>${escapeHtml(r.name || '')}</td>
+          <td style="text-align:center;">${escapeHtml(r.className || '')}</td>
+          <td style="text-align:center;"><span class="pill ${r.status === '제출 완료' ? 'done' : 'wait'}">${escapeHtml(r.status || '')}</span></td>
+          <td style="text-align:center;">${r.score ?? 0}/${r.total ?? 0}</td>
+          <td style="text-align:center;">${r.percent ?? 0}점</td>
+          <td>${escapeHtml(r.submittedAt || '')}</td>
+          <td>${escapeHtml(r.short1 || '')}</td>
+          <td>${escapeHtml(r.short2 || '')}</td>
+          <td>${escapeHtml(r.long1 || '')}</td>
+        </tr>
+      `).join('');
+
+      teacherResult.innerHTML = `현재 <strong>${done}명</strong>이 제출했고, 평균은 <strong>${avg}점</strong>입니다. 최고 점수는 <strong>${best}점</strong>입니다.`;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function clearDashboardData() {
+      if (!confirm('저장된 학생 기록을 모두 삭제할까요?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderDashboard();
+    }
+
+    function downloadRecords() {
+      const data = readRecords();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'teacher-dashboard-records.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('teacherModal').addEventListener('click', (e) => {
+      if (e.target.id === 'teacherModal') closeTeacherLogin();
+    });
+
+    renderDashboard();
+  </script>
+</body>
+</html>
